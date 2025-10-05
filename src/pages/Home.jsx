@@ -116,11 +116,37 @@ function PalmaresPreview({ goRankings }) {
 
 function Newsletter() {
   const [email, setEmail] = React.useState("");
+  const [status, setStatus] = React.useState("idle");
+  const [message, setMessage] = React.useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Newsletter signup:", email);
-    setEmail("");
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/newsletter.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setStatus("success");
+        setMessage(data.message);
+        setEmail("");
+      } else {
+        setStatus("error");
+        setMessage(data.error || "Une erreur est survenue");
+      }
+    } catch (error) {
+      setStatus("error");
+      setMessage("Impossible de se connecter au serveur. Veuillez réessayer.");
+    }
   };
 
   return (
@@ -130,26 +156,41 @@ function Newsletter() {
           <h2 id="newsletter-heading" className="text-white font-semibold">Restez informé(e)</h2>
           <p className="text-zinc-400 text-sm">Prochains dividendes, tendances & mises à jour.</p>
         </div>
-        <form onSubmit={handleSubmit} className="flex w-full md:w-auto gap-2">
-          <label htmlFor="newsletter-email" className="sr-only">Adresse email</label>
-          <input
-            id="newsletter-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="flex-1 md:w-80 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
-            placeholder="Entrez votre email"
-            required
-            aria-required="true"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2 rounded-lg bg-teal-400 text-black font-semibold hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950"
-            aria-label="S'inscrire à la newsletter"
-          >
-            Je m&apos;inscris
-          </button>
-        </form>
+        <div className="w-full md:w-auto">
+          <form onSubmit={handleSubmit} className="flex w-full md:w-auto gap-2">
+            <label htmlFor="newsletter-email" className="sr-only">Adresse email</label>
+            <input
+              id="newsletter-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={status === "loading"}
+              className="flex-1 md:w-80 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+              placeholder="Entrez votre email"
+              required
+              aria-required="true"
+              aria-describedby="newsletter-status"
+            />
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              className="px-4 py-2 rounded-lg bg-teal-400 text-black font-semibold hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="S'inscrire à la newsletter"
+            >
+              {status === "loading" ? "..." : "Je m'inscris"}
+            </button>
+          </form>
+          {message && (
+            <div
+              id="newsletter-status"
+              role="status"
+              aria-live="polite"
+              className={`mt-2 text-sm ${status === "success" ? "text-teal-400" : "text-orange-400"}`}
+            >
+              {message}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );

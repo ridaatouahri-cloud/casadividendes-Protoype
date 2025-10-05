@@ -3,6 +3,50 @@ import { Helmet } from "react-helmet-async";
 import { StatCard } from "../components/StatCard";
 
 export default function About() {
+  const [formData, setFormData] = React.useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [status, setStatus] = React.useState("idle");
+  const [message, setMessage] = React.useState("");
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/contact.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setStatus("success");
+        setMessage(data.message);
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        setStatus("error");
+        setMessage(data.error || "Une erreur est survenue");
+      }
+    } catch (error) {
+      setStatus("error");
+      setMessage("Impossible de se connecter au serveur. Veuillez réessayer.");
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -23,16 +67,70 @@ export default function About() {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
             <h2 className="text-white font-semibold">Contactez-nous</h2>
-            <form className="mt-4 grid gap-3">
+            <form onSubmit={handleSubmit} className="mt-4 grid gap-3">
               <label htmlFor="contact-name" className="sr-only">Nom</label>
-              <input id="contact-name" type="text" className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400" placeholder="Nom" required />
+              <input
+                id="contact-name"
+                name="name"
+                type="text"
+                value={formData.name}
+                onChange={handleChange}
+                disabled={status === "loading"}
+                className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Nom"
+                required
+              />
               <label htmlFor="contact-email" className="sr-only">Email</label>
-              <input id="contact-email" type="email" className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400" placeholder="Email" required />
+              <input
+                id="contact-email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={status === "loading"}
+                className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Email"
+                required
+              />
               <label htmlFor="contact-subject" className="sr-only">Sujet</label>
-              <input id="contact-subject" type="text" className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400" placeholder="Sujet" required />
+              <input
+                id="contact-subject"
+                name="subject"
+                type="text"
+                value={formData.subject}
+                onChange={handleChange}
+                disabled={status === "loading"}
+                className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Sujet"
+                required
+              />
               <label htmlFor="contact-message" className="sr-only">Message</label>
-              <textarea id="contact-message" className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 h-28 focus:outline-none focus:ring-2 focus:ring-teal-400" placeholder="Message" required />
-              <button type="submit" className="px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold w-full focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-900">Envoyer</button>
+              <textarea
+                id="contact-message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                disabled={status === "loading"}
+                className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 h-28 focus:outline-none focus:ring-2 focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                placeholder="Message"
+                required
+              />
+              <button
+                type="submit"
+                disabled={status === "loading"}
+                className="px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold w-full focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {status === "loading" ? "Envoi en cours..." : "Envoyer"}
+              </button>
+              {message && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className={`text-sm ${status === "success" ? "text-teal-400" : "text-orange-400"}`}
+                >
+                  {message}
+                </div>
+              )}
             </form>
           </div>
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">

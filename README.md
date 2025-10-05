@@ -398,6 +398,278 @@ npm run preview
 6. **i18n** : Support multilingue (FR/AR/Darija)
 7. **Mobile menu** : Ajouter hamburger menu pour navigation mobile
 
+---
+
+## 📧 Backend API & Base de Données
+
+CasaDividendes utilise une API PHP/MySQL pour gérer les formulaires de newsletter et de contact.
+
+### Architecture
+
+```
+public/api/
+├── config.sample.php    # Configuration template
+├── config.php          # Configuration (à créer, gitignored)
+├── common.php          # Utilitaires communs (DB, CORS, rate limiting)
+├── newsletter.php      # Endpoint subscription newsletter
+├── contact.php         # Endpoint formulaire de contact
+└── schema.sql          # Schéma de base de données
+```
+
+### Configuration de la Base de Données
+
+#### 1. Créer la base de données via cPanel
+
+1. Connectez-vous à **cPanel** sur O2switch
+2. Allez dans **MySQL Databases**
+3. Créez une nouvelle base de données : `casadividendes`
+4. Créez un utilisateur MySQL avec un mot de passe fort
+5. Assignez l'utilisateur à la base de données avec **tous les privilèges**
+6. Notez les informations de connexion
+
+#### 2. Importer le schéma SQL
+
+1. Allez dans **phpMyAdmin** dans cPanel
+2. Sélectionnez votre base de données
+3. Cliquez sur l'onglet **SQL**
+4. Copiez le contenu de `public/api/schema.sql`
+5. Collez et exécutez le script SQL
+
+Le schéma crée 3 tables :
+
+**`newsletter_subscribers`** - Abonnés à la newsletter
+```sql
+- id (primary key)
+- email (unique)
+- status (active/unsubscribed)
+- ip_address, user_agent
+- created_at, updated_at
+```
+
+**`contact_messages`** - Messages du formulaire de contact
+```sql
+- id (primary key)
+- name, email, subject, message
+- status (new/read/replied/archived)
+- ip_address, user_agent
+- created_at, updated_at
+```
+
+**`rate_limits`** - Limitation de requêtes (anti-spam)
+```sql
+- id (primary key)
+- type (newsletter/contact)
+- identifier (email ou IP)
+- ip_address, user_agent
+- created_at
+```
+
+#### 3. Configurer l'API
+
+1. Copiez `public/api/config.sample.php` vers `public/api/config.php`
+2. Éditez `config.php` avec vos informations :
+
+```php
+return [
+    // Database Configuration
+    'DB_HOST' => 'localhost',              // O2switch: généralement localhost
+    'DB_NAME' => 'votre_database',         // Nom de votre DB
+    'DB_USER' => 'votre_user',             // Utilisateur MySQL
+    'DB_PASS' => 'votre_mot_de_passe',     // Mot de passe MySQL
+    'DB_CHARSET' => 'utf8mb4',
+
+    // Email Configuration
+    'ADMIN_EMAIL' => 'contact@casadividendes.com',  // Email qui reçoit les messages
+    'FROM_EMAIL' => 'noreply@casadividendes.com',   // Email expéditeur
+    'FROM_NAME' => 'CasaDividendes',
+
+    // CORS Configuration
+    'ALLOW_ORIGIN' => 'https://casadividendes.com',  // Votre domaine en production
+    // Laissez vide ('') pour développement local
+
+    // Rate Limiting
+    'RATE_LIMIT_NEWSLETTER' => 5,   // Max 5 inscriptions par email/heure
+    'RATE_LIMIT_CONTACT' => 10,     // Max 10 messages par IP/heure
+];
+```
+
+### Déploiement sur O2switch
+
+#### 1. Upload des fichiers
+
+Via **FileZilla** ou **cPanel File Manager** :
+
+1. Uploadez tout le contenu de `dist/` vers `public_html/`
+2. Uploadez le dossier `public/api/` vers `public_html/api/`
+3. Assurez-vous que les permissions sont correctes :
+   - Fichiers : `644` (lecture/écriture propriétaire, lecture autres)
+   - Dossiers : `755` (exécution autorisée)
+
+#### 2. Configuration .htaccess
+
+Le fichier `.htaccess` est déjà inclus dans `public/.htaccess` et gère :
+- Redirection vers HTTPS
+- Compression Gzip
+- Cache navigateur
+- Règles de réécriture pour hash routing
+
+#### 3. Configuration Email (Important!)
+
+O2switch utilise **SPF/DKIM** pour la délivrabilité. Pour que les emails fonctionnent :
+
+1. Dans **cPanel > Email Accounts**, créez `noreply@casadividendes.com`
+2. Vérifiez les enregistrements DNS SPF/DKIM dans **Email Deliverability**
+3. Testez l'envoi d'email depuis phpMyAdmin ou un script de test
+
+**⚠️ Note** : La fonction PHP `mail()` peut être bloquée par certains FAI. Si les emails ne partent pas :
+- Vérifiez les logs PHP dans cPanel
+- Utilisez SMTP avec une bibliothèque comme PHPMailer (alternative future)
+- Contactez le support O2switch pour débloquer `mail()`
+
+### Test des Endpoints
+
+#### Test Newsletter (via curl)
+
+```bash
+curl -X POST https://casadividendes.com/api/newsletter.php \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com"}'
+```
+
+**Réponse attendue** :
+```json
+{
+  "success": true,
+  "message": "Successfully subscribed! You will receive our latest updates."
+}
+```
+
+#### Test Contact (via curl)
+
+```bash
+curl -X POST https://casadividendes.com/api/contact.php \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name":"Jean Dupont",
+    "email":"jean@example.com",
+    "subject":"Question",
+    "message":"Bonjour, j'\''ai une question sur les dividendes."
+  }'
+```
+
+**Réponse attendue** :
+```json
+{
+  "success": true,
+  "message": "Message sent successfully! We will respond within 48 hours."
+}
+```
+
+### Vérifier les Données
+
+#### Via phpMyAdmin
+
+1. Connectez-vous à **phpMyAdmin**
+2. Sélectionnez votre base de données
+3. Consultez les tables :
+   - `newsletter_subscribers` : voir les inscriptions
+   - `contact_messages` : lire les messages reçus
+   - `rate_limits` : vérifier les tentatives (auto-nettoyé après 1h)
+
+#### Requêtes SQL Utiles
+
+```sql
+-- Voir tous les abonnés actifs
+SELECT email, created_at FROM newsletter_subscribers
+WHERE status = 'active'
+ORDER BY created_at DESC;
+
+-- Voir les nouveaux messages
+SELECT name, email, subject, created_at FROM contact_messages
+WHERE status = 'new'
+ORDER BY created_at DESC;
+
+-- Statistiques newsletter
+SELECT * FROM newsletter_stats;
+
+-- Statistiques contact
+SELECT * FROM contact_stats;
+```
+
+### Sécurité & Maintenance
+
+#### Rate Limiting
+
+L'API limite automatiquement :
+- **Newsletter** : 5 inscriptions/heure par email
+- **Contact** : 10 messages/heure par IP
+
+La table `rate_limits` se nettoie automatiquement (entrées > 1h supprimées).
+
+#### Protection Anti-Spam
+
+- Validation stricte des emails (format, domaine)
+- Sanitization de tous les inputs
+- Limite de longueur pour chaque champ
+- Enregistrement IP/User-Agent pour traçabilité
+
+#### Monitoring
+
+Consultez régulièrement :
+- Logs PHP : `/home/username/logs/` sur O2switch
+- Logs d'erreur dans cPanel
+- Table `rate_limits` pour détecter les abus
+
+#### Backup
+
+Configurez des backups automatiques dans cPanel :
+- **Backup Wizard** : backups quotidiens/hebdomadaires
+- Téléchargez régulièrement une copie de la DB via phpMyAdmin
+
+### Troubleshooting
+
+#### Erreur "Database connection failed"
+
+- Vérifiez `config.php` : host, name, user, pass corrects
+- Vérifiez que l'utilisateur a les privilèges sur la DB
+- Testez la connexion via phpMyAdmin
+
+#### Emails non reçus
+
+- Vérifiez `ADMIN_EMAIL` dans `config.php`
+- Consultez `/home/username/logs/` pour les erreurs PHP
+- Testez avec un compte Gmail/Outlook (les FAI bloquent parfois)
+- Vérifiez le dossier spam
+
+#### CORS Errors (développement local)
+
+- En développement local, laissez `ALLOW_ORIGIN` vide : `''`
+- En production, mettez votre domaine : `'https://casadividendes.com'`
+- Pas de trailing slash dans ALLOW_ORIGIN
+
+#### Rate Limiting Trop Strict
+
+Ajustez dans `config.php` :
+```php
+'RATE_LIMIT_NEWSLETTER' => 10,  // Augmenter si besoin
+'RATE_LIMIT_CONTACT' => 20,
+```
+
+### Support & Logs
+
+Pour déboguer, activez les logs PHP détaillés en ajoutant au début de `common.php` :
+
+```php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/errors.log');
+```
+
+**⚠️ Retirez ces lignes en production !**
+
+---
+
 ## Licence
 
 © 2025 CasaDividendes. Tous droits réservés.
