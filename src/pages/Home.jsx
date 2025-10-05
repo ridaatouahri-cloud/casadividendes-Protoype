@@ -1,6 +1,5 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
 import { StatCard } from "../components/StatCard";
 
 function HeroHome({ goCalendar, goPremium }) {
@@ -176,8 +175,6 @@ function PremiumBand({ goPremium }) {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
-
   return (
     <>
       <Helmet>
@@ -185,11 +182,11 @@ export default function Home() {
         <meta name="description" content="La première plateforme dédiée aux dividendes de la Bourse de Casablanca. Calendrier des ex-dates, palmarès des rendements, fiches sociétés et outils d'analyse pour investir sereinement au Maroc." />
       </Helmet>
 
-      <HeroHome goCalendar={() => navigate("/calendar")} goPremium={() => navigate("/premium")} />
+      <HeroHome goCalendar={() => window.location.hash = "#/calendar"} goPremium={() => window.location.hash = "#/premium"} />
       <Values />
-      <PalmaresPreview goRankings={() => navigate("/rankings")} />
+      <PalmaresPreview goRankings={() => window.location.hash = "#/rankings"} />
       <Newsletter />
-      <PremiumBand goPremium={() => navigate("/premium")} />
+      <PremiumBand goPremium={() => window.location.hash = "#/premium"} />
     </>
   );
 }

@@ -1,10 +1,8 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
 import { StatCard, Pill } from "../components/StatCard";
 
 export default function Rankings() {
-  const navigate = useNavigate();
   const rows = Array.from({ length: 10 }).map((_, i) => ({
     r: i + 1,
     t: ["IAM", "BCP", "ATW", "ADI", "BCI", "SNEP"][i % 6],
@@ -59,7 +57,7 @@ export default function Rankings() {
                   <td className="p-3 text-zinc-300">{r.d}</td>
                   <td className="p-3 text-zinc-300">{r.c} MAD</td>
                   <td className="p-3 text-teal-400 font-medium">{r.d}</td>
-                  <td className="p-3"><button onClick={() => navigate(`/company/${r.t}`)} className="px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400">Ouvrir</button></td>
+                  <td className="p-3"><button onClick={() => window.location.hash = `#/company/${r.t}`} className="px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 focus:outline-none focus:ring-2 focus:ring-teal-400">Ouvrir</button></td>
                 </tr>
               ))}
             </tbody>

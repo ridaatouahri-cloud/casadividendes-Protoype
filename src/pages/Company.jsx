@@ -1,12 +1,9 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
-import { useParams, useNavigate } from "react-router-dom";
 import { StatCard } from "../components/StatCard";
 import { companiesData } from "../data/companies";
 
-export default function Company() {
-  const { ticker } = useParams();
-  const navigate = useNavigate();
+export default function Company({ ticker }) {
   const company = companiesData[ticker] || companiesData["IAM"];
 
   const history = [
@@ -79,7 +76,7 @@ export default function Company() {
               <h2 className="text-white font-semibold">Analyse Premium 🔒</h2>
               <p className="text-zinc-400 text-sm">Score sécurité, payout ratio, projections de revenus…</p>
             </div>
-            <button onClick={() => navigate("/premium")} className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-900 whitespace-nowrap">Essayer Premium</button>
+            <button onClick={() => window.location.hash = "#/premium"} className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-900 whitespace-nowrap">Essayer Premium</button>
           </div>
         </div>
       </main>

@@ -1,11 +1,8 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
 import { StatCard } from "../components/StatCard";
 
 export default function About() {
-  const navigate = useNavigate();
-
   return (
     <>
       <Helmet>
@@ -52,7 +49,7 @@ export default function About() {
         <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
           <h2 className="text-white font-semibold">Rejoignez la communauté CasaDividendes</h2>
           <p className="text-zinc-400 text-sm mt-1">Commencez par consulter le calendrier des prochains dividendes.</p>
-          <button onClick={() => navigate("/calendar")} className="mt-3 px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-900">Voir le calendrier</button>
+          <a href="#/calendar" className="mt-3 inline-block px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-900">Voir le calendrier</a>
         </div>
       </main>
     </>

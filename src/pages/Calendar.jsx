@@ -1,11 +1,9 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useNavigate } from "react-router-dom";
 import { StatCard, Pill } from "../components/StatCard";
 import { daysInMonth, firstWeekday, mondayOffsetFromSundayFirstDay } from "../utils/calendar";
 
 export default function Calendar() {
-  const navigate = useNavigate();
   const [view, setView] = useState("table");
   const [sector, setSector] = useState("tous");
   const [type, setType] = useState("tous");
@@ -51,7 +49,7 @@ export default function Calendar() {
   };
 
   const handleSelectCompany = (ticker) => {
-    navigate(`/company/${ticker}`);
+    window.location.hash = `#/company/${ticker}`;
   };
 
   return (
@@ -180,7 +178,7 @@ export default function Calendar() {
 
         <div className="mt-8 rounded-2xl border border-zinc-800 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-white font-semibold">Débloquez les alertes automatiques J-3, l&apos;export iCal/CSV et les vues avancées.</p>
-          <button onClick={() => navigate("/premium")} className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950 whitespace-nowrap">Essayer Premium</button>
+          <button onClick={() => window.location.hash = "#/premium"} className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950 whitespace-nowrap">Essayer Premium</button>
         </div>
 
         <p className="mt-6 text-xs text-zinc-500">⚠️ Les informations sont fournies à titre indicatif. Référez-vous toujours à la source officielle.</p>
