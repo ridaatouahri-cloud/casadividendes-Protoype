@@ -232,7 +232,7 @@ lighthouse http://localhost:4173 --view
 ### Dépendances & Routage
 
 **⚠️ Versions exactes requises** :
-- `react-router-dom@6.22.0` (exactement cette version)
+- `react-router-dom@6.22.3` (exactement cette version)
 - `react-helmet-async@1.3.0` (exactement cette version)
 
 **Installation propre** :
@@ -248,7 +248,7 @@ npm install
 npm list react-router-dom react-helmet-async
 # Doit afficher:
 # +-- react-helmet-async@1.3.0
-# `-- react-router-dom@6.22.0
+# `-- react-router-dom@6.22.3
 
 # 4. Lancer dev server
 npm run dev
@@ -264,7 +264,7 @@ npm run dev
 ### Changements effectués
 
 #### 1. Installation des dépendances
-- ✅ Installé `react-router-dom@6.22.0` (version exacte)
+- ✅ Installé `react-router-dom@6.22.3` (version exacte)
 - ✅ Installé `react-helmet-async@1.3.0` (version exacte)
 - ✅ Configuration avec `createRoot` de React 18
 - ✅ Lazy loading avec `React.lazy()` et `Suspense`
