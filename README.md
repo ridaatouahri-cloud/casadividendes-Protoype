@@ -231,30 +231,44 @@ lighthouse http://localhost:4173 --view
 
 ### Dépendances & Routage
 
-**Versions installées** :
-- `react-router-dom@6.22.0` - Routing SPA avec React Router v6
-- `react-helmet-async@2.0.5` - Meta tags dynamiques par page
+**⚠️ Versions exactes requises** :
+- `react-router-dom@6.22.0` (exactement cette version)
+- `react-helmet-async@1.3.0` (exactement cette version)
 
-**Commandes d'installation** :
+**Installation propre** :
 ```bash
-# Installation des dépendances
-npm install react-router-dom@^6.22.0 react-helmet-async@^2.0.5
+# 1. Nettoyage complet (évite problèmes de cache)
+rm -rf node_modules package-lock.json node_modules/.vite dist
+pkill -f vite || true
 
-# En cas d'erreur "[plugin:vite:import-analysis] Failed to resolve import"
-rm -rf node_modules package-lock.json
+# 2. Installation (versions exactes dans package.json)
 npm install
 
-# Vérifier l'installation
+# 3. Vérifier versions installées
 npm list react-router-dom react-helmet-async
+# Doit afficher:
+# +-- react-helmet-async@1.3.0
+# `-- react-router-dom@6.22.0
+
+# 4. Lancer dev server
+npm run dev
+```
+
+**En cas d'erreur "[plugin:vite:import-analysis] Failed to resolve import"** :
+```bash
+pkill -f vite || true
+rm -rf node_modules/.vite
+npm run dev
 ```
 
 ### Changements effectués
 
 #### 1. Installation des dépendances
-- ✅ Installé `react-router-dom` v6.22.0 pour la navigation
-- ✅ Installé `react-helmet-async` v2.0.5 pour les meta tags dynamiques
+- ✅ Installé `react-router-dom@6.22.0` (version exacte)
+- ✅ Installé `react-helmet-async@1.3.0` (version exacte)
 - ✅ Configuration avec `createRoot` de React 18
 - ✅ Lazy loading avec `React.lazy()` et `Suspense`
+- ✅ Nettoyage complet pour éviter conflits de versions
 
 #### 2. Structure des pages
 Toutes les pages ont été extraites dans `src/pages/` :
