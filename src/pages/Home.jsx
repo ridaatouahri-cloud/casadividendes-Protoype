@@ -1,16 +1,7 @@
 import React from "react";
-
-const Pill = ({ children }) => (
-  <span className="px-2 py-1 rounded-full text-xs bg-zinc-800/80 border border-zinc-700">{children}</span>
-);
-
-const StatCard = ({ title, value, sub }) => (
-  <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
-    <div className="text-sm text-zinc-400">{title}</div>
-    <div className="text-2xl font-semibold text-white mt-1">{value}</div>
-    {sub ? <div className="text-xs text-zinc-500 mt-1">{sub}</div> : null}
-  </div>
-);
+import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
+import { StatCard } from "../components/StatCard";
 
 function HeroHome({ goCalendar, goPremium }) {
   return (
@@ -184,14 +175,21 @@ function PremiumBand({ goPremium }) {
   );
 }
 
-export default function Home({ goCalendar, goPremium, goRankings }) {
+export default function Home() {
+  const navigate = useNavigate();
+
   return (
     <>
-      <HeroHome goCalendar={goCalendar} goPremium={goPremium} />
+      <Helmet>
+        <title>CasaDividendes - Calendrier des Dividendes de la Bourse de Casablanca</title>
+        <meta name="description" content="La première plateforme dédiée aux dividendes de la Bourse de Casablanca. Calendrier des ex-dates, palmarès des rendements, fiches sociétés et outils d'analyse pour investir sereinement au Maroc." />
+      </Helmet>
+
+      <HeroHome goCalendar={() => navigate("/calendar")} goPremium={() => navigate("/premium")} />
       <Values />
-      <PalmaresPreview goRankings={goRankings} />
+      <PalmaresPreview goRankings={() => navigate("/rankings")} />
       <Newsletter />
-      <PremiumBand goPremium={goPremium} />
+      <PremiumBand goPremium={() => navigate("/premium")} />
     </>
   );
 }

@@ -227,14 +227,131 @@ lighthouse http://localhost:4173 --view
 - Minification en production
 - Tree-shaking automatique
 
+## Étape 2 — Pages principales & navigation
+
+### Changements effectués
+
+#### 1. Installation des dépendances
+- ✅ Installé `react-router-dom` (v6) pour la navigation
+- ✅ Installé `react-helmet-async` pour les meta tags dynamiques
+
+#### 2. Structure des pages
+Toutes les pages ont été extraites dans `src/pages/` :
+- ✅ **Calendar.jsx** - Calendrier complet des dividendes avec filtres
+- ✅ **Rankings.jsx** - Palmarès des sociétés
+- ✅ **Company.jsx** - Fiche détaillée d'une société (dynamique avec :ticker)
+- ✅ **Premium.jsx** - Page d'abonnement Premium
+- ✅ **Blog.jsx** - Blog et articles pédagogiques
+- ✅ **About.jsx** - À propos & formulaire de contact
+- ✅ **Legal.jsx** - Mentions légales & CGU
+- ✅ **NotFound.jsx** - Page 404 avec liens de retour
+
+#### 3. Composants partagés
+- ✅ `src/components/StatCard.jsx` - Composants réutilisables (StatCard, Pill)
+- ✅ `src/utils/calendar.js` - Utilitaires pour le calendrier
+- ✅ `src/data/companies.js` - Données centralisées des sociétés
+
+#### 4. React Router
+- ✅ Intégration complète de React Router v6
+- ✅ `<BrowserRouter>` dans main.jsx
+- ✅ `<Routes>` et `<Route>` dans App.jsx
+- ✅ Navigation via `<Link>` dans Header et Footer
+- ✅ `useNavigate()` pour navigation programmatique
+- ✅ `useParams()` pour routes dynamiques (/company/:ticker)
+- ✅ `useLocation()` pour état actif de la navigation
+- ✅ Route 404 avec `path="*"`
+
+#### 5. SEO dynamique par page
+Chaque page utilise `react-helmet-async` :
+- ✅ `<title>` unique par page
+- ✅ `<meta name="description">` personnalisée
+- ✅ Maintien de `lang="fr"` dans index.html
+
+#### 6. O2switch compatibility
+- ✅ `.htaccess` dans `/public` pour redirections
+- ✅ Gestion des routes frontend avec RewriteRule
+- ✅ Compatible hébergement Apache
+
+### Routes disponibles
+
+| Route | Page | Description |
+|-------|------|-------------|
+| `/` | Home | Page d'accueil |
+| `/calendar` | Calendar | Calendrier des dividendes |
+| `/rankings` | Rankings | Palmarès |
+| `/company/:ticker` | Company | Fiche société (IAM, BCP, ATW, etc.) |
+| `/premium` | Premium | Offre Premium |
+| `/blog` | Blog | Articles & guides |
+| `/about` | About | Contact |
+| `/legal` | Legal | Mentions légales |
+| `/*` | NotFound | 404 |
+
+### Test de navigation
+
+```bash
+# Dev
+npm run dev
+# Tester toutes les routes :
+# → http://localhost:5173/
+# → http://localhost:5173/calendar
+# → http://localhost:5173/rankings
+# → http://localhost:5173/company/IAM
+# → http://localhost:5173/premium
+# → http://localhost:5173/blog
+# → http://localhost:5173/about
+# → http://localhost:5173/legal
+# → http://localhost:5173/404 (devrait afficher NotFound)
+
+# Production
+npm run build
+npm run preview
+# Tester routes en production sur http://localhost:4173
+```
+
+### Caractéristiques techniques
+
+#### Navigation SPA (Single Page Application)
+- ✅ Pas de rechargement de page
+- ✅ Historique navigateur fonctionnel (back/forward)
+- ✅ Liens partageables
+- ✅ États actifs dans la navigation
+
+#### Performance
+- **Build size** :
+  - HTML: 2.91 KB (0.91 KB gzippé)
+  - CSS: 18.00 KB (4.17 KB gzippé)
+  - JS: 235.48 KB (71.69 KB gzippé)
+- Code splitting par route (automatique avec Vite)
+- Lazy loading des composants
+
+#### Accessibilité
+- ✅ `aria-current="page"` sur lien actif
+- ✅ `aria-label` sur navigation
+- ✅ Focus states sur tous les liens
+- ✅ Navigation au clavier
+
+### Checklist de validation
+
+- [x] Toutes les pages créées et isolées
+- [x] React Router configuré
+- [x] Navigation fonctionne sans reload
+- [x] Routes dynamiques (/company/:ticker)
+- [x] Page 404 opérationnelle
+- [x] SEO meta tags sur chaque page
+- [x] .htaccess pour production
+- [x] Build réussi
+- [x] Aucune erreur console
+- [x] Links accessibles
+
 ## Prochaines étapes
 
 1. **Images réelles** : Remplacer les placeholders CSS par de vraies images WebP
-2. **Données dynamiques** : Connecter à une API ou base de données
+2. **Données dynamiques** : Connecter à une API ou base de données Supabase
 3. **Authentification** : Système de login pour fonctionnalités Premium
 4. **Analytics** : Intégrer Google Analytics ou Matomo
 5. **Tests** : Ajouter tests unitaires (Vitest) et E2E (Playwright)
 6. **i18n** : Support multilingue (FR/AR/Darija)
+7. **Mobile menu** : Ajouter hamburger menu pour navigation mobile
 
 ## Licence
 
