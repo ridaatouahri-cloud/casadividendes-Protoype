@@ -229,11 +229,32 @@ lighthouse http://localhost:4173 --view
 
 ## Étape 2 — Pages principales & navigation
 
+### Dépendances & Routage
+
+**Versions installées** :
+- `react-router-dom@6.22.0` - Routing SPA avec React Router v6
+- `react-helmet-async@2.0.5` - Meta tags dynamiques par page
+
+**Commandes d'installation** :
+```bash
+# Installation des dépendances
+npm install react-router-dom@^6.22.0 react-helmet-async@^2.0.5
+
+# En cas d'erreur "[plugin:vite:import-analysis] Failed to resolve import"
+rm -rf node_modules package-lock.json
+npm install
+
+# Vérifier l'installation
+npm list react-router-dom react-helmet-async
+```
+
 ### Changements effectués
 
 #### 1. Installation des dépendances
-- ✅ Installé `react-router-dom` (v6) pour la navigation
-- ✅ Installé `react-helmet-async` pour les meta tags dynamiques
+- ✅ Installé `react-router-dom` v6.22.0 pour la navigation
+- ✅ Installé `react-helmet-async` v2.0.5 pour les meta tags dynamiques
+- ✅ Configuration avec `createRoot` de React 18
+- ✅ Lazy loading avec `React.lazy()` et `Suspense`
 
 #### 2. Structure des pages
 Toutes les pages ont été extraites dans `src/pages/` :
@@ -317,12 +338,22 @@ npm run preview
 - ✅ États actifs dans la navigation
 
 #### Performance
-- **Build size** :
+- **Build size** (avec code splitting) :
   - HTML: 2.91 KB (0.91 KB gzippé)
-  - CSS: 18.00 KB (4.17 KB gzippé)
-  - JS: 235.48 KB (71.69 KB gzippé)
-- Code splitting par route (automatique avec Vite)
-- Lazy loading des composants
+  - CSS: 18.03 KB (4.18 KB gzippé)
+  - JS principal: 184.62 KB (60.48 KB gzippé)
+  - Home: 7.63 KB (2.30 KB gzippé)
+  - Calendar: 11.77 KB (3.23 KB gzippé)
+  - Company: 5.15 KB (1.70 KB gzippé)
+  - Premium: 3.46 KB (1.12 KB gzippé)
+  - Blog: 4.57 KB (1.34 KB gzippé)
+  - About: 3.88 KB (1.21 KB gzippé)
+  - Rankings: 3.09 KB (1.16 KB gzippé)
+  - Legal: 1.31 KB (0.59 KB gzippé)
+  - NotFound: 1.41 KB (0.63 KB gzippé)
+- ✅ Code splitting automatique par route
+- ✅ Lazy loading avec React.lazy() et Suspense
+- ✅ Chargement progressif des pages
 
 #### Accessibilité
 - ✅ `aria-current="page"` sur lien actif
