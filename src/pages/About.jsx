@@ -8,6 +8,7 @@ export default function About() {
     email: "",
     subject: "",
     message: "",
+    hp: "",
   });
   const [status, setStatus] = React.useState("idle");
   const [message, setMessage] = React.useState("");
@@ -36,7 +37,7 @@ export default function About() {
       if (data.success) {
         setStatus("success");
         setMessage(data.message);
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        setFormData({ name: "", email: "", subject: "", message: "", hp: "" });
       } else {
         setStatus("error");
         setMessage(data.error || "Une erreur est survenue");
@@ -114,6 +115,16 @@ export default function About() {
                 className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 h-28 focus:outline-none focus:ring-2 focus:ring-teal-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Message"
                 required
+              />
+              <input
+                type="text"
+                name="hp"
+                value={formData.hp}
+                onChange={handleChange}
+                autoComplete="off"
+                tabIndex="-1"
+                aria-hidden="true"
+                style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
               />
               <button
                 type="submit"
