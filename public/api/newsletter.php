@@ -29,6 +29,15 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     ], 400);
 }
 
+// Check honeypot field (anti-spam)
+$honeypot = isset($data['hp']) ? trim($data['hp']) : '';
+if (!empty($honeypot)) {
+    jsonResponse([
+        'success' => false,
+        'error' => 'Invalid submission detected'
+    ], 400);
+}
+
 // Validate email
 $email = isset($data['email']) ? trim($data['email']) : '';
 $validation = validateEmail($email);
@@ -53,6 +62,22 @@ if (!checkRateLimit('newsletter', $email)) {
 try {
     $pdo = getDB();
 
+    // Create table if it doesn't exist
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+            id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            status ENUM('active', 'unsubscribed') DEFAULT 'active',
+            ip_address VARCHAR(45) NULL,
+            user_agent TEXT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_email (email),
+            INDEX idx_status (status),
+            INDEX idx_created_at (created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
     // Check if email already exists
     $stmt = $pdo->prepare("SELECT id, status FROM newsletter_subscribers WHERE email = ?");
     $stmt->execute([$email]);
@@ -61,9 +86,9 @@ try {
     if ($existing) {
         if ($existing['status'] === 'active') {
             jsonResponse([
-                'success' => false,
-                'error' => 'This email is already subscribed to our newsletter.'
-            ], 400);
+                'success' => true,
+                'message' => 'You are already subscribed! Thank you for your interest.'
+            ]);
         } else {
             // Reactivate subscription
             $stmt = $pdo->prepare(
