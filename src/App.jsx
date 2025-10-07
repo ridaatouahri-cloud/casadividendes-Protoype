@@ -26,19 +26,12 @@ function LoadingFallback() {
 
 export default function App() {
   const [path, setPath] = useState(getHashPath());
-  const [viewport, setViewport] = useState("desktop");
 
   useEffect(() => {
     const onHash = () => setPath(getHashPath());
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
-
-  const Frame = ({ children }) => (
-    <div className={viewport === "mobile" ? "mx-auto border border-zinc-800 rounded-[22px] overflow-hidden max-w-[420px] shadow-2xl" : ""}>
-      {children}
-    </div>
-  );
 
   const renderRoute = () => {
     switch (path) {
@@ -77,31 +70,11 @@ export default function App() {
     <div className="min-h-screen bg-zinc-950 text-zinc-100">
       <Header />
 
-      <div className="mx-auto max-w-6xl px-6 mt-4 flex items-center justify-end gap-2 text-sm" role="toolbar" aria-label="Sélecteur d'aperçu">
-        <span className="text-zinc-500 hidden md:inline">Aperçu :</span>
-        <button
-          onClick={() => setViewport("desktop")}
-          className={`px-3 py-1 rounded-lg border ${viewport === "desktop" ? "border-teal-500 text-white" : "border-zinc-700 text-zinc-300"} bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-teal-400`}
-          aria-pressed={viewport === "desktop"}
-        >
-          Desktop
-        </button>
-        <button
-          onClick={() => setViewport("mobile")}
-          className={`px-3 py-1 rounded-lg border ${viewport === "mobile" ? "border-teal-500 text-white" : "border-zinc-700 text-zinc-300"} bg-zinc-900 focus:outline-none focus:ring-2 focus:ring-teal-400`}
-          aria-pressed={viewport === "mobile"}
-        >
-          Mobile
-        </button>
-      </div>
+      <Suspense fallback={<LoadingFallback />}>
+        {renderRoute()}
+      </Suspense>
 
-      <Frame>
-        <Suspense fallback={<LoadingFallback />}>
-          {renderRoute()}
-        </Suspense>
-
-        <Footer />
-      </Frame>
+      <Footer />
     </div>
   );
 }

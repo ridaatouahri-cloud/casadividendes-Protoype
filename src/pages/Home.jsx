@@ -5,13 +5,13 @@ import { StatCard } from "../components/StatCard";
 function HeroHome({ goCalendar, goPremium }) {
   return (
     <section className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-b border-zinc-800">
-      <div className="mx-auto max-w-6xl px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
+      <div className="mx-auto max-w-7xl px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
-            CasaDividendes : la première plateforme dédiée aux dividendes de la Bourse de Casablanca
+            Les dividendes marocains simplifiés
           </h1>
           <p className="text-zinc-300 mt-4 md:text-lg">
-            Un calendrier clair, des fiches sociétés fiables et des outils concrets pour investir avec sérénité.
+            Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <button
@@ -53,7 +53,7 @@ function Values() {
     { t: "Pédagogie locale", d: "Articles clairs en FR/Darija pour éviter les pièges.", icon: "📚" },
   ];
   return (
-    <section className="mx-auto max-w-6xl px-6 py-12" aria-labelledby="values-heading">
+    <section className="mx-auto max-w-7xl px-6 py-12" aria-labelledby="values-heading">
       <h2 id="values-heading" className="sr-only">Nos valeurs</h2>
       <div className="grid md:grid-cols-3 gap-6">
         {items.map((it) => (
@@ -75,7 +75,7 @@ function PalmaresPreview({ goRankings }) {
     { r: 3, t: "ATW", n: "Attijariwafa Bank", y: "4.3%", pay: "05/07" },
   ];
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-12" aria-labelledby="palmares-heading">
+    <section className="mx-auto max-w-7xl px-6 pb-12" aria-labelledby="palmares-heading">
       <div className="flex items-center justify-between mb-4">
         <h2 id="palmares-heading" className="text-white text-xl font-semibold">Aperçu Palmarès</h2>
         <button
@@ -157,7 +157,7 @@ function Newsletter() {
   };
 
   return (
-    <section className="mx-auto max-w-6xl px-6 py-10" aria-labelledby="newsletter-heading">
+    <section className="mx-auto max-w-7xl px-6 py-10" aria-labelledby="newsletter-heading">
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 flex flex-col md:flex-row items-center gap-4 justify-between">
         <div>
           <h2 id="newsletter-heading" className="text-white font-semibold">Restez informé(e)</h2>
@@ -213,10 +213,68 @@ function Newsletter() {
   );
 }
 
+function ContactSupport() {
+  return (
+    <section className="mx-auto max-w-7xl px-6 py-10" aria-labelledby="contact-heading">
+      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8">
+        <h2 id="contact-heading" className="text-white text-xl font-semibold mb-6">📞 Contact & Support</h2>
+        <div className="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 className="text-white font-medium mb-3">Email</h3>
+            <ul className="space-y-2 text-zinc-300 text-sm">
+              <li>
+                <span className="text-zinc-400">Support :</span>{" "}
+                <a href="mailto:support@casadividendes.ma" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                  support@casadividendes.ma
+                </a>
+              </li>
+              <li>
+                <span className="text-zinc-400">Commercial :</span>{" "}
+                <a href="mailto:contact@casadividendes.ma" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                  contact@casadividendes.ma
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-white font-medium mb-3">Réseaux sociaux</h3>
+            <ul className="space-y-2 text-zinc-300 text-sm">
+              <li>
+                <span className="text-zinc-400">Twitter/X :</span>{" "}
+                <a href="https://twitter.com/CasaDividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                  @CasaDividendes
+                </a>
+              </li>
+              <li>
+                <span className="text-zinc-400">LinkedIn :</span>{" "}
+                <a href="https://linkedin.com/company/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                  CasaDividendes
+                </a>
+              </li>
+              <li>
+                <span className="text-zinc-400">Facebook :</span>{" "}
+                <a href="https://facebook.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                  CasaDividendes
+                </a>
+              </li>
+              <li>
+                <span className="text-zinc-400">Instagram :</span>{" "}
+                <a href="https://instagram.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                  @casadividendes
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PremiumBand({ goPremium }) {
   return (
     <section className="border-t border-zinc-800 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950" aria-labelledby="premium-band-heading">
-      <div className="mx-auto max-w-6xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="mx-auto max-w-7xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
         <h2 id="premium-band-heading" className="text-white text-lg font-semibold">
           Passez au Premium : alertes J-3, scores de sécurité, comparateurs.
         </h2>
@@ -244,6 +302,7 @@ export default function Home() {
       <Values />
       <PalmaresPreview goRankings={() => window.location.hash = "#/rankings"} />
       <Newsletter />
+      <ContactSupport />
       <PremiumBand goPremium={() => window.location.hash = "#/premium"} />
     </>
   );
