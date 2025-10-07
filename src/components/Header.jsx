@@ -25,16 +25,14 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <a
             href="#/"
-            className="w-8 h-8 rounded-full bg-teal-500/20 grid place-items-center focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950"
+            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 rounded"
             aria-label="Retour à l'accueil"
           >
-            <div className="w-3 h-3 border-2 border-teal-400 rotate-45" />
-          </a>
-          <a
-            href="#/"
-            className="font-semibold text-white hover:text-teal-400 transition-colors focus:outline-none focus:underline"
-          >
-            CasaDividendes
+            <img
+              src="/logo.png"
+              alt="CasaDividendes"
+              className="h-8 w-auto"
+            />
           </a>
           <Pill>Beta</Pill>
         </div>
