@@ -21,7 +21,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/70 bg-zinc-950/90 border-b border-zinc-800">
-      <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between">
+      <div className="px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <a
             href="#/"

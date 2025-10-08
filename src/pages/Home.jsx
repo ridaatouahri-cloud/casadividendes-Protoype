@@ -43,7 +43,7 @@ function HeroHome({ goCalendar, goPremium }) {
           <path fill="rgba(168, 85, 247, 0.05)" d="M0,480L60,485.3C120,491,240,501,360,480C480,459,600,405,720,394.7C840,384,960,416,1080,437.3C1200,459,1320,469,1380,474.7L1440,480L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
         </svg>
       </div>
-      <div className="mx-auto max-w-7xl px-6 py-16 grid md:grid-cols-2 gap-10 items-center relative z-10">
+      <div className="px-6 py-16 grid md:grid-cols-2 gap-10 items-center relative z-10">
         <div className="animate-fade-in-up">
           <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight text-glow">
             Les dividendes marocains simplifiés
@@ -94,7 +94,7 @@ function Values() {
     { t: "Pédagogie locale", d: "Articles clairs en FR/Darija pour éviter les pièges.", icon: "📚", bg: "#0f0f0f" },
   ];
   return (
-    <section className="mx-auto max-w-7xl px-6 py-12" aria-labelledby="values-heading">
+    <section className="px-6 py-12" aria-labelledby="values-heading">
       <h2 id="values-heading" className="sr-only">Nos valeurs</h2>
       <div className="grid md:grid-cols-3 gap-6">
         {items.map((it, idx) => (
@@ -124,7 +124,7 @@ function PalmaresPreview({ goRankings }) {
     { r: 3, t: "ATW", n: "Attijariwafa Bank", y: "4.3%", pay: "05/07" },
   ];
   return (
-    <section ref={sectionRef} className="mx-auto max-w-7xl px-6 pb-12 opacity-0" aria-labelledby="palmares-heading">
+    <section ref={sectionRef} className="px-6 pb-12 opacity-0" aria-labelledby="palmares-heading">
       <div className="flex items-center justify-between mb-4">
         <h2 id="palmares-heading" className="text-white text-xl font-semibold">Aperçu Palmarès</h2>
         <button
@@ -207,7 +207,7 @@ function Newsletter() {
   };
 
   return (
-    <section ref={sectionRef} className="mx-auto max-w-7xl px-6 py-10 opacity-0" aria-labelledby="newsletter-heading">
+    <section ref={sectionRef} className="px-6 py-10 opacity-0" aria-labelledby="newsletter-heading">
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 flex flex-col md:flex-row items-center gap-4 justify-between">
         <div>
           <h2 id="newsletter-heading" className="text-white font-semibold">Restez informé(e)</h2>
@@ -266,7 +266,7 @@ function Newsletter() {
 function ContactSupport() {
   const sectionRef = useScrollAnimation();
   return (
-    <section ref={sectionRef} className="mx-auto max-w-7xl px-6 py-10 opacity-0" aria-labelledby="contact-heading">
+    <section ref={sectionRef} className="px-6 py-10 opacity-0" aria-labelledby="contact-heading">
       <div className="rounded-2xl glassmorphism p-8 shadow-2xl">
         <h2 id="contact-heading" className="text-white text-xl font-semibold mb-6">📞 Contact & Support</h2>
         <div className="grid md:grid-cols-2 gap-8">
@@ -335,7 +335,7 @@ function PremiumBand({ goPremium }) {
   const sectionRef = useScrollAnimation();
   return (
     <section ref={sectionRef} className="border-t border-zinc-800 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 opacity-0" aria-labelledby="premium-band-heading">
-      <div className="mx-auto max-w-7xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
         <h2 id="premium-band-heading" className="text-white text-lg font-semibold">
           Passez au Premium : alertes J-3, scores de sécurité, comparateurs.
         </h2>
