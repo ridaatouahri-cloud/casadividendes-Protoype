@@ -192,41 +192,6 @@ function HeroHome({ goCalendar, goPremium }) {
   );
 }
 
-function StatsSection() {
-  const stats = [
-    { value: "12 000+", label: "Dividendes suivis", icon: "📊" },
-    { value: "80+", label: "Sociétés cotées", icon: "🏢" },
-    { value: "450+", label: "Alertes activées", icon: "🔔" }
-  ];
-
-  return (
-    <section className="bg-[#F8FAFC] py-20" aria-labelledby="stats-heading">
-      <div className="max-w-5xl mx-auto px-6 text-center">
-        <h2 id="stats-heading" className="text-2xl md:text-3xl font-semibold text-[#0F172A] mb-12" style={{ fontFamily: 'Inter, sans-serif' }}>
-          Déjà plus de 2 000 investisseurs marocains utilisent CasaDividendes
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
-          {stats.map((stat, idx) => (
-            <div
-              key={stat.label}
-              className="flex flex-col items-center opacity-0 animate-fade-in-up"
-              style={{ animationDelay: `${0.2 + idx * 0.15}s` }}
-            >
-              <div className="text-4xl mb-3 opacity-60">{stat.icon}</div>
-              <div className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {stat.value}
-              </div>
-              <div className="text-base text-[#64748B] font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {stat.label}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Values() {
   const items = [
     { t: "Calendrier intelligent", d: "Accédez à tous les dividendes de la Bourse de Casa, organisés par date. Filtrez, exportez et planifiez vos investissements en quelques clics.", icon: "📅", bg: "#0f0f0f" },
@@ -501,7 +466,6 @@ export default function Home() {
       </Helmet>
 
       <HeroHome goCalendar={() => window.location.hash = "#/calendar"} goPremium={() => window.location.hash = "#/premium"} />
-      <StatsSection />
       <Values />
       <PalmaresPreview goRankings={() => window.location.hash = "#/rankings"} />
       <Newsletter />
