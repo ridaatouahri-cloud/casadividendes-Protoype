@@ -35,7 +35,7 @@ export default function Footer() {
               © {new Date().getFullYear()} CasaDividendes. Tous droits réservés.
             </p>
             <p className="text-zinc-600 text-xs">
-              Source des données : Bourse de Casablanca
+              Source des données : Bourse de Casablanca & AMMC
             </p>
           </div>
         </div>
