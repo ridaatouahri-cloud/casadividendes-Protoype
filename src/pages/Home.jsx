@@ -51,7 +51,7 @@ function HeroHome({ goCalendar, goPremium }) {
             <span className="text-white">Marocains </span>
             <span className="hero-title-gradient-alt">Simplifiés.</span>
           </h1>
-          <p className="text-[#A0A0A0] mt-6 text-[15px] max-w-[620px] SF Pro leading-[1.6] font-thin opacity-0 animate-fade-in-up delay-200 mb-10" style={{ fontFamily: 'SF Pro, sans-serif' }}>
+          <p className="text-[#A0A0A0] mt-6 text-[15px] max-w-[480px] SF Pro leading-[1.6] font-thin opacity-0 animate-fade-in-up delay-200 mb-10" style={{ fontFamily: 'SF Pro, sans-serif' }}>
             La première plateforme au Maroc dédiée à l'analyse des dividendes de la Bourse de Casablanca. Prenez le contrôle de vos investissements : visibilité complète, outils d'analyse et alertes intelligentes pour ne rien rater et maximiser votre rentabilité.
           </p>
           <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
