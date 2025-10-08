@@ -18,10 +18,23 @@ function getHashPath() {
 
 export default function Header() {
   const currentPath = getHashPath();
+  const [isScrolled, setIsScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/60 bg-zinc-950/80">
-      <div className="px-6 py-5 flex items-center justify-between">
+    <header className={`sticky top-0 z-20 backdrop-blur transition-all duration-400 ease-in-out ${
+      isScrolled
+        ? 'bg-[rgba(11,14,16,0.8)] shadow-[0_2px_12px_rgba(0,0,0,0.3)] py-3'
+        : 'bg-zinc-950/60 py-4'
+    }`}>
+      <div className="px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <a
             href="#/"
@@ -36,12 +49,14 @@ export default function Header() {
           </a>
           <Pill>Beta</Pill>
         </div>
-        <nav className="hidden md:flex items-center gap-8 text-sm" aria-label="Navigation principale">
+        <nav className={`hidden md:flex items-center text-sm transition-all duration-400 ease-in-out ${
+          isScrolled ? 'gap-6' : 'gap-8'
+        }`} aria-label="Navigation principale">
           {NAV.map((n) => (
             <a
               key={n.key}
               href={n.path}
-              className={`transition-colors focus:outline-none focus:underline ${currentPath === n.path.replace("#", "") ? "text-teal-400" : "text-zinc-300 hover:text-white"}`}
+              className={`transition-colors duration-250 focus:outline-none focus:underline ${currentPath === n.path.replace("#", "") ? "text-[#00D3A7]" : "text-zinc-300 hover:text-[#00D3A7]"}`}
               aria-current={currentPath === n.path.replace("#", "") ? "page" : undefined}
             >
               {n.label}

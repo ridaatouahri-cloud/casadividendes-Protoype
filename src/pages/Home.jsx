@@ -36,15 +36,15 @@ function useScrollAnimation() {
 
 function HeroHome({ goCalendar, goPremium }) {
   return (
-    <section className="hero-gradient border-b border-zinc-800 relative overflow-hidden">
+    <section className="hero-gradient relative overflow-hidden min-h-[85vh] flex items-center">
       <div className="absolute inset-0 opacity-30">
         <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
           <path fill="rgba(20, 184, 166, 0.1)" d="M0,320L60,330C120,340,240,360,360,345C480,330,600,280,720,266.7C840,253,960,277,1080,288C1200,299,1320,297,1380,296L1440,295L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
           <path fill="rgba(168, 85, 247, 0.05)" d="M0,480L60,485.3C120,491,240,501,360,480C480,459,600,405,720,394.7C840,384,960,416,1080,437.3C1200,459,1320,469,1380,474.7L1440,480L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
         </svg>
       </div>
-      <div className="px-6 py-16 grid md:grid-cols-2 gap-10 items-center relative z-10">
-        <div className="animate-fade-in-up">
+      <div className="w-full px-6 py-20 md:py-16 grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
+        <div className="animate-fade-in-up order-1">
           <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight text-glow">
             Les dividendes marocains simplifiés
           </h1>
@@ -54,14 +54,14 @@ function HeroHome({ goCalendar, goPremium }) {
           <div className="mt-6 flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
             <button
               onClick={goCalendar}
-              className="px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold hover:brightness-110 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5"
+              className="px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-teal-500/30 hover:brightness-[1.02] hover:shadow-[0_0_20px_rgba(0,211,167,0.3)] active:scale-[0.98]"
               aria-label="Voir le calendrier des dividendes"
             >
               Voir le calendrier
             </button>
             <button
               onClick={goPremium}
-              className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold hover:brightness-110 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-0.5"
+              className="px-4 py-2 rounded-xl bg-transparent border border-[rgba(255,255,255,0.08)] text-white font-semibold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 hover:bg-[#161A1E] active:scale-[0.98]"
               aria-label="Découvrir l'offre Premium"
             >
               Découvrir Premium
@@ -71,7 +71,7 @@ function HeroHome({ goCalendar, goPremium }) {
             Essai gratuit, sans carte de crédit.
           </p>
         </div>
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 opacity-0 animate-fade-in-up delay-500" aria-hidden="true">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 opacity-0 animate-fade-in-up delay-500 order-2 mt-10 md:mt-0" aria-hidden="true">
           <div className="text-zinc-400 text-sm">Illustration</div>
           <div className="mt-3 aspect-video rounded-xl bg-gradient-to-br from-zinc-800 via-zinc-900 to-black grid place-items-center">
             <div className="w-2/3 h-2/3 border border-teal-500/50 rounded-xl relative">
