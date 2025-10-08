@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -111,6 +111,8 @@ body {
 header {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .hero-gradient {
@@ -122,4 +124,11 @@ header {
 
 .text-glow {
   text-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
+}
+
+.hero-title-gradient {
+  background: linear-gradient(135deg, #14B8A6 0%, #5EEAD4 50%, #14B8A6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

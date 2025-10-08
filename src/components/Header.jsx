@@ -31,10 +31,10 @@ export default function Header() {
   return (
     <header className={`sticky top-0 z-20 backdrop-blur transition-all duration-400 ease-in-out ${
       isScrolled
-        ? 'bg-[rgba(11,14,16,0.8)] shadow-[0_2px_12px_rgba(0,0,0,0.3)] py-3'
-        : 'bg-zinc-950/60 py-4'
+        ? 'shadow-[0_2px_12px_rgba(0,0,0,0.3)] py-4'
+        : 'py-5'
     }`}>
-      <div className="px-6 flex items-center justify-between">
+      <div className="px-8 md:px-12 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <a
             href="#/"
@@ -49,14 +49,14 @@ export default function Header() {
           </a>
           <Pill>Beta</Pill>
         </div>
-        <nav className={`hidden md:flex items-center text-sm transition-all duration-400 ease-in-out ${
-          isScrolled ? 'gap-6' : 'gap-8'
+        <nav className={`hidden md:flex items-center transition-all duration-300 ease-in-out ${
+          isScrolled ? 'gap-8' : 'gap-10'
         }`} aria-label="Navigation principale">
           {NAV.map((n) => (
             <a
               key={n.key}
               href={n.path}
-              className={`transition-colors duration-250 focus:outline-none focus:underline ${currentPath === n.path.replace("#", "") ? "text-[#00D3A7]" : "text-zinc-300 hover:text-[#00D3A7]"}`}
+              className={`text-[15px] font-medium tracking-[-0.01em] transition-colors duration-[250ms] focus:outline-none focus:underline ${currentPath === n.path.replace("#", "") ? "text-[#00D3A7]" : "text-[#A1A1AA] hover:text-[#00D3A7]"}`}
               aria-current={currentPath === n.path.replace("#", "") ? "page" : undefined}
             >
               {n.label}
