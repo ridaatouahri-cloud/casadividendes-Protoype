@@ -20,8 +20,8 @@ export default function Header() {
   const currentPath = getHashPath();
 
   return (
-    <header className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/70 bg-zinc-950/90 border-b border-zinc-800">
-      <div className="px-6 py-3 flex items-center justify-between">
+    <header className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/60 bg-zinc-950/80">
+      <div className="px-6 py-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <a
             href="#/"
@@ -31,12 +31,12 @@ export default function Header() {
             <img
               src="/logo.png"
               alt="CasaDividendes"
-              className="h-12 w-auto hover:drop-shadow-[0_0_12px_rgba(20,184,166,0.5)] transition-all duration-300"
+              className="h-16 w-auto hover:drop-shadow-[0_0_12px_rgba(20,184,166,0.5)] transition-all duration-300"
             />
           </a>
           <Pill>Beta</Pill>
         </div>
-        <nav className="hidden md:flex items-center gap-5 text-sm" aria-label="Navigation principale">
+        <nav className="hidden md:flex items-center gap-8 text-sm" aria-label="Navigation principale">
           {NAV.map((n) => (
             <a
               key={n.key}
@@ -49,7 +49,7 @@ export default function Header() {
           ))}
           <a
             href="#/premium"
-            className="ml-2 px-3 py-1.5 rounded-lg bg-orange-500 text-black font-medium hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950"
+            className="ml-4 px-4 py-2 rounded-lg bg-orange-500 text-black font-medium hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950"
             aria-label="Découvrir Premium"
           >
             Premium
