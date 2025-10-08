@@ -75,15 +75,111 @@ function HeroHome({ goCalendar, goPremium }) {
             Essai gratuit, sans carte de crédit.
           </p>
         </div>
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 opacity-0 animate-fade-in-up delay-500 order-2 mt-10 md:mt-0" aria-hidden="true">
-          <div className="text-zinc-400 text-sm">Illustration</div>
-          <div className="mt-3 aspect-video rounded-xl bg-gradient-to-br from-zinc-800 via-zinc-900 to-black grid place-items-center">
-            <div className="w-2/3 h-2/3 border border-teal-500/50 rounded-xl relative">
-              <div className="absolute inset-x-6 bottom-6 h-1 bg-orange-500/60" />
-              <div className="absolute left-6 bottom-6 w-1 h-1/2 bg-teal-400/70 animate-grow-up delay-600" />
-              <div className="absolute left-1/3 bottom-6 w-1 h-2/3 bg-teal-400/70 animate-grow-up" style={{animationDelay: '0.7s'}} />
-              <div className="absolute left-2/3 bottom-6 w-1 h-3/4 bg-teal-400/70 animate-grow-up" style={{animationDelay: '0.8s'}} />
+        <div className="relative opacity-0 animate-fade-in-up delay-500 order-2 mt-10 md:mt-0" aria-hidden="true">
+          <div className="relative w-full aspect-[16/10] rounded-3xl overflow-hidden">
+            {/* Background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A]" />
+
+            {/* Gradient glow effects */}
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#10B981] opacity-20 rounded-full blur-[100px]" />
+            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#F97316] opacity-15 rounded-full blur-[100px]" />
+            <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-[#7E22CE] opacity-10 rounded-full blur-[80px]" />
+
+            {/* Main dashboard card */}
+            <div className="absolute top-[15%] left-[8%] w-[45%] h-[70%] bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl p-6">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-zinc-400 text-xs font-medium">Portefeuille</div>
+                <div className="w-16 h-6 bg-gradient-to-r from-[#10B981] to-[#14B8A6] rounded-full opacity-60" />
+              </div>
+
+              {/* Revenue stat */}
+              <div className="mb-6">
+                <div className="text-2xl font-bold text-white mb-1">124,850 MAD</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-[#10B981] text-sm font-medium">+12.4%</div>
+                  <div className="text-xs text-zinc-500">vs mois dernier</div>
+                </div>
+              </div>
+
+              {/* Chart bars */}
+              <div className="flex items-end gap-2 h-24 mb-4">
+                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '45%'}} />
+                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '65%'}} />
+                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '55%'}} />
+                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '80%'}} />
+                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '70%'}} />
+                <div className="flex-1 bg-gradient-to-t from-[#F97316] to-[#F97316]/40 rounded-t" style={{height: '95%'}} />
+              </div>
+
+              {/* Stock items */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between py-2 border-t border-zinc-800/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-[#10B981]/20 flex items-center justify-center text-[10px] text-[#10B981]">IAM</div>
+                    <div className="text-xs text-zinc-400">Maroc Telecom</div>
+                  </div>
+                  <div className="text-xs text-white font-medium">5.2%</div>
+                </div>
+                <div className="flex items-center justify-between py-2 border-t border-zinc-800/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded bg-[#F97316]/20 flex items-center justify-center text-[10px] text-[#F97316]">BCP</div>
+                    <div className="text-xs text-zinc-400">Banque Populaire</div>
+                  </div>
+                  <div className="text-xs text-white font-medium">4.8%</div>
+                </div>
+              </div>
             </div>
+
+            {/* Floating curved card */}
+            <div className="absolute top-[20%] right-[5%] w-[42%] h-[60%] bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-xl rounded-3xl border border-zinc-700/50 shadow-2xl p-5 transform rotate-2">
+              <div className="mb-4">
+                <div className="text-zinc-400 text-xs mb-3">Prochains dividendes</div>
+                <div className="flex items-baseline gap-2">
+                  <div className="text-3xl font-bold text-white">8,450</div>
+                  <div className="text-sm text-zinc-500">MAD</div>
+                </div>
+              </div>
+
+              {/* Mini chart */}
+              <div className="relative h-32 mb-4">
+                <svg className="w-full h-full" viewBox="0 0 200 80" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#10B981" stopOpacity="0.4" />
+                      <stop offset="100%" stopColor="#10B981" stopOpacity="0.05" />
+                    </linearGradient>
+                  </defs>
+                  <path
+                    d="M 0 60 Q 30 40, 50 45 T 100 30 T 150 20 T 200 15"
+                    fill="url(#chartGradient)"
+                    stroke="#10B981"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M 0 60 Q 30 40, 50 45 T 100 30 T 150 20 T 200 15 L 200 80 L 0 80 Z"
+                    fill="url(#chartGradient)"
+                  />
+                </svg>
+                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[#10B981] shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+              </div>
+
+              {/* Stats grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-zinc-900/50 rounded-xl p-3 border border-zinc-800/50">
+                  <div className="text-[10px] text-zinc-500 mb-1">Rendement</div>
+                  <div className="text-sm font-bold text-[#10B981]">+18.2%</div>
+                </div>
+                <div className="bg-zinc-900/50 rounded-xl p-3 border border-zinc-800/50">
+                  <div className="text-[10px] text-zinc-500 mb-1">Positions</div>
+                  <div className="text-sm font-bold text-white">12</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Glassmorphism overlay elements */}
+            <div className="absolute bottom-[10%] left-[10%] w-32 h-20 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-lg" />
+            <div className="absolute top-[10%] right-[45%] w-24 h-16 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-lg" />
           </div>
         </div>
       </div>
