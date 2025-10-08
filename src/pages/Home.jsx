@@ -36,7 +36,7 @@ function useScrollAnimation() {
 
 function HeroHome({ goCalendar, goPremium }) {
   return (
-    <section className="hero-gradient relative overflow-hidden min-h-[85vh] flex items-center">
+    <section className="hero-gradient relative overflow-hidden min-h-[90vh] flex items-center">
       <div className="absolute inset-0 opacity-30">
         <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
           <path fill="rgba(20, 184, 166, 0.1)" d="M0,320L60,330C120,340,240,360,360,345C480,330,600,280,720,266.7C840,253,960,277,1080,288C1200,299,1320,297,1380,296L1440,295L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
@@ -45,17 +45,17 @@ function HeroHome({ goCalendar, goPremium }) {
       </div>
       <div className="w-full px-6 py-20 md:py-16 grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
         <div className="animate-fade-in-up order-1">
-          <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-normal leading-[1.15] tracking-[-0.02em] " style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
+          <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-semibold leading-[1.1] tracking-[-0.02em]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
             <span className="text-white">Les Dividendes </span>
             <br />
             <span className="text-white">Marocains </span>
             <span className="hero-title-gradient-alt">Simplifiés.</span>
           </h1>
-          <p className="text-[#A0A0A0] mt-6 text-[15px] max-w-[680px] SF Pro leading-[1.6] font-thin opacity-0 animate-fade-in-up delay-200 mb-10" style={{ fontFamily: 'SF Pro, sans-serif' }}>
+          <p className="text-[#A1A1AA] mt-6 text-[19.8px] max-w-[60%] leading-[1.6] font-normal opacity-0 animate-fade-in-up delay-200" style={{ fontFamily: 'Inter, sans-serif' }}>
             La première plateforme marocaine dédiée aux dividendes de la bourse de Casablanca :
             Maximisez votre rentabilité, suivez chaque dividende, anticipez les paiements et optimisez vos décisions avec nos outils d'analyse.
           </p>
-          <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
+          <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300 mt-10">
             <button
               onClick={goCalendar}
               className="px-4 py-2 rounded-xl bg-teal-400 text-black font-Normal transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-teal-500/30 hover:brightness-[1.02] hover:shadow-[0_0_20px_rgba(0,211,167,0.3)] active:scale-[0.98]"
@@ -75,15 +75,20 @@ function HeroHome({ goCalendar, goPremium }) {
             Essai gratuit, sans carte de crédit.
           </p>
         </div>
-        <div className="relative opacity-0 animate-fade-in-up delay-500 order-2 mt-10 md:mt-0" aria-hidden="true">
-          <div className="relative w-full aspect-[16/10] rounded-3xl overflow-hidden">
+        <div className="relative opacity-0 animate-fade-in-up delay-500 order-2 mt-10 md:mt-0 group" aria-hidden="true">
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-black/20 rounded-3xl z-10 pointer-events-none" />
+          <div className="relative w-full aspect-[16/10] rounded-3xl overflow-hidden transition-transform duration-500 hover:scale-[1.02] shadow-[0_20px_60px_rgba(15,118,110,0.25)]">
             {/* Background gradient */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A]" />
 
             {/* Gradient glow effects */}
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#10B981] opacity-20 rounded-full blur-[100px]" />
-            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#F97316] opacity-15 rounded-full blur-[100px]" />
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#10B981] opacity-20 rounded-full blur-[100px] group-hover:opacity-25 transition-opacity duration-500" />
+            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#F97316] opacity-15 rounded-full blur-[100px] group-hover:opacity-20 transition-opacity duration-500" />
             <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-[#7E22CE] opacity-10 rounded-full blur-[80px]" />
+
+            {/* Outer glow effect */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-[#10B981]/15 via-[#F97316]/10 to-transparent rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             {/* Main dashboard card */}
             <div className="absolute top-[15%] left-[8%] w-[45%] h-[70%] bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl p-6">
