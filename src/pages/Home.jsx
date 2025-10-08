@@ -36,99 +36,49 @@ function useScrollAnimation() {
 
 function HeroHome({ goCalendar, goPremium }) {
   return (
-    <section className="finary-hero-gradient relative overflow-hidden" style={{ minHeight: '90vh' }}>
-      <div className="mx-auto max-w-7xl px-6 h-full flex items-center relative z-10" style={{ minHeight: '90vh' }}>
-        <div className="grid md:grid-cols-2 gap-16 items-center w-full">
-          <div className="max-w-3xl">
-            <h1
-              className="font-light leading-tight animate-cascade-1"
-              style={{
-                fontSize: 'clamp(3rem, 6vw, 6rem)',
-                lineHeight: '1.1',
-                fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
-              }}
+    <section className="hero-gradient border-b border-zinc-800 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30">
+        <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
+          <path fill="rgba(20, 184, 166, 0.1)" d="M0,320L60,330C120,340,240,360,360,345C480,330,600,280,720,266.7C840,253,960,277,1080,288C1200,299,1320,297,1380,296L1440,295L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
+          <path fill="rgba(168, 85, 247, 0.05)" d="M0,480L60,485.3C120,491,240,501,360,480C480,459,600,405,720,394.7C840,384,960,416,1080,437.3C1200,459,1320,469,1380,474.7L1440,480L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
+        </svg>
+      </div>
+      <div className="mx-auto max-w-7xl px-6 py-16 grid md:grid-cols-2 gap-10 items-center relative z-10">
+        <div className="animate-fade-in-up">
+          <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight text-glow">
+            Les dividendes marocains simplifiés
+          </h1>
+          <p className="text-zinc-300 mt-4 md:text-lg opacity-0 animate-fade-in-up delay-200">
+            Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
+            <button
+              onClick={goCalendar}
+              className="px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold hover:brightness-110 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5"
+              aria-label="Voir le calendrier des dividendes"
             >
-              <span className="text-white font-light">Les dividendes </span>
-              <span className="text-gradient font-semibold">marocains simplifiés</span>
-            </h1>
-
-            <p
-              className="mt-6 text-lg leading-relaxed animate-cascade-2"
-              style={{
-                color: '#A1A1AA',
-                maxWidth: '650px'
-              }}
+              Voir le calendrier
+            </button>
+            <button
+              onClick={goPremium}
+              className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold hover:brightness-110 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-0.5"
+              aria-label="Découvrir l'offre Premium"
             >
-              Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
-            </p>
-
-            <div className="mt-10 animate-cascade-3">
-              <button
-                onClick={goCalendar}
-                className="px-10 py-5 text-lg font-semibold transition-all duration-400 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent hover:scale-102"
-                style={{
-                  backgroundColor: '#14F4C5',
-                  color: '#0B0B0B',
-                  borderRadius: '2rem',
-                  boxShadow: '0 0 30px rgba(20, 244, 197, 0.25)',
-                  border: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'scale(1.02)';
-                  e.currentTarget.style.boxShadow = '0 0 40px rgba(20, 244, 197, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = '0 0 30px rgba(20, 244, 197, 0.25)';
-                }}
-                aria-label="Démarrer gratuitement"
-              >
-                Démarrer gratuitement
-              </button>
-            </div>
+              Découvrir Premium
+            </button>
           </div>
-
-          <div className="hidden md:block animate-cascade-4">
-            <div
-              className="rounded-3xl p-8 relative overflow-hidden"
-              style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(10px)',
-                boxShadow: '0 0 40px rgba(20, 244, 197, 0.1)'
-              }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/40" />
-
-              <div className="relative space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5">
-                  <div className="space-y-1">
-                    <div className="h-2 w-24 rounded bg-teal-400/50" />
-                    <div className="h-4 w-32 rounded bg-white/80" />
-                  </div>
-                  <div className="text-2xl font-bold text-teal-400">+5.2%</div>
-                </div>
-
-                <div className="h-48 rounded-2xl bg-gradient-to-br from-zinc-900/50 to-black/50 p-6 relative overflow-hidden">
-                  <div className="absolute bottom-0 left-0 right-0 flex items-end justify-around h-full px-4 pb-4">
-                    <div className="w-12 bg-gradient-to-t from-teal-400 to-teal-500 rounded-t-lg animate-grow-up" style={{ height: '40%', animationDelay: '0.8s' }} />
-                    <div className="w-12 bg-gradient-to-t from-teal-400 to-teal-500 rounded-t-lg animate-grow-up" style={{ height: '65%', animationDelay: '0.9s' }} />
-                    <div className="w-12 bg-gradient-to-t from-teal-400 to-teal-500 rounded-t-lg animate-grow-up" style={{ height: '55%', animationDelay: '1.0s' }} />
-                    <div className="w-12 bg-gradient-to-t from-teal-400 to-teal-500 rounded-t-lg animate-grow-up" style={{ height: '80%', animationDelay: '1.1s' }} />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl bg-white/5">
-                    <div className="text-xs text-zinc-500 mb-1">Rendement</div>
-                    <div className="text-lg font-semibold text-white">4.8%</div>
-                  </div>
-                  <div className="p-4 rounded-xl bg-white/5">
-                    <div className="text-xs text-zinc-500 mb-1">Paiement</div>
-                    <div className="text-lg font-semibold text-white">28/06</div>
-                  </div>
-                </div>
-              </div>
+          <p className="text-zinc-400 text-xs mt-3 opacity-0 animate-fade-in-up delay-400">
+            Essai gratuit, sans carte de crédit.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 opacity-0 animate-fade-in-up delay-500" aria-hidden="true">
+          <div className="text-zinc-400 text-sm">Illustration</div>
+          <div className="mt-3 aspect-video rounded-xl bg-gradient-to-br from-zinc-800 via-zinc-900 to-black grid place-items-center">
+            <div className="w-2/3 h-2/3 border border-teal-500/50 rounded-xl relative">
+              <div className="absolute inset-x-6 bottom-6 h-1 bg-orange-500/60" />
+              <div className="absolute left-6 bottom-6 w-1 h-1/2 bg-teal-400/70 animate-grow-up delay-600" />
+              <div className="absolute left-1/3 bottom-6 w-1 h-2/3 bg-teal-400/70 animate-grow-up" style={{animationDelay: '0.7s'}} />
+              <div className="absolute left-2/3 bottom-6 w-1 h-3/4 bg-teal-400/70 animate-grow-up" style={{animationDelay: '0.8s'}} />
             </div>
           </div>
         </div>
