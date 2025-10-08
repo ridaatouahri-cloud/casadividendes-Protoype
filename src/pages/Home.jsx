@@ -46,16 +46,13 @@ function HeroHome({ goCalendar, goPremium }) {
       <div className="w-full px-6 py-20 md:py-16 grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
         <div className="animate-fade-in-up order-1">
           <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-semibold leading-[1.15] tracking-[-0.02em] uppercase">
-            <span className="text-white">Préparez-vous à</span>
+            <span className="text-white">Les Dividendes </span>
             <br />
-            <span className="text-white">redéfinir </span>
-            <span className="hero-title-gradient">votre vision</span>
-            <br />
-            <span className="text-white">des </span>
-            <span className="hero-title-gradient">dividendes.</span>
+            <span className="text-white"> marocains </span>
+            <span className="hero-title-gradient"> SIMPLIFIES!</span>
           </h1>
           <p className="text-zinc-300 mt-6 text-lg md:text-xl max-w-[600px] leading-[1.65] opacity-0 animate-fade-in-up delay-200">
-            Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
+            La Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
           </p>
           <div className="mt-6 flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
             <button
