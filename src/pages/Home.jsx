@@ -52,7 +52,7 @@ function HeroHome({ goCalendar, goPremium }) {
             <span className="hero-title-gradient-alt">Simplifiés.</span>
           </h1>
           <p className="text-[#A0A0A0] mt-6 text-[15px] max-w-[680px] SF Pro leading-[1.6] font-thin opacity-0 animate-fade-in-up delay-200 mb-10" style={{ fontFamily: 'SF Pro, sans-serif' }}>
-            La première plateforme marocaine dédiée aux dividendes. Maximisez votre rentabilité sur la Bourse de Casablanca : suivez chaque dividende, anticipez les paiements et optimisez vos décisions avec nos outils d'analyse..
+            La première plateforme marocaine dédiée aux dividendes. Maximisez votre rentabilité sur la Bourse de Casablanca : suivez chaque dividende, anticipez les paiements et optimisez vos décisions avec nos outils d'analyse.
           </p>
           <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
             <button
