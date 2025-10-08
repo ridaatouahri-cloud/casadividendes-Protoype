@@ -193,34 +193,91 @@ function HeroHome({ goCalendar, goPremium }) {
 }
 
 function StatsSection() {
+  const sectionRef = useScrollAnimation();
   const stats = [
-    { value: "12 000+", label: "Dividendes suivis", icon: "📊" },
-    { value: "80+", label: "Sociétés cotées", icon: "🏢" },
-    { value: "450+", label: "Alertes activées", icon: "🔔" }
+    { value: "12 000+", label: "dividendes suivis" },
+    { value: "80+", label: "sociétés cotées" },
+    { value: "450", label: "alertes automatiques actives" }
+  ];
+
+  const partners = [
+    { name: "Bourse de Casablanca", abbr: "BVC" },
+    { name: "CFG Bank", abbr: "CFG" },
+    { name: "Attijari", abbr: "AWB" },
+    { name: "Maroclear", abbr: "MCL" },
+    { name: "BMCE Capital", abbr: "BMCE" }
   ];
 
   return (
-    <section className="bg-[#F8FAFC] py-20" aria-labelledby="stats-heading">
-      <div className="max-w-5xl mx-auto px-6 text-center">
-        <h2 id="stats-heading" className="text-2xl md:text-3xl font-semibold text-[#0F172A] mb-12" style={{ fontFamily: 'Inter, sans-serif' }}>
-          Déjà plus de 2 000 investisseurs marocains utilisent CasaDividendes
+    <section
+      ref={sectionRef}
+      className="relative bg-gradient-to-b from-[#0F172A] via-[#F8FAFC] to-[#F8FAFC] py-20 opacity-0"
+      aria-labelledby="stats-heading"
+      style={{
+        backgroundImage: `
+          repeating-linear-gradient(90deg, rgba(15, 23, 42, 0.02) 0px, transparent 1px, transparent 40px, rgba(15, 23, 42, 0.02) 41px),
+          repeating-linear-gradient(0deg, rgba(15, 23, 42, 0.02) 0px, transparent 1px, transparent 40px, rgba(15, 23, 42, 0.02) 41px)
+        `
+      }}
+    >
+      <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
+        {/* Main heading */}
+        <h2
+          id="stats-heading"
+          className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#0F172A] mb-4 leading-tight"
+          style={{ fontFamily: 'Inter, sans-serif' }}
+        >
+          CasaDividendes, la référence pour les investisseurs marocains
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
+
+        {/* Subtitle */}
+        <p
+          className="text-lg md:text-xl text-[#64748B] mb-16 max-w-2xl mx-auto"
+          style={{ fontFamily: 'Inter, sans-serif' }}
+        >
+          Des données vérifiées, issues des sources officielles.
+        </p>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-16">
           {stats.map((stat, idx) => (
             <div
               key={stat.label}
-              className="flex flex-col items-center opacity-0 animate-fade-in-up"
-              style={{ animationDelay: `${0.2 + idx * 0.15}s` }}
+              className="flex flex-col items-center p-8 rounded-2xl bg-white/60 backdrop-blur-sm border border-gray-200/50 shadow-sm hover:shadow-md transition-all duration-300"
             >
-              <div className="text-4xl mb-3 opacity-60">{stat.icon}</div>
-              <div className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {stat.value}
+              <div className="text-4xl md:text-5xl font-bold mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>
+                <span className="bg-gradient-to-r from-[#10B981] to-[#F97316] bg-clip-text text-transparent">
+                  {stat.value}
+                </span>
               </div>
-              <div className="text-base text-[#64748B] font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <div className="text-base md:text-lg text-[#0F172A] font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
                 {stat.label}
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Partner logos section */}
+        <div className="pt-8 border-t border-gray-200/50">
+          <p className="text-sm text-[#64748B] mb-8 uppercase tracking-wide font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+            Sources de données officielles
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+            {partners.map((partner, idx) => (
+              <div
+                key={partner.name}
+                className="flex items-center justify-center opacity-40 hover:opacity-60 transition-opacity duration-300"
+                title={partner.name}
+              >
+                <div
+                  className="px-6 py-3 text-lg font-semibold text-[#0F172A] border border-gray-300/50 rounded-lg bg-white/40"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  {partner.abbr}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
