@@ -51,10 +51,10 @@ function HeroHome({ goCalendar, goPremium }) {
             <span className="text-white">Marocains </span>
             <span className="hero-title-gradient-alt">Simplifiés.</span>
           </h1>
-          <p className="text-zinc-300 mt-6 text-lg md:text-xl max-w-[600px] leading-[1.65] opacity-0 animate-fade-in-up delay-200">
+          <p className="text-[#A0A0A0] mt-6 text-[18px] max-w-[680px] leading-[1.6] font-normal opacity-0 animate-fade-in-up delay-200 mb-10" style={{ fontFamily: 'Inter, sans-serif' }}>
             La Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
           </p>
-          <div className="mt-6 flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
+          <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
             <button
               onClick={goCalendar}
               className="px-4 py-2 rounded-xl bg-teal-400 text-black font-thin transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-teal-500/30 hover:brightness-[1.02] hover:shadow-[0_0_20px_rgba(0,211,167,0.3)] active:scale-[0.98]"
