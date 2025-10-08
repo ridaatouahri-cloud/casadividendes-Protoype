@@ -29,7 +29,7 @@ export default function Footer() {
 
           <div className="flex flex-col items-center gap-2">
             <p className="text-zinc-400">
-              Made with 📈 in Casablanca
+              Made with 📈 in Morocco
             </p>
             <p className="text-zinc-500 text-xs">
               © {new Date().getFullYear()} CasaDividendes. Tous droits réservés.
