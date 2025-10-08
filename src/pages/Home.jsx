@@ -46,7 +46,7 @@ function HeroHome({ goCalendar, goPremium }) {
       <div className="w-full px-6 py-20 md:py-16 grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
         <div className="animate-fade-in-up order-1">
           <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-normal leading-[1.15] tracking-[-0.02em] " style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
-            <span className="text-white">Les dividendes </span>
+            <span className="text-white">Les Dividendes </span>
             <br />
             <span className="text-white">Marocains </span>
             <span className="hero-title-gradient-alt">Simplifiés.</span>
