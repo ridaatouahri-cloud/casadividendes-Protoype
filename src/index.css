@@ -132,3 +132,10 @@ header {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+.hero-title-gradient-alt {
+  background: linear-gradient(90deg, #14B8A6 0%, #F97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
