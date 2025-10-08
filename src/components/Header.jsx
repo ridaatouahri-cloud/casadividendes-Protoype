@@ -25,13 +25,13 @@ export default function Header() {
         <div className="flex items-center gap-3">
           <a
             href="#/"
-            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 rounded"
+            className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 rounded transition-all duration-300"
             aria-label="Retour à l'accueil"
           >
             <img
               src="/logo.png"
               alt="CasaDividendes"
-              className="h-8 w-auto"
+              className="h-12 w-auto hover:drop-shadow-[0_0_12px_rgba(20,184,166,0.5)] transition-all duration-300"
             />
           </a>
           <Pill>Beta</Pill>

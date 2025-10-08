@@ -12,16 +12,33 @@ const NAV = [
 
 export default function Footer() {
   return (
-    <footer className="mt-16 border-t border-zinc-800">
-      <div className="mx-auto max-w-6xl px-6 py-10 text-sm flex flex-col md:flex-row items-center justify-between gap-4">
-        <nav className="flex flex-wrap gap-4 text-zinc-400" aria-label="Navigation du pied de page">
-          {NAV.map((n) => (
-            <a key={n.key} href={n.path} className="hover:text-white transition-colors focus:outline-none focus:underline">
-              {n.label}
-            </a>
-          ))}
-        </nav>
-        <div className="text-zinc-500">© {new Date().getFullYear()} CasaDividendes. Tous droits réservés.</div>
+    <footer className="mt-16 border-t border-zinc-800 bg-[#121212]">
+      <div className="mx-auto max-w-7xl px-6 py-10 text-sm">
+        <div className="flex flex-col items-center justify-center gap-6 text-center">
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="CasaDividendes" className="h-6 w-auto opacity-80" />
+          </div>
+
+          <nav className="flex flex-wrap gap-4 justify-center text-zinc-400" aria-label="Navigation du pied de page">
+            {NAV.map((n) => (
+              <a key={n.key} href={n.path} className="hover:text-teal-400 transition-colors duration-300 focus:outline-none focus:underline">
+                {n.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-zinc-400">
+              Made with 📈 in Casablanca
+            </p>
+            <p className="text-zinc-500 text-xs">
+              © {new Date().getFullYear()} CasaDividendes. Tous droits réservés.
+            </p>
+            <p className="text-zinc-600 text-xs">
+              Source des données : Bourse de Casablanca
+            </p>
+          </div>
+        </div>
       </div>
     </footer>
   );

@@ -1,43 +1,84 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { StatCard } from "../components/StatCard";
 
+function useScrollAnimation() {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in-up');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      if (element) observer.unobserve(element);
+    };
+  }, []);
+
+  return ref;
+}
+
 function HeroHome({ goCalendar, goPremium }) {
   return (
-    <section className="bg-gradient-to-b from-zinc-900 to-zinc-950 border-b border-zinc-800">
-      <div className="mx-auto max-w-7xl px-6 py-16 grid md:grid-cols-2 gap-10 items-center">
-        <div>
-          <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+    <section className="hero-gradient border-b border-zinc-800 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-30">
+        <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
+          <path fill="rgba(20, 184, 166, 0.1)" d="M0,320L60,330C120,340,240,360,360,345C480,330,600,280,720,266.7C840,253,960,277,1080,288C1200,299,1320,297,1380,296L1440,295L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
+          <path fill="rgba(168, 85, 247, 0.05)" d="M0,480L60,485.3C120,491,240,501,360,480C480,459,600,405,720,394.7C840,384,960,416,1080,437.3C1200,459,1320,469,1380,474.7L1440,480L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
+        </svg>
+      </div>
+      <div className="mx-auto max-w-7xl px-6 py-16 grid md:grid-cols-2 gap-10 items-center relative z-10">
+        <div className="animate-fade-in-up">
+          <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight text-glow">
             Les dividendes marocains simplifiés
           </h1>
-          <p className="text-zinc-300 mt-4 md:text-lg">
+          <p className="text-zinc-300 mt-4 md:text-lg opacity-0 animate-fade-in-up delay-200">
             Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
           </p>
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
             <button
               onClick={goCalendar}
-              className="px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950"
+              className="px-4 py-2 rounded-xl bg-teal-400 text-black font-semibold hover:brightness-110 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 hover:-translate-y-0.5"
               aria-label="Voir le calendrier des dividendes"
             >
               Voir le calendrier
             </button>
             <button
               onClick={goPremium}
-              className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950"
+              className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold hover:brightness-110 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:-translate-y-0.5"
               aria-label="Découvrir l'offre Premium"
             >
               Découvrir Premium
             </button>
           </div>
+          <p className="text-zinc-400 text-xs mt-3 opacity-0 animate-fade-in-up delay-400">
+            Essai gratuit, sans carte de crédit.
+          </p>
         </div>
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6" aria-hidden="true">
+        <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 opacity-0 animate-fade-in-up delay-500" aria-hidden="true">
           <div className="text-zinc-400 text-sm">Illustration</div>
           <div className="mt-3 aspect-video rounded-xl bg-gradient-to-br from-zinc-800 via-zinc-900 to-black grid place-items-center">
             <div className="w-2/3 h-2/3 border border-teal-500/50 rounded-xl relative">
               <div className="absolute inset-x-6 bottom-6 h-1 bg-orange-500/60" />
-              <div className="absolute left-6 bottom-6 w-1 h-1/2 bg-teal-400/70" />
-              <div className="absolute left-1/3 bottom-6 w-1 h-2/3 bg-teal-400/70" />
-              <div className="absolute left-2/3 bottom-6 w-1 h-3/4 bg-teal-400/70" />
+              <div className="absolute left-6 bottom-6 w-1 h-1/2 bg-teal-400/70 animate-grow-up delay-600" />
+              <div className="absolute left-1/3 bottom-6 w-1 h-2/3 bg-teal-400/70 animate-grow-up" style={{animationDelay: '0.7s'}} />
+              <div className="absolute left-2/3 bottom-6 w-1 h-3/4 bg-teal-400/70 animate-grow-up" style={{animationDelay: '0.8s'}} />
             </div>
           </div>
         </div>
@@ -48,18 +89,25 @@ function HeroHome({ goCalendar, goPremium }) {
 
 function Values() {
   const items = [
-    { t: "Des données vérifiées", d: "Dates ex-dividende, paiements et historiques sourcés.", icon: "🧭" },
-    { t: "Des outils utiles", d: "Palmarès, fiches, projections — l'essentiel, sans superflu.", icon: "🛠️" },
-    { t: "Pédagogie locale", d: "Articles clairs en FR/Darija pour éviter les pièges.", icon: "📚" },
+    { t: "Des données vérifiées", d: "Dates ex-dividende, paiements et historiques sourcés.", icon: "📊", bg: "#0f0f0f" },
+    { t: "Des outils utiles", d: "Palmarès, fiches, projections — l'essentiel, sans superflu.", icon: "⚙️", bg: "#171717" },
+    { t: "Pédagogie locale", d: "Articles clairs en FR/Darija pour éviter les pièges.", icon: "📚", bg: "#0f0f0f" },
   ];
   return (
     <section className="mx-auto max-w-7xl px-6 py-12" aria-labelledby="values-heading">
       <h2 id="values-heading" className="sr-only">Nos valeurs</h2>
       <div className="grid md:grid-cols-3 gap-6">
-        {items.map((it) => (
-          <div key={it.t} className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6">
-            <div className="text-3xl" aria-hidden="true">{it.icon}</div>
-            <h3 className="text-white font-semibold mt-3">{it.t}</h3>
+        {items.map((it, idx) => (
+          <div
+            key={it.t}
+            className="rounded-2xl border border-zinc-800 p-6 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/20 hover:border-teal-500/30 opacity-0 animate-fade-in-up cursor-pointer group"
+            style={{
+              backgroundColor: it.bg,
+              animationDelay: `${0.6 + idx * 0.15}s`
+            }}
+          >
+            <div className="text-4xl transition-transform duration-300 group-hover:scale-110" aria-hidden="true">{it.icon}</div>
+            <h3 className="text-white font-semibold mt-3 transition-colors duration-300 group-hover:text-teal-400">{it.t}</h3>
             <p className="text-zinc-400 mt-2 text-sm">{it.d}</p>
           </div>
         ))}
@@ -69,13 +117,14 @@ function Values() {
 }
 
 function PalmaresPreview({ goRankings }) {
+  const sectionRef = useScrollAnimation();
   const rows = [
     { r: 1, t: "IAM", n: "Maroc Telecom", y: "5.2%", pay: "28/06" },
     { r: 2, t: "BCP", n: "Banque Populaire", y: "4.8%", pay: "21/06" },
     { r: 3, t: "ATW", n: "Attijariwafa Bank", y: "4.3%", pay: "05/07" },
   ];
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-12" aria-labelledby="palmares-heading">
+    <section ref={sectionRef} className="mx-auto max-w-7xl px-6 pb-12 opacity-0" aria-labelledby="palmares-heading">
       <div className="flex items-center justify-between mb-4">
         <h2 id="palmares-heading" className="text-white text-xl font-semibold">Aperçu Palmarès</h2>
         <button
@@ -115,6 +164,7 @@ function PalmaresPreview({ goRankings }) {
 }
 
 function Newsletter() {
+  const sectionRef = useScrollAnimation();
   const [formData, setFormData] = React.useState({ email: "", hp: "" });
   const [status, setStatus] = React.useState("idle");
   const [message, setMessage] = React.useState("");
@@ -157,7 +207,7 @@ function Newsletter() {
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-10" aria-labelledby="newsletter-heading">
+    <section ref={sectionRef} className="mx-auto max-w-7xl px-6 py-10 opacity-0" aria-labelledby="newsletter-heading">
       <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 flex flex-col md:flex-row items-center gap-4 justify-between">
         <div>
           <h2 id="newsletter-heading" className="text-white font-semibold">Restez informé(e)</h2>
@@ -214,9 +264,10 @@ function Newsletter() {
 }
 
 function ContactSupport() {
+  const sectionRef = useScrollAnimation();
   return (
-    <section className="mx-auto max-w-7xl px-6 py-10" aria-labelledby="contact-heading">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8">
+    <section ref={sectionRef} className="mx-auto max-w-7xl px-6 py-10 opacity-0" aria-labelledby="contact-heading">
+      <div className="rounded-2xl glassmorphism p-8 shadow-2xl">
         <h2 id="contact-heading" className="text-white text-xl font-semibold mb-6">📞 Contact & Support</h2>
         <div className="grid md:grid-cols-2 gap-8">
           <div>
@@ -224,13 +275,13 @@ function ContactSupport() {
             <ul className="space-y-2 text-zinc-300 text-sm">
               <li>
                 <span className="text-zinc-400">Support :</span>{" "}
-                <a href="mailto:support@casadividendes.ma" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                <a href="mailto:support@casadividendes.ma" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
                   support@casadividendes.ma
                 </a>
               </li>
               <li>
                 <span className="text-zinc-400">Commercial :</span>{" "}
-                <a href="mailto:contact@casadividendes.ma" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+                <a href="mailto:contact@casadividendes.ma" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
                   contact@casadividendes.ma
                 </a>
               </li>
@@ -239,32 +290,41 @@ function ContactSupport() {
           <div>
             <h3 className="text-white font-medium mb-3">Réseaux sociaux</h3>
             <ul className="space-y-2 text-zinc-300 text-sm">
-              <li>
-                <span className="text-zinc-400">Twitter/X :</span>{" "}
-                <a href="https://twitter.com/CasaDividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+              <li className="flex items-center gap-2">
+                <span className="text-zinc-400">🐦 Twitter/X :</span>
+                <a href="https://twitter.com/CasaDividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
                   @CasaDividendes
                 </a>
               </li>
-              <li>
-                <span className="text-zinc-400">LinkedIn :</span>{" "}
-                <a href="https://linkedin.com/company/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+              <li className="flex items-center gap-2">
+                <span className="text-zinc-400">💼 LinkedIn :</span>
+                <a href="https://linkedin.com/company/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
                   CasaDividendes
                 </a>
               </li>
-              <li>
-                <span className="text-zinc-400">Facebook :</span>{" "}
-                <a href="https://facebook.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+              <li className="flex items-center gap-2">
+                <span className="text-zinc-400">📘 Facebook :</span>
+                <a href="https://facebook.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
                   CasaDividendes
                 </a>
               </li>
-              <li>
-                <span className="text-zinc-400">Instagram :</span>{" "}
-                <a href="https://instagram.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
+              <li className="flex items-center gap-2">
+                <span className="text-zinc-400">📸 Instagram :</span>
+                <a href="https://instagram.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
                   @casadividendes
                 </a>
               </li>
             </ul>
           </div>
+        </div>
+        <div className="mt-6 pt-6 border-t border-zinc-700/50">
+          <a
+            href="mailto:support@casadividendes.ma"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-400 font-medium hover:bg-teal-500/20 hover:border-teal-500/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
+          >
+            <span>✉️</span>
+            Envoyer un message
+          </a>
         </div>
       </div>
     </section>
@@ -272,8 +332,9 @@ function ContactSupport() {
 }
 
 function PremiumBand({ goPremium }) {
+  const sectionRef = useScrollAnimation();
   return (
-    <section className="border-t border-zinc-800 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950" aria-labelledby="premium-band-heading">
+    <section ref={sectionRef} className="border-t border-zinc-800 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 opacity-0" aria-labelledby="premium-band-heading">
       <div className="mx-auto max-w-7xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
         <h2 id="premium-band-heading" className="text-white text-lg font-semibold">
           Passez au Premium : alertes J-3, scores de sécurité, comparateurs.
