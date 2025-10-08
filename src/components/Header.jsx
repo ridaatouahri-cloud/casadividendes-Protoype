@@ -56,7 +56,7 @@ export default function Header() {
             <a
               key={n.key}
               href={n.path}
-              className={`text-[15px] font-extralight tracking-[-0.01em] transition-colors duration-[250ms] focus:outline-none focus:underline ${currentPath === n.path.replace("#", "") ? "text-[#00D3A7]" : "text-[#A1A1AA] hover:text-[#00D3A7]"}`}
+              className={`text-[15px] font-thin tracking-[-0.01em] transition-colors duration-[250ms] focus:outline-none focus:underline ${currentPath === n.path.replace("#", "") ? "text-[#00D3A7]" : "text-[#A1A1AA] hover:text-[#00D3A7]"}`}
               aria-current={currentPath === n.path.replace("#", "") ? "page" : undefined}
             >
               {n.label}
