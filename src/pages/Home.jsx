@@ -48,7 +48,7 @@ function HeroHome({ goCalendar, goPremium }) {
           <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-semibold leading-[1.15] tracking-[-0.02em] " style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
             <span className="text-white">Les dividendes </span>
             <br />
-            <span className="text-white">marocains </span>
+            <span className="text-white">Marocains </span>
             <span className="hero-title-gradient-alt">Simplifiés.</span>
           </h1>
           <p className="text-zinc-300 mt-6 text-lg md:text-xl max-w-[600px] leading-[1.65] opacity-0 animate-fade-in-up delay-200">
