@@ -31,7 +31,7 @@ export default function Header() {
   return (
     <header className={`sticky top-0 z-20 backdrop-blur transition-all duration-400 ease-in-out ${
       isScrolled
-        ? 'shadow-[0_2px_12px_rgba(0,0,0,0.3)] py-4'
+        ? 'shadow-[0_2px_12px_rgba(0,0,0,0.5)] py-4'
         : 'py-5'
     }`}>
       <div className="px-8 md:px-12 flex items-center justify-between">
