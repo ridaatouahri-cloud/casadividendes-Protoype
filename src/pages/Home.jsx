@@ -49,7 +49,7 @@ function HeroHome({ goCalendar, goPremium }) {
             <span className="text-white">Les Dividendes </span>
             <br />
             <span className="text-white"> marocains </span>
-            <span className="hero-title-gradient-alt"> Simplifiés!</span>
+            <span className="hero-title-gradient-alt"> Simplifiés.</span>
           </h1>
           <p className="text-zinc-300 mt-6 text-lg md:text-xl max-w-[600px] leading-[1.65] opacity-0 animate-fade-in-up delay-200">
             La Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
