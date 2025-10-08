@@ -16,7 +16,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-10 text-sm">
         <div className="flex flex-col items-center justify-center gap-6 text-center">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="CasaDividendes" className="h-22 w-auto opacity-80" />
+            <img src="/logo.png" alt="CasaDividendes" className="h-16 w-auto opacity-80" />
           </div>
 
           <nav className="flex flex-wrap gap-4 justify-center text-zinc-400" aria-label="Navigation du pied de page">
