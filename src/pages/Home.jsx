@@ -65,7 +65,7 @@ function HeroHome({ goCalendar, goPremium }) {
             </button>
             <button
               onClick={goPremium}
-              className="px-4 py-2 rounded-xl bg-transparent border border-[rgba(255,255,255,0.08)] text-white font-thin transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 hover:bg-[#161A1E] active:scale-[0.98]"
+              className="px-4 py-2 rounded-xl bg-transparent border border-[rgba(255,255,255,0.08)] text-white font-Normal transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 hover:bg-[#161A1E] active:scale-[0.98]"
               aria-label="Découvrir l'offre Premium"
             >
               Découvrir Premium
