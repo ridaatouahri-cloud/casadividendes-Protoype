@@ -3,6 +3,7 @@ import { Pill } from "./StatCard";
 
 const NAV = [
   { key: "home", label: "Accueil", path: "#/" },
+  
   { key: "calendar", label: "Calendrier", path: "#/calendar" },
   { key: "rankings", label: "Palmarès", path: "#/rankings" },
   { key: "blog", label: "Blog", path: "#/blog" },
