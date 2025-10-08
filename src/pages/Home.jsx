@@ -51,7 +51,7 @@ function HeroHome({ goCalendar, goPremium }) {
             <span className="text-white">Marocains </span>
             <span className="hero-title-gradient-alt">Simplifiés.</span>
           </h1>
-          <p className="text-[#A0A0A0] mt-6 text-[18px] max-w-[680px] leading-[1.6] font-normal opacity-0 animate-fade-in-up delay-200 mb-10" style={{ fontFamily: 'SF Pro, sans-serif' }}>
+          <p className="text-[#A0A0A0] mt-6 text-[18px] max-w-[680px] SF Pro leading-[1.6] font-normal opacity-0 animate-fade-in-up delay-200 mb-10" style={{ fontFamily: 'SF Pro, sans-serif' }}>
             La Première plateforme pour suivre et optimiser vos dividendes à la Bourse de Casablanca
           </p>
           <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300">
