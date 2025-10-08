@@ -232,7 +232,7 @@ function Values() {
     { t: "Calendrier intelligent", d: "Accédez à tous les dividendes de la Bourse de Casa, organisés par date. Filtrez, exportez et planifiez vos investissements en quelques clics.", icon: "📅", bg: "#0f0f0f" },
     { t: "Alertes personnalisées", d: "Ne manquez plus aucune date importante. Alertes automatiques avant chaque ex-dividende et paiement, personnalisables selon vos préférences.", icon: "🔔", bg: "#171717" },
     { t: "Outils d'analyse et pilotage", d: "Scores de sécurité, simulateurs, projections DRIP et suivi de performance. Tous les outils pour analyser, décider et piloter vos revenus passifs.", icon: "📈", bg: "#0f0f0f" },
-    { t: "Pédagogie investisseur", d: "Guides pratiques, analyses sectorielles et décryptages fiscaux. Apprenez les fondamentaux et affinez votre stratégie avec du contenu accessible.", icon: "💡", bg: "#171717" },
+    { t: "Pédagogie investisseur", d: "Guides pratiques, analyses sectorielles et décryptages fiscaux. Apprenez les fondamentaux et affinez votre stratégie avec du contenu accessible.", icon: "🎓", bg: "#171717" },
   ];
   return (
     <section className="px-6 py-12" aria-labelledby="values-heading">
