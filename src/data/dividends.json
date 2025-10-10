@@ -1,4 +1,4 @@
-  {
+{
     "ticker": "M2M",
     "company": "MAGHREB OXYGENE",
     "sector": "Matériels,Logiciels et services informatique",
@@ -9,3 +9,14 @@
     "yield": null,
     "type": "Ordinaire"
   },
+  {
+    "ticker": "AFM",
+    "company": "AFRIQUIA GAZ",
+    "sector": "Assurances",
+    "year": 2024,
+    "dividend": 175.00,
+    "exDate": "2025-03-25",
+    "paymentDate": "2025-04-08",
+    "yield": null,
+    "type": "Ordinaire"
+  }
