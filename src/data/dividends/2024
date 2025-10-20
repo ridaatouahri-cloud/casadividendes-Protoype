@@ -1,0 +1,292 @@
+[
+  {
+    "ticker": "IMO",
+    "company": "IMMORENTE INVEST",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-04-21",
+    "paymentDate": "2025-04-30",
+    "dividend": 1.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "IMO",
+    "company": "IMMORENTE INVEST",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-09-16",
+    "paymentDate": "2025-09-30",
+    "dividend": 1.0,
+    "type": "Intérim"
+  },
+  {
+    "ticker": "MUT",
+    "company": "MUTANDIS SCA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-26",
+    "paymentDate": "2025-07-08",
+    "dividend": 11.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "NEJ",
+    "company": "AUTO NEJMA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-05-21",
+    "paymentDate": "2025-06-03",
+    "dividend": 96.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SID",
+    "company": "SONASID",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-19",
+    "paymentDate": "2025-07-01",
+    "dividend": 26.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "AFM",
+    "company": "AFMA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-26",
+    "paymentDate": "2025-07-04",
+    "dividend": 57.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ADI",
+    "company": "ADDOHA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-03",
+    "paymentDate": "2025-07-18",
+    "dividend": 0.35,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "AGM",
+    "company": "AGMA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-07",
+    "paymentDate": "2025-07-21",
+    "dividend": 135.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ATL",
+    "company": "ATTIJARIWAFA BANK",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-09",
+    "paymentDate": "2025-07-23",
+    "dividend": 18.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BAL",
+    "company": "BALIMA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-01",
+    "paymentDate": "2025-07-15",
+    "dividend": 10.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BCP",
+    "company": "BANQUE POPULAIRE",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-01",
+    "paymentDate": "2025-07-16",
+    "dividend": 7.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CDM",
+    "company": "CREDIT DU MAROC",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-30",
+    "paymentDate": "2025-07-15",
+    "dividend": 10.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CMA",
+    "company": "COSUMAR",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-07",
+    "paymentDate": "2025-07-21",
+    "dividend": 3.6,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "DRI",
+    "company": "DELTA HOLDING",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-27",
+    "paymentDate": "2025-07-14",
+    "dividend": 2.3,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "GHA",
+    "company": "GROUPE ADDOHA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-10",
+    "paymentDate": "2025-07-25",
+    "dividend": 1.1,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "HPS",
+    "company": "HPS",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-27",
+    "paymentDate": "2025-07-15",
+    "dividend": 52.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "IBN",
+    "company": "IB MAROC.COM",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-07",
+    "paymentDate": "2025-07-21",
+    "dividend": 0.6,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "INV",
+    "company": "INVOLYS",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-01",
+    "paymentDate": "2025-07-15",
+    "dividend": 8.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "JET",
+    "company": "JET CONTRACTORS",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-25",
+    "paymentDate": "2025-07-10",
+    "dividend": 3.8,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "LAC",
+    "company": "LABEL VIE",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-09",
+    "paymentDate": "2025-07-23",
+    "dividend": 110.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "LES",
+    "company": "LESIEUR CRISTAL",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-30",
+    "paymentDate": "2025-07-14",
+    "dividend": 9.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "LHM",
+    "company": "LYDEC",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-03",
+    "paymentDate": "2025-07-18",
+    "dividend": 17.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "MAB",
+    "company": "MAGHREB OXYGENE",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-03-25",
+    "paymentDate": "2025-04-07",
+    "dividend": 4.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "GAZ",
+    "company": "AFRIQUIA GAZ",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-03-25",
+    "paymentDate": "2025-04-07",
+    "dividend": 180.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "TQM",
+    "company": "TAQA MOROCCO",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-27",
+    "paymentDate": "2025-07-14",
+    "dividend": 14.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "TQM",
+    "company": "TAQA MOROCCO",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-10-02",
+    "paymentDate": "2025-10-15",
+    "dividend": 5.0,
+    "type": "Intérim"
+  },
+  {
+    "ticker": "TLB",
+    "company": "TOTAL MAROC",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-27",
+    "paymentDate": "2025-07-14",
+    "dividend": 70.0,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "UNM",
+    "company": "UNIMER",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-07-04",
+    "paymentDate": "2025-07-18",
+    "dividend": 6.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ZMJ",
+    "company": "ZELLIDJA",
+    "sector": null,
+    "year": 2024,
+    "exDate": "2025-06-27",
+    "paymentDate": "2025-07-14",
+    "dividend": 13.0,
+    "type": "Ordinaire"
+  }
+]

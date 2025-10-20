@@ -152,3 +152,16 @@ header nav a {
     background-position: 100% center;
   }
 }
+/* Scrollbar masquée proprement (Chrome/Safari/Firefox/Edge) */
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-hide::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* Hauteur fidèle sur iOS (100dvh quand dispo) */
+@supports (height: 100dvh) {
+  .sidebar-maxh { max-height: calc(100dvh - 4rem); }
+}
+/* focus visible et accessible */
+:focus-visible { outline: 2px solid #14B8A6; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
