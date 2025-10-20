@@ -233,7 +233,6 @@ function monthKeyFromDate(iso) {
   if (!d || isNaN(d)) return null;
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; // ex: "2024-07"
 }
-
 export default function Calendar() {
   const [view, setView] = useState("table");
   const [dividends, setDividends] = useState([]);
