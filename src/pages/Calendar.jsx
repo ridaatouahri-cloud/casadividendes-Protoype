@@ -1055,7 +1055,6 @@ export default function Calendar() {
                               </td>
                               <td className="px-3 py-2 text-zinc-300">{formatDate(dividend.exDate)}</td>
                               <td className="px-3 py-2 text-zinc-300">{formatDate(dividend.paymentDate)}</td>
-                              <td className="px-3 py-2 text-teal-400 font-medium text-right">{dividend.yield}%</td>
                               <td className="px-3 py-2">
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs border ${
