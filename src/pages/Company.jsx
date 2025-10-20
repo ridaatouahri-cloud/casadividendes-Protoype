@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { TrendingUp, Shield, Zap, Sparkles, Bell, Calculator, BarChart3, Download, Share2, Info, ChevronRight, Target, Calendar, Clock, Award, AlertCircle, CheckCircle2, ArrowUpRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { TrendingUp, Shield, Zap, Sparkles, Bell, Calculator, BarChart3, Download, Share2, Info, ChevronRight, Target, Calendar, Clock, Award, AlertCircle, CheckCircle2, ArrowUpRight, Play, Loader2 } from 'lucide-react';
 
 const CompanyPageRefonte = () => {
   const [showKPIModal, setShowKPIModal] = useState(null);
   const [showDRIPSimulator, setShowDRIPSimulator] = useState(false);
   const [showPriceChart, setShowPriceChart] = useState(false);
+  
+  const [kpiStates, setKpiStates] = useState({
+    cdrs: { started: false, completed: false, progress: 0, step: 0, score: 0 },
+    prt: { started: false, completed: false, progress: 0, step: 0, days: 0 },
+    ndf: { started: false, completed: false, progress: 0, step: 0, amount: 0 }
+  });
   
   const [dripInputs, setDripInputs] = useState({
     initialInvestment: 50000,
@@ -73,6 +79,164 @@ const CompanyPageRefonte = () => {
     ]
   };
 
+  const cdrsSteps = [
+    { label: "Analyse de la régularité des paiements", duration: 2000, scoreContribution: 25 },
+    { label: "Vérification de la croissance sur 5 ans", duration: 2500, scoreContribution: 35 },
+    { label: "Évaluation de la stabilité des montants", duration: 2000, scoreContribution: 25 },
+    { label: "Calcul de la magnitude de croissance", duration: 1500, scoreContribution: 15 }
+  ];
+
+  const prtSteps = [
+    { label: "Identification du prix de référence (J-3)", duration: 1500 },
+    { label: "Détection de la date ex-dividende", duration: 1500 },
+    { label: "Calcul du temps de récupération 2024", duration: 2000 },
+    { label: "Calcul du temps de récupération 2023", duration: 2000 },
+    { label: "Calcul du temps de récupération 2022", duration: 2000 },
+    { label: "Calcul de la moyenne pondérée", duration: 1500 }
+  ];
+
+  const ndfSteps = [
+    { label: "Analyse de l'historique des dividendes", duration: 2000 },
+    { label: "Calcul du TCAM pondéré", duration: 2000 },
+    { label: "Projection du dividende 2025", duration: 2000 },
+    { label: "Détermination de la fourchette de confiance", duration: 2500 }
+  ];
+
+  const startCDRSCalculation = () => {
+    setKpiStates(prev => ({
+      ...prev,
+      cdrs: { ...prev.cdrs, started: true, completed: false, progress: 0, step: 0, score: 0 }
+    }));
+
+    let currentStep = 0;
+    let accumulatedScore = 0;
+    let accumulatedTime = 0;
+
+    const runStep = () => {
+      if (currentStep >= cdrsSteps.length) {
+        setKpiStates(prev => ({
+          ...prev,
+          cdrs: { ...prev.cdrs, completed: true, progress: 100, score: company.cdrs.score }
+        }));
+        return;
+      }
+
+      const step = cdrsSteps[currentStep];
+      const stepProgress = (currentStep / cdrsSteps.length) * 100;
+      
+      setKpiStates(prev => ({
+        ...prev,
+        cdrs: { ...prev.cdrs, step: currentStep, progress: stepProgress }
+      }));
+
+      const interval = setInterval(() => {
+        accumulatedScore += step.scoreContribution / (step.duration / 100);
+        const newProgress = ((currentStep + 1) / cdrsSteps.length) * 100;
+        
+        setKpiStates(prev => ({
+          ...prev,
+          cdrs: { ...prev.cdrs, score: Math.min(Math.round(accumulatedScore), company.cdrs.score), progress: newProgress }
+        }));
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        currentStep++;
+        runStep();
+      }, step.duration);
+    };
+
+    runStep();
+  };
+
+  const startPRTCalculation = () => {
+    setKpiStates(prev => ({
+      ...prev,
+      prt: { ...prev.prt, started: true, completed: false, progress: 0, step: 0, days: 0 }
+    }));
+
+    let currentStep = 0;
+
+    const runStep = () => {
+      if (currentStep >= prtSteps.length) {
+        setKpiStates(prev => ({
+          ...prev,
+          prt: { ...prev.prt, completed: true, progress: 100, days: company.prt.days }
+        }));
+        return;
+      }
+
+      const step = prtSteps[currentStep];
+      const stepProgress = (currentStep / prtSteps.length) * 100;
+      
+      setKpiStates(prev => ({
+        ...prev,
+        prt: { ...prev.prt, step: currentStep, progress: stepProgress }
+      }));
+
+      const interval = setInterval(() => {
+        const incrementDays = company.prt.days / (prtSteps.reduce((acc, s) => acc + s.duration, 0) / 100);
+        
+        setKpiStates(prev => ({
+          ...prev,
+          prt: { ...prev.prt, days: Math.min(Math.round(prev.prt.days + incrementDays), company.prt.days) }
+        }));
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        currentStep++;
+        runStep();
+      }, step.duration);
+    };
+
+    runStep();
+  };
+
+  const startNDFCalculation = () => {
+    setKpiStates(prev => ({
+      ...prev,
+      ndf: { ...prev.ndf, started: true, completed: false, progress: 0, step: 0, amount: 0 }
+    }));
+
+    let currentStep = 0;
+
+    const runStep = () => {
+      if (currentStep >= ndfSteps.length) {
+        setKpiStates(prev => ({
+          ...prev,
+          ndf: { ...prev.ndf, completed: true, progress: 100, amount: company.ndf.amount }
+        }));
+        return;
+      }
+
+      const step = ndfSteps[currentStep];
+      const stepProgress = (currentStep / ndfSteps.length) * 100;
+      
+      setKpiStates(prev => ({
+        ...prev,
+        ndf: { ...prev.ndf, step: currentStep, progress: stepProgress }
+      }));
+
+      const interval = setInterval(() => {
+        const incrementAmount = company.ndf.amount / (ndfSteps.reduce((acc, s) => acc + s.duration, 0) / 100);
+        
+        setKpiStates(prev => ({
+          ...prev,
+          ndf: { ...prev.ndf, amount: Math.min(prev.ndf.amount + incrementAmount, company.ndf.amount) }
+        }));
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        currentStep++;
+        runStep();
+      }, step.duration);
+    };
+
+    runStep();
+  };
+
   const calculateDRIP = () => {
     const { initialInvestment, duration, reinvest } = dripInputs;
     const currentPrice = company.currentPrice;
@@ -126,6 +290,79 @@ const CompanyPageRefonte = () => {
     : company.cdrs.score > 80 && company.yield > 4
     ? { type: 'BUY & HOLD', icon: '💎', color: 'purple' }
     : { type: 'OPPORTUNISTE', icon: '⚡', color: 'yellow' };
+
+  const CircularProgress = ({ progress, score, size = 120 }) => {
+    const strokeWidth = 8;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (progress / 100) * circumference;
+
+    return (
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} className="transform -rotate-90">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#e2e8f0"
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="#10b981"
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            className="transition-all duration-300"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-3xl font-bold text-slate-900">{score}</div>
+            <div className="text-xs text-slate-500">/ 100</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const TimelineProgress = ({ progress, days, steps, currentStep }) => {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-6">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-slate-900">{days}</div>
+            <div className="text-xs text-slate-500">jours</div>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {steps.map((step, idx) => (
+            <div key={idx} className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                idx < currentStep ? 'bg-blue-500' : idx === currentStep ? 'bg-blue-400 animate-pulse' : 'bg-slate-200'
+              }`}>
+                {idx < currentStep ? (
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                ) : idx === currentStep ? (
+                  <Loader2 className="w-4 h-4 text-white animate-spin" />
+                ) : (
+                  <div className="w-2 h-2 bg-slate-400 rounded-full" />
+                )}
+              </div>
+              <div className={`text-xs ${idx <= currentStep ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
+                {step.label}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   const KPIModal = ({ kpi, onClose }) => {
     const kpiDetails = {
@@ -275,61 +512,7 @@ const CompanyPageRefonte = () => {
                     className="w-5 h-5 accent-slate-700"
                   />
                   <div>
-                    <div className="text-slate-900 font-medium text-sm">Réinvestir les dividendes</div>
-                    <div className="text-slate-600 text-xs">Acheter automatiquement de nouvelles actions</div>
-                  </div>
-                </label>
-              </div>
-
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                <div className="flex items-start gap-2">
-                  <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm text-slate-700">
-                    <div className="font-semibold text-slate-900 mb-2 text-xs">Hypothèses du simulateur</div>
-                    <ul className="space-y-1 text-xs">
-                      <li>• Prix stable: {company.currentPrice} MAD</li>
-                      <li>• Croissance dividende: +3.2%/an</li>
-                      <li>• Pas de frais de courtage</li>
-                      <li>• Fiscalité non incluse</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-slate-900 rounded-xl p-6">
-                <div className="text-slate-400 text-xs uppercase tracking-wider mb-2 font-medium">Capital Final</div>
-                <div className="text-4xl font-semibold text-white mb-2">{dripResults.finalValue.toLocaleString()} MAD</div>
-                <div className="flex items-center gap-2 text-sm">
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
-                  <span className="text-emerald-400 font-medium">+{dripResults.totalGain.toLocaleString()} MAD ({dripResults.totalReturn}%)</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <div className="text-slate-600 text-xs mb-1 font-medium">Actions détenues</div>
-                  <div className="text-slate-900 text-xl font-semibold">{dripResults.finalShares}</div>
-                  <div className="text-slate-500 text-xs">vs {dripResults.initialShares} initialement</div>
-                </div>
-
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <div className="text-slate-600 text-xs mb-1 font-medium">Dividendes totaux</div>
-                  <div className="text-slate-900 text-xl font-semibold">{dripResults.totalDividends.toLocaleString()}</div>
-                  <div className="text-slate-500 text-xs">MAD perçus</div>
-                </div>
-
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <div className="text-slate-600 text-xs mb-1 font-medium">Dividendes annuels</div>
-                  <div className="text-slate-900 text-xl font-semibold">{Math.round(dripResults.finalShares * company.ndf.amount)}</div>
-                  <div className="text-slate-500 text-xs">MAD/an finaux</div>
-                </div>
-
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <div className="text-slate-600 text-xs mb-1 font-medium">Rendement annuel</div>
-                  <div className="text-slate-900 text-xl font-semibold">{(dripResults.totalReturn / dripInputs.duration).toFixed(1)}%</div>
-                  <div className="text-slate-500 text-xs">par an</div>
+                    <div className="text-slate-500 text-xs">par an</div>
                 </div>
               </div>
             </div>
@@ -599,34 +782,196 @@ const CompanyPageRefonte = () => {
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-white/10 rounded-lg p-4 border border-white/10 hover:border-white/20 transition cursor-pointer group backdrop-blur" onClick={() => setShowKPIModal('cdrs')}>
-                <div className="flex items-center gap-2 mb-2">
+              {/* C-DRS Card */}
+              <div className="bg-white/10 rounded-lg p-5 border border-white/10 backdrop-blur">
+                <div className="flex items-center gap-2 mb-4">
                   <Shield className="w-5 h-5 text-emerald-400" />
                   <span className="text-slate-300 text-sm font-medium">Fiabilité</span>
-                  <Info className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition ml-auto" />
+                  <button 
+                    onClick={() => setShowKPIModal('cdrs')}
+                    className="ml-auto text-slate-600 hover:text-slate-400 transition"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="text-2xl font-semibold text-white mb-1">{company.cdrs.score}/100</div>
-                <div className="text-emerald-400 text-sm font-medium">{company.cdrs.label}</div>
+
+                {!kpiStates.cdrs.started ? (
+                  <div className="text-center py-8">
+                    <button
+                      onClick={startCDRSCalculation}
+                      className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition flex items-center gap-2 mx-auto"
+                    >
+                      <Play className="w-4 h-4" />
+                      Lancer l'analyse
+                    </button>
+                  </div>
+                ) : !kpiStates.cdrs.completed ? (
+                  <div className="space-y-4">
+                    <div className="flex justify-center">
+                      <CircularProgress progress={kpiStates.cdrs.progress} score={kpiStates.cdrs.score} size={100} />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-slate-300 text-xs animate-pulse">
+                        {cdrsSteps[kpiStates.cdrs.step]?.label}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <div className="text-3xl font-bold text-white mb-1">{company.cdrs.score}/100</div>
+                    <div className="text-emerald-400 text-sm font-medium">{company.cdrs.label}</div>
+                    <div className="mt-4">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 rounded-md">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <span className="text-emerald-300 text-xs font-medium">Analyse terminée</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-white/10 rounded-lg p-4 border border-white/10 hover:border-white/20 transition cursor-pointer group backdrop-blur" onClick={() => setShowKPIModal('prt')}>
-                <div className="flex items-center gap-2 mb-2">
+              {/* PRT Card */}
+              <div className="bg-white/10 rounded-lg p-5 border border-white/10 backdrop-blur">
+                <div className="flex items-center gap-2 mb-4">
                   <Zap className="w-5 h-5 text-blue-400" />
                   <span className="text-slate-300 text-sm font-medium">Récupération</span>
-                  <Info className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition ml-auto" />
+                  <button 
+                    onClick={() => setShowKPIModal('prt')}
+                    className="ml-auto text-slate-600 hover:text-slate-400 transition"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="text-2xl font-semibold text-white mb-1">{company.prt.days}j</div>
-                <div className="text-blue-400 text-sm font-medium">{company.prt.label}</div>
+
+                {!kpiStates.prt.started ? (
+                  <div className="text-center py-8">
+                    {!kpiStates.cdrs.completed ? (
+                      <div className="text-slate-400 text-xs">
+                        <div className="mb-2">🔒 Verrouillé</div>
+                        <p>Terminez d'abord l'analyse C-DRS</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-emerald-300 text-xs mb-3 italic">
+                          ✨ Prêt à découvrir le temps de récupération
+                        </p>
+                        <button
+                          onClick={startPRTCalculation}
+                          className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition flex items-center gap-2 mx-auto"
+                        >
+                          <Play className="w-4 h-4" />
+                          Calculer le PRT
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : !kpiStates.prt.completed ? (
+                  <div className="space-y-3">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-white">{kpiStates.prt.days}</div>
+                      <div className="text-xs text-slate-400">jours</div>
+                    </div>
+                    <div className="space-y-2">
+                      {prtSteps.slice(0, kpiStates.prt.step + 1).map((step, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            idx < kpiStates.prt.step ? 'bg-blue-500' : 'bg-blue-400 animate-pulse'
+                          }`}>
+                            {idx < kpiStates.prt.step ? (
+                              <CheckCircle2 className="w-3 h-3 text-white" />
+                            ) : (
+                              <Loader2 className="w-3 h-3 text-white animate-spin" />
+                            )}
+                          </div>
+                          <div className="text-slate-300 text-xs truncate">{step.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <div className="text-3xl font-bold text-white mb-1">{company.prt.days}j</div>
+                    <div className="text-blue-400 text-sm font-medium">{company.prt.label}</div>
+                    <div className="mt-4">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/20 rounded-md">
+                        <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                        <span className="text-blue-300 text-xs font-medium">Calcul terminé</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="bg-white/10 rounded-lg p-4 border border-white/10 hover:border-white/20 transition cursor-pointer group backdrop-blur" onClick={() => setShowKPIModal('ndf')}>
-                <div className="flex items-center gap-2 mb-2">
+              {/* NDF Card */}
+              <div className="bg-white/10 rounded-lg p-5 border border-white/10 backdrop-blur">
+                <div className="flex items-center gap-2 mb-4">
                   <Sparkles className="w-5 h-5 text-purple-400" />
                   <span className="text-slate-300 text-sm font-medium">Prochain</span>
-                  <Info className="w-4 h-4 text-slate-600 group-hover:text-slate-400 transition ml-auto" />
+                  <button 
+                    onClick={() => setShowKPIModal('ndf')}
+                    className="ml-auto text-slate-600 hover:text-slate-400 transition"
+                  >
+                    <Info className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="text-2xl font-semibold text-white mb-1">{company.ndf.amount}</div>
-                <div className="text-purple-400 text-sm font-medium">{company.ndf.date}</div>
+
+                {!kpiStates.ndf.started ? (
+                  <div className="text-center py-8">
+                    {!kpiStates.prt.completed ? (
+                      <div className="text-slate-400 text-xs">
+                        <div className="mb-2">🔒 Verrouillé</div>
+                        <p>Terminez d'abord l'analyse PRT</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="text-purple-300 text-xs mb-3 italic">
+                          🔮 Prédisez le prochain dividende
+                        </p>
+                        <button
+                          onClick={startNDFCalculation}
+                          className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-sm font-medium transition flex items-center gap-2 mx-auto"
+                        >
+                          <Play className="w-4 h-4" />
+                          Prédire le NDF
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : !kpiStates.ndf.completed ? (
+                  <div className="space-y-3">
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-white">{kpiStates.ndf.amount.toFixed(2)}</div>
+                      <div className="text-xs text-slate-400">MAD</div>
+                    </div>
+                    <div className="space-y-2">
+                      {ndfSteps.slice(0, kpiStates.ndf.step + 1).map((step, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            idx < kpiStates.ndf.step ? 'bg-purple-500' : 'bg-purple-400 animate-pulse'
+                          }`}>
+                            {idx < kpiStates.ndf.step ? (
+                              <CheckCircle2 className="w-3 h-3 text-white" />
+                            ) : (
+                              <Loader2 className="w-3 h-3 text-white animate-spin" />
+                            )}
+                          </div>
+                          <div className="text-slate-300 text-xs truncate">{step.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <div className="text-3xl font-bold text-white mb-1">{company.ndf.amount}</div>
+                    <div className="text-purple-400 text-sm font-medium">{company.ndf.date}</div>
+                    <div className="mt-4">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 rounded-md">
+                        <CheckCircle2 className="w-4 h-4 text-purple-400" />
+                        <span className="text-purple-300 text-xs font-medium">Prédiction terminée</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -870,4 +1215,58 @@ const CompanyPageRefonte = () => {
   );
 };
 
-export default CompanyPageRefonte;
+export default CompanyPageRefonte;-slate-900 font-medium text-sm">Réinvestir les dividendes</div>
+                    <div className="text-slate-600 text-xs">Acheter automatiquement de nouvelles actions</div>
+                  </div>
+                </label>
+              </div>
+
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                <div className="flex items-start gap-2">
+                  <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-slate-700">
+                    <div className="font-semibold text-slate-900 mb-2 text-xs">Hypothèses du simulateur</div>
+                    <ul className="space-y-1 text-xs">
+                      <li>• Prix stable: {company.currentPrice} MAD</li>
+                      <li>• Croissance dividende: +3.2%/an</li>
+                      <li>• Pas de frais de courtage</li>
+                      <li>• Fiscalité non incluse</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-slate-900 rounded-xl p-6">
+                <div className="text-slate-400 text-xs uppercase tracking-wider mb-2 font-medium">Capital Final</div>
+                <div className="text-4xl font-semibold text-white mb-2">{dripResults.finalValue.toLocaleString()} MAD</div>
+                <div className="flex items-center gap-2 text-sm">
+                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                  <span className="text-emerald-400 font-medium">+{dripResults.totalGain.toLocaleString()} MAD ({dripResults.totalReturn}%)</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                  <div className="text-slate-600 text-xs mb-1 font-medium">Actions détenues</div>
+                  <div className="text-slate-900 text-xl font-semibold">{dripResults.finalShares}</div>
+                  <div className="text-slate-500 text-xs">vs {dripResults.initialShares} initialement</div>
+                </div>
+
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                  <div className="text-slate-600 text-xs mb-1 font-medium">Dividendes totaux</div>
+                  <div className="text-slate-900 text-xl font-semibold">{dripResults.totalDividends.toLocaleString()}</div>
+                  <div className="text-slate-500 text-xs">MAD perçus</div>
+                </div>
+
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                  <div className="text-slate-600 text-xs mb-1 font-medium">Dividendes annuels</div>
+                  <div className="text-slate-900 text-xl font-semibold">{Math.round(dripResults.finalShares * company.ndf.amount)}</div>
+                  <div className="text-slate-500 text-xs">MAD/an finaux</div>
+                </div>
+
+                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                  <div className="text-slate-600 text-xs mb-1 font-medium">Rendement annuel</div>
+                  <div className="text-slate-900 text-xl font-semibold">{(dripResults.totalReturn / dripInputs.duration).toFixed(1)}%</div>
+                  <div className="text
