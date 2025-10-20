@@ -225,6 +225,15 @@ function NewsSidebar() {
 /* =========================================================================
    PAGE CALENDRIER (version VF conservée + wrapper full-width + sidebar)
    ========================================================================= */
+// --- Auto-scroll vers le mois du 1er résultat filtré ---
+const monthRefs = React.useRef(new Map());
+
+function monthKeyFromDate(iso) {
+  const d = iso ? new Date(iso) : null;
+  if (!d || isNaN(d)) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; // ex: "2024-07"
+}
+
 export default function Calendar() {
   const [view, setView] = useState("table");
   const [dividends, setDividends] = useState([]);
