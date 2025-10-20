@@ -1,20 +1,27 @@
 import React, { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from "recharts";
-import { ArrowLeft, ExternalLink, TrendingUp, Star, Bookmark, Share2, Settings, ChevronRight, Info, X, Sparkles, Link as LinkIcon } from "lucide-react";
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+} from "recharts";
+import {
+  ArrowLeft, ExternalLink, TrendingUp, Star, Bookmark, Share2, Settings,
+  ChevronRight, Info, X, Sparkles, Link as LinkIcon, CalendarDays
+} from "lucide-react";
 
 /* =========================================================
-   COMPANY PAGE V2 — CasaDividendes
+   COMPANY PAGE V2.5 — CasaDividendes
    - Sticky anchor nav
-   - KPI cards with subtle gradient glow
-   - Animated radial Score
+   - KPI cards (tooltips + glow)
+   - Animated radial Score (+pulse subtil)
    - Dividends history chart (LineChart)
-   - Sector comparison (RadarChart)
+   - Sector comparison (RadarChart) with active ticker highlight
    - DRIP modal
    - Mobile FAB actions
+   - Calendar deep-link
    ========================================================= */
 
-export default function CompanyPageV2({
+export default function CompanyPageV2_5({
   company = {
     ticker: "ATW",
     name: "ATTIJARIWAFA BANK",
@@ -25,7 +32,6 @@ export default function CompanyPageV2({
   },
   kpi = { cdrs: 82, prt: 68, ndf: 74, score: 86 },
   dividends = [
-    // year ascending or descending accepted
     { year: 2020, exDate: "2021-07-05", paymentDate: "2021-08-27", dividend: 11 },
     { year: 2021, exDate: "2022-07-07", paymentDate: "2022-07-21", dividend: 13.5 },
     { year: 2022, exDate: "2023-07-10", paymentDate: "2023-07-23", dividend: 15.5 },
@@ -43,15 +49,15 @@ export default function CompanyPageV2({
   // ======== derived ========
   const currency = company.currency || "MAD";
   const yearSorted = useMemo(
-    () => [...dividends].sort((a, b) => (a.year === b.year ? new Date(a.exDate) - new Date(b.exDate) : a.year - b.year)),
+    () =>
+      [...dividends].sort((a, b) =>
+        a.year === b.year ? new Date(a.exDate) - new Date(b.exDate) : a.year - b.year
+      ),
     [dividends]
   );
   const yearly = useMemo(() => {
-    // group by year -> sum dividend
     const map = new Map();
-    for (const d of yearSorted) {
-      map.set(d.year, (map.get(d.year) || 0) + Number(d.dividend || 0));
-    }
+    for (const d of yearSorted) map.set(d.year, (map.get(d.year) || 0) + Number(d.dividend || 0));
     return Array.from(map.entries()).map(([year, total]) => ({ year, total: Number(total.toFixed(2)) }));
   }, [yearSorted]);
 
@@ -67,8 +73,7 @@ export default function CompanyPageV2({
   }, [yearly]);
 
   // ======== helpers ========
-  const fmtMAD = (v) => (v == null ? "—" : `${v.toFixed(2)} ${currency}`);
-  const fmtPct = (v) => (v == null ? "—" : `${Number(v).toFixed(1)}%`);
+  const fmtMAD = (v) => (v == null ? "—" : `${Number(v).toFixed(2)} ${currency}`);
   const fmtDate = (iso) => {
     if (!iso) return "—";
     const d = new Date(iso);
@@ -87,24 +92,52 @@ export default function CompanyPageV2({
         {/* Header */}
         <header id="profil" className="flex flex-col md:flex-row md:items-end gap-6 mb-8">
           <div className="flex items-center gap-4">
-            <button onClick={() => window.history.back()} className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40">
+            <button
+              onClick={() => window.history.back()}
+              className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40"
+              aria-label="Retour"
+            >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <img src={company.logo} alt="" className="w-12 h-12 rounded-lg border border-zinc-800 bg-zinc-900/70 object-contain" />
+            <img
+              src={company.logo}
+              alt=""
+              className="w-12 h-12 rounded-lg border border-zinc-800 bg-zinc-900/70 object-contain"
+            />
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">{company.name}</h1>
-              <div className="text-sm text-zinc-400">{company.ticker} • {company.sector}</div>
+              <div className="text-sm text-zinc-400">
+                {company.ticker} • {company.sector}
+              </div>
             </div>
           </div>
 
-          <div className="md:ml-auto flex items-center gap-4">
-            <button className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2">
+          <div className="md:ml-auto flex items-center gap-3">
+            <button
+              onClick={() => setShowDRIP(true)}
+              className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2"
+            >
               <TrendingUp className="w-4 h-4" /> DRIP
             </button>
-            <a href={`https://www.casablanca-bourse.com`} target="_blank" rel="noreferrer" className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40 flex items-center gap-2">
+
+            <a
+              href={`/#/calendar?ticker=${encodeURIComponent(company.ticker)}`}
+              className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2"
+            >
+              <CalendarDays className="w-4 h-4" /> Calendrier
+            </a>
+
+            <a
+              href="https://www.casablanca-bourse.com"
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40 flex items-center gap-2"
+            >
               <ExternalLink className="w-4 h-4" /> Fiche BVC
             </a>
-            <button className="rounded-xl p-2 bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40"><Share2 className="w-4 h-4" /></button>
+            <button className="rounded-xl p-2 bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40" aria-label="Partager">
+              <Share2 className="w-4 h-4" />
+            </button>
           </div>
         </header>
 
@@ -118,7 +151,11 @@ export default function CompanyPageV2({
               { id: "strategy", label: "Stratégie" },
               { id: "compare", label: "Comparatif" },
             ].map((s) => (
-              <a key={s.id} href={`#${s.id}`} className="px-3 py-1.5 rounded-xl text-sm text-zinc-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500/30">
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className="px-3 py-1.5 rounded-xl text-sm text-zinc-300 hover:text-teal-300 focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+              >
                 {s.label}
               </a>
             ))}
@@ -138,20 +175,26 @@ export default function CompanyPageV2({
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
             <div className="flex items-center justify-between mb-3">
               <h3 className="font-semibold">Historique des dividendes</h3>
-              <div className="text-sm text-zinc-400 flex items-center gap-2"><Info className="w-4 h-4" /> CAGR: <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span></div>
+              <div className="text-sm text-zinc-400 flex items-center gap-2">
+                <Info className="w-4 h-4" /> CAGR:{" "}
+                <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
+              </div>
             </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={yearly}>
                   <XAxis dataKey="year" stroke="#a1a1aa" />
                   <YAxis stroke="#a1a1aa" />
-                  <Tooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                  <Tooltip
+                    contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }}
+                    formatter={(v) => [`${Number(v).toFixed(2)} ${currency}`, "Total annuel"]}
+                  />
                   <Line type="monotone" dataKey="total" stroke="#14b8a6" strokeWidth={2} dot />
                 </LineChart>
               </ResponsiveContainer>
             </div>
             <div className="mt-3 text-sm text-zinc-400">
-              Somme annuelle des dividendes en {currency}. Données issues de CasaDividendes (2020–2024).
+              Somme annuelle des dividendes en {currency}. Données CasaDividendes (2020–2024).
             </div>
           </div>
 
@@ -162,7 +205,9 @@ export default function CompanyPageV2({
                 <li key={`${d.year}-${i}`} className="py-3 flex items-center justify-between gap-4">
                   <div>
                     <div className="font-medium">{d.year}</div>
-                    <div className="text-xs text-zinc-400">Ex-date: {fmtDate(d.exDate)} • Paiement: {fmtDate(d.paymentDate)}</div>
+                    <div className="text-xs text-zinc-400">
+                      Ex-date: {fmtDate(d.exDate)} • Paiement: {fmtDate(d.paymentDate)}
+                    </div>
                   </div>
                   <div className="text-teal-300 font-semibold">{fmtMAD(Number(d.dividend))}</div>
                 </li>
@@ -174,25 +219,38 @@ export default function CompanyPageV2({
         {/* Strategy */}
         <section id="strategy" className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 mb-10">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold flex items-center gap-2">Stratégie recommandée <Sparkles className="w-4 h-4 text-amber-400" /></h3>
-            <a href="#history" className="text-sm text-amber-300 hover:underline flex items-center gap-1">Voir l’historique <ChevronRight className="w-4 h-4" /></a>
+            <h3 className="font-semibold flex items-center gap-2">
+              Stratégie recommandée <Sparkles className="w-4 h-4 text-amber-400" />
+            </h3>
+            <a href="#history" className="text-sm text-amber-300 hover:underline flex items-center gap-1">
+              Voir l’historique <ChevronRight className="w-4 h-4" />
+            </a>
           </div>
           <div className="mt-3 grid md:grid-cols-3 gap-4">
-            <StrategyCard title="Profil" points={[
-              "Entreprise solide et régulière sur le dividende",
-              "C-DRS élevé → constance attractive",
-              "NDF soutenu (flux récurrents)"
-            ]}/>
-            <StrategyCard title="Entrée idéale" points={[
-              "Sur repli vers PRT bas",
-              "Confirmation par volume & news flow",
-              "Fenêtre avant ex-date pour capter le coupon"
-            ]}/>
-            <StrategyCard title="Gestion du risque" points={[
-              "Position taille < 5% du portefeuille",
-              "Surveillance du payout et cash-flow",
-              "Diversification intra-secteur"
-            ]}/>
+            <StrategyCard
+              title="Profil"
+              points={[
+                "Entreprise solide et régulière sur le dividende",
+                "C-DRS élevé → constance attractive",
+                "NDF soutenu (flux récurrents)",
+              ]}
+            />
+            <StrategyCard
+              title="Entrée idéale"
+              points={[
+                "Sur repli vers PRT bas",
+                "Confirmation par volume & news flow",
+                "Fenêtre avant ex-date pour capter le coupon",
+              ]}
+            />
+            <StrategyCard
+              title="Gestion du risque"
+              points={[
+                "Position taille < 5% du portefeuille",
+                "Surveillance du payout et cash-flow",
+                "Diversification intra-secteur",
+              ]}
+            />
           </div>
         </section>
 
@@ -204,7 +262,27 @@ export default function CompanyPageV2({
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={sectorPeers}>
                   <PolarGrid stroke="#27272a" />
-                  <PolarAngleAxis dataKey="name" stroke="#a1a1aa" />
+                  <PolarAngleAxis
+                    dataKey="name"
+                    stroke="#a1a1aa"
+                    tick={(props) => {
+                      const { x, y, payload, textAnchor } = props;
+                      const active =
+                        String(payload.value).toUpperCase() === String(company.ticker).toUpperCase();
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          textAnchor={textAnchor}
+                          fontSize={12}
+                          fill={active ? "#14b8a6" : "#a1a1aa"}
+                          fontWeight={active ? 700 : 400}
+                        >
+                          {payload.value}
+                        </text>
+                      );
+                    }}
+                  />
                   <PolarRadiusAxis stroke="#52525b" />
                   <Radar name="C-DRS" dataKey="cdrs" stroke="#22d3ee" fill="#22d3ee" fillOpacity={0.2} />
                   <Radar name="Yield" dataKey="yield" stroke="#eab308" fill="#eab308" fillOpacity={0.15} />
@@ -213,7 +291,9 @@ export default function CompanyPageV2({
                 </RadarChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-sm text-zinc-400 mt-2">Lecture relative par rapport aux pairs du secteur.</p>
+            <p className="text-sm text-zinc-400 mt-2">
+              Lecture relative par rapport aux pairs du secteur.
+            </p>
           </div>
 
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
@@ -230,7 +310,7 @@ export default function CompanyPageV2({
         </section>
 
         {/* Footer */}
-        <footer className="text-sm text-zinc-500 pb-16">
+        <footer className="text-sm text-zinc-500 pb-16 border-t border-zinc-800/60 pt-4">
           Données CasaDividendes — à titre informatif. © {new Date().getFullYear()}
         </footer>
       </div>
@@ -245,20 +325,27 @@ export default function CompanyPageV2({
       {/* DRIP Modal */}
       <AnimatePresence>
         {showDRIP && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-              className="w-[92vw] max-w-[680px] rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              className="w-[92vw] max-w-[680px] rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
+            >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold">DRIP — Réinvestissement des dividendes</h3>
-                <button onClick={() => setShowDRIP(false)} className="p-2 rounded-lg hover:bg-zinc-900">
+                <button onClick={() => setShowDRIP(false)} className="p-2 rounded-lg hover:bg-zinc-900" aria-label="Fermer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <p className="text-sm text-zinc-400 mb-4">
                 Simulez l’impact du réinvestissement automatique des dividendes sur votre position.
               </p>
-              {/* Placeholder de formulaire simple */}
               <div className="grid sm:grid-cols-3 gap-3">
                 <Field label="Montant initial" suffix={currency} defaultValue="10000" />
                 <Field label="Horizon (ans)" defaultValue="5" />
@@ -273,6 +360,11 @@ export default function CompanyPageV2({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Styles additionnels */}
+      <style>{`
+        html { scroll-behavior: smooth; }
+      `}</style>
     </div>
   );
 }
@@ -288,12 +380,29 @@ function KPICard({ title, value, hint, color }) {
     sky: "from-sky-500/10 via-sky-500/0 to-transparent",
   }[color || "emerald"];
 
+  const level =
+    value >= 80 ? "Excellente" : value >= 60 ? "Solide" : value >= 40 ? "Moyenne" : "Faible";
+
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 group">
       <div className={`pointer-events-none absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br ${c} blur-2xl`} />
-      <div className="text-sm text-zinc-400">{title}</div>
-      <div className="text-2xl font-semibold mt-1">{typeof value === "number" ? `${value}` : "—"}</div>
-      <div className="text-xs text-zinc-500 mt-2 flex items-center gap-1"><Info className="w-3 h-3" /> {hint}</div>
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-zinc-400">{title}</div>
+        <div className="relative">
+          <span className="text-zinc-500 text-xs border border-zinc-700 rounded-md px-1.5 py-0.5">i</span>
+          <div className="absolute right-0 mt-2 hidden group-hover:block z-20 w-56 text-xs leading-relaxed bg-zinc-950 border border-zinc-800 rounded-lg p-3 shadow-lg">
+            <div className="text-zinc-300 mb-1">{hint}</div>
+            <div className="text-zinc-500">
+              Niveau: <span className="text-zinc-300">{level}</span> • Seuils: 80+ ★ / 60–79 ✓
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-2xl font-semibold mt-1">
+        {typeof value === "number" ? `${value}` : "—"}
+      </div>
+      <div className="text-xs text-zinc-500 mt-1">Indice interne CasaDividendes</div>
     </div>
   );
 }
@@ -303,16 +412,19 @@ function ScoreRadial({ value = 0 }) {
   return (
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="text-sm text-zinc-400">Score global</div>
-      <div className="mt-2 flex items-center justify-center">
+      <div className="mt-2 relative flex items-center justify-center">
+        {/* halo animé (pulse subtil) */}
+        <div className="absolute w-24 h-24 rounded-full bg-teal-500/10 animate-ping" />
         <Radial v={v} />
       </div>
-      <div className="text-xs text-zinc-500 mt-2 text-center">Synthèse (0–100) basée sur C-DRS, PRT, NDF.</div>
+      <div className="text-xs text-zinc-500 mt-2 text-center">
+        Synthèse (0–100) basée sur C-DRS, PRT, NDF.
+      </div>
     </div>
   );
 }
 
 function Radial({ v }) {
-  // simple radial using SVG
   const size = 116;
   const stroke = 10;
   const r = (size - stroke) / 2;
@@ -322,10 +434,24 @@ function Radial({ v }) {
   return (
     <svg width={size} height={size} className="block">
       <circle cx={size/2} cy={size/2} r={r} stroke="#27272a" strokeWidth={stroke} fill="none" />
-      <circle cx={size/2} cy={size/2} r={r} stroke="#14b8a6" strokeWidth={stroke} fill="none"
-        strokeDasharray={c} strokeDashoffset={offset} strokeLinecap="round"
-        style={{ transition: "stroke-dashoffset .6s ease" }} />
-      <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="fill-zinc-100 font-semibold">{v}</text>
+      <circle
+        cx={size/2}
+        cy={size/2}
+        r={r}
+        stroke="#14b8a6"
+        strokeWidth={stroke}
+        fill="none"
+        strokeDasharray={c}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        style={{ transition: "stroke-dashoffset .6s ease" }}
+      />
+      <text
+        x="50%" y="50%" dominantBaseline="middle" textAnchor="middle"
+        className="fill-zinc-100 font-semibold"
+      >
+        {v}
+      </text>
     </svg>
   );
 }
@@ -335,7 +461,12 @@ function StrategyCard({ title, points = [] }) {
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="font-medium">{title}</div>
       <ul className="mt-2 text-sm text-zinc-300 space-y-1">
-        {points.map((p, i) => (<li key={i} className="flex items-start gap-2"><span className="text-teal-300 mt-0.5">•</span><span>{p}</span></li>))}
+        {points.map((p, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="text-teal-300 mt-0.5">•</span>
+            <span>{p}</span>
+          </li>
+        ))}
       </ul>
     </div>
   );
@@ -354,8 +485,15 @@ function Field({ label, suffix, defaultValue }) {
     <label className="text-sm">
       <div className="text-zinc-400 mb-1">{label}</div>
       <div className="flex">
-        <input defaultValue={defaultValue} className="flex-1 rounded-l-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm focus:border-teal-500 outline-none" />
-        {suffix && <div className="rounded-r-lg border border-l-0 border-zinc-800 px-3 py-2 text-sm bg-zinc-900/60 text-zinc-300">{suffix}</div>}
+        <input
+          defaultValue={defaultValue}
+          className="flex-1 rounded-l-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm focus:border-teal-500 outline-none"
+        />
+        {suffix && (
+          <div className="rounded-r-lg border border-l-0 border-zinc-800 px-3 py-2 text-sm bg-zinc-900/60 text-zinc-300">
+            {suffix}
+          </div>
+        )}
       </div>
     </label>
   );
