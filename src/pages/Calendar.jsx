@@ -1009,7 +1009,6 @@ export default function Calendar() {
                           <th className="text-right px-3 py-2 font-semibold">Dividende</th>
                           <th className="text-left px-3 py-2 font-semibold">Date détachement</th>
                           <th className="text-left px-3 py-2 font-semibold">Date paiement</th>
-                          <th className="text-right px-3 py-2 font-semibold">Rendement</th>
                           <th className="text-left px-3 py-2 font-semibold">Type</th>
                           <th className="text-left px-3 py-2 font-semibold">Fiche</th>
                         </tr>
