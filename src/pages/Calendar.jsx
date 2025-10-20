@@ -225,16 +225,8 @@ function NewsSidebar() {
 /* =========================================================================
    PAGE CALENDRIER (version VF conservée + wrapper full-width + sidebar)
    ========================================================================= */
-// --- Auto-scroll vers le mois du 1er résultat filtré ---
-const monthRefs = React.useRef(new Map());
-
-function monthKeyFromDate(iso) {
-  const d = iso ? new Date(iso) : null;
-  if (!d || isNaN(d)) return null;
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; // ex: "2024-07"
-}
 export default function Calendar() {
-  const [view, setView] = useState("table");
+  const [view, setView] = useState("calendar");
   const [dividends, setDividends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
@@ -337,6 +329,29 @@ export default function Calendar() {
     setFilteredData(filtered);
     setCurrentPage(1);
   }, [dividends, filters]);
+
+  // Auto-scroll vers le mois du premier dividende filtré (vue calendrier uniquement)
+  useEffect(() => {
+    if (view !== "calendar" || filteredData.length === 0 || loading) return;
+
+    const firstDividend = filteredData[0];
+    if (!firstDividend || !firstDividend.exDate) return;
+
+    const targetDate = new Date(firstDividend.exDate);
+    if (isNaN(targetDate.getTime())) return;
+
+    // Mettre à jour le mois affiché dans le calendrier
+    const targetMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+    setCurrentMonth(targetMonth);
+
+    // Scroll fluide vers le calendrier après un court délai pour laisser le render se faire
+    setTimeout(() => {
+      const calendarElement = document.querySelector('[data-calendar-view]');
+      if (calendarElement) {
+        calendarElement.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 150);
+  }, [filteredData, view, loading]);
 
   // Search functionality
   useEffect(() => {
@@ -883,6 +898,7 @@ export default function Calendar() {
                       handleFilterChange("company", company.ticker);
                       setSearchQuery("");
                       setShowSearchResults(false);
+                      setView("calendar"); // Basculer vers la vue calendrier
                     }}
                     className="p-4 border-b border-zinc-800 hover:bg-teal-500/10 cursor-pointer transition-all flex justify-between items-center"
                   >
@@ -960,7 +976,10 @@ export default function Calendar() {
             <>
               {/* Calendar View */}
               {view === "calendar" && (
-                <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 animate-[fadeIn_0.4s_ease-out]">
+                <div
+                  className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 animate-[fadeIn_0.4s_ease-out]"
+                  data-calendar-view
+                >
                   <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
                     <h2 className="text-white text-2xl font-bold">
                       {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
