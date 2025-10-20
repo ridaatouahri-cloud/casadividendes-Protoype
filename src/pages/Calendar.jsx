@@ -291,6 +291,23 @@ export default function Calendar() {
     loadDividends();
   }, [filters.year]);
 
+  // Préchargement des années adjacentes pour une navigation plus rapide
+  useEffect(() => {
+    if (filters.year !== "tous") {
+      const currentYear = parseInt(filters.year);
+      const adjacentYears = [
+        currentYear - 1,
+        currentYear + 1
+      ].filter(year => AVAILABLE_YEARS.includes(year));
+
+      adjacentYears.forEach(year => {
+        fetch(`/data/dividends/${year}.json`)
+          .then(res => res.ok ? res.json() : null)
+          .catch(() => null);
+      });
+    }
+  }, [filters.year]);
+
   useEffect(() => {
     let filtered = [...dividends];
 
@@ -556,9 +573,11 @@ export default function Calendar() {
   };
 
   const LoadingSkeleton = () => (
-    <div className="mt-6 space-y-3">
-      {[1, 2, 3, 4, 5].map((i) => (
-        <div key={i} className="h-12 bg-zinc-900/50 rounded-lg animate-pulse"></div>
+    <div className="mt-6 space-y-3" role="status" aria-live="polite" aria-label="Chargement des données">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+        <div key={i} className="h-16 bg-zinc-900/50 rounded-lg relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/30 to-transparent animate-shimmer"></div>
+        </div>
       ))}
     </div>
   );
@@ -700,7 +719,7 @@ export default function Calendar() {
         <NewsSidebar />
 
         {/* MAIN CONTENT (VF conservée) */}
-        <main className="flex-1">
+        <main className="flex-1" role="main" aria-live="polite">
           {/* Header */}
           <div className="flex items-center justify-between gap-4 flex-wrap mb-6 animate-[fadeIn_0.6s_ease-out]">
             <div>
@@ -882,6 +901,7 @@ export default function Calendar() {
                 value={filters.year}
                 onChange={(e) => handleFilterChange("year", e.target.value)}
                 className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all"
+                aria-label="Filtrer par année"
               >
                 <option value="tous">Toutes les années</option>
                 {uniqueYears.map((year) => (
@@ -977,21 +997,21 @@ export default function Calendar() {
               {/* Table View */}
               {view === "table" && (
                 <>
-                  <div className="mt-6 overflow-x-auto rounded-2xl border border-zinc-800 animate-[fadeIn_0.4s_ease-out]">
+                  <div className="mt-6 overflow-x-auto scroll-smooth rounded-2xl border border-zinc-800 animate-[fadeIn_0.4s_ease-out]">
                     <table className="min-w-full text-sm">
                       <thead className="bg-zinc-900 text-zinc-300 sticky top-0 z-10 border-b-2 border-teal-500">
                         <tr>
-                          <th className="text-left p-3 font-semibold">⭐</th>
-                          <th className="text-left p-3 font-semibold">Ticker</th>
-                          <th className="text-left p-3 font-semibold">Société</th>
-                          <th className="text-left p-3 font-semibold">Secteur</th>
-                          <th className="text-left p-3 font-semibold">Année</th>
-                          <th className="text-right p-3 font-semibold">Dividende</th>
-                          <th className="text-left p-3 font-semibold">Date détachement</th>
-                          <th className="text-left p-3 font-semibold">Date paiement</th>
-                          <th className="text-right p-3 font-semibold">Rendement</th>
-                          <th className="text-left p-3 font-semibold">Type</th>
-                          <th className="text-left p-3 font-semibold">Fiche</th>
+                          <th className="text-left px-3 py-2 font-semibold">⭐</th>
+                          <th className="text-left px-3 py-2 font-semibold">Ticker</th>
+                          <th className="text-left px-3 py-2 font-semibold">Société</th>
+                          <th className="text-left px-3 py-2 font-semibold">Secteur</th>
+                          <th className="text-left px-3 py-2 font-semibold">Année</th>
+                          <th className="text-right px-3 py-2 font-semibold">Dividende</th>
+                          <th className="text-left px-3 py-2 font-semibold">Date détachement</th>
+                          <th className="text-left px-3 py-2 font-semibold">Date paiement</th>
+                          <th className="text-right px-3 py-2 font-semibold">Rendement</th>
+                          <th className="text-left px-3 py-2 font-semibold">Type</th>
+                          <th className="text-left px-3 py-2 font-semibold">Fiche</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1008,7 +1028,7 @@ export default function Calendar() {
                               className="border-t border-zinc-800 hover:bg-zinc-900/50 transition-all group"
                               style={{ backgroundColor: i % 2 === 1 ? "rgba(255,255,255,0.02)" : "transparent" }}
                             >
-                              <td className="p-3">
+                              <td className="px-3 py-2">
                                 <button
                                   onClick={() => toggleFavorite(dividend.ticker)}
                                   className="text-xl hover:scale-125 transition-transform"
@@ -1020,7 +1040,7 @@ export default function Calendar() {
                                   )}
                                 </button>
                               </td>
-                              <td className="p-3 text-white font-medium">
+                              <td className="px-3 py-2 text-white font-medium">
                                 <button
                                   onClick={() => handleSelectCompany(dividend.ticker)}
                                   className="underline hover:text-teal-400 transition-colors"
@@ -1028,16 +1048,16 @@ export default function Calendar() {
                                   {dividend.ticker}
                                 </button>
                               </td>
-                              <td className="p-3 text-zinc-200">{dividend.company}</td>
-                              <td className="p-3 text-zinc-300">{dividend.sector}</td>
-                              <td className="p-3 text-zinc-300 font-medium">{dividend.year}</td>
-                              <td className="p-3 text-teal-400 font-semibold text-right">
+                              <td className="px-3 py-2 text-zinc-200">{dividend.company}</td>
+                              <td className="px-3 py-2 text-zinc-300">{dividend.sector}</td>
+                              <td className="px-3 py-2 text-zinc-300 font-medium">{dividend.year}</td>
+                              <td className="px-3 py-2 text-teal-400 font-semibold text-right">
                                 {formatAmount(dividend.dividend)}
                               </td>
-                              <td className="p-3 text-zinc-300">{formatDate(dividend.exDate)}</td>
-                              <td className="p-3 text-zinc-300">{formatDate(dividend.paymentDate)}</td>
-                              <td className="p-3 text-teal-400 font-medium text-right">{dividend.yield}%</td>
-                              <td className="p-3">
+                              <td className="px-3 py-2 text-zinc-300">{formatDate(dividend.exDate)}</td>
+                              <td className="px-3 py-2 text-zinc-300">{formatDate(dividend.paymentDate)}</td>
+                              <td className="px-3 py-2 text-teal-400 font-medium text-right">{dividend.yield}%</td>
+                              <td className="px-3 py-2">
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs border ${
                                     dividend.type === "Spécial"
@@ -1050,7 +1070,7 @@ export default function Calendar() {
                                   {dividend.type}
                                 </span>
                               </td>
-                              <td className="p-3">
+                              <td className="px-3 py-2">
                                 <button
                                   onClick={() => handleSelectCompany(dividend.ticker)}
                                   className="px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 hover:bg-zinc-800 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-colors"
@@ -1238,6 +1258,19 @@ export default function Calendar() {
 
       {/* Styles anim / scrollbar (styled-jsx si Next.js ; sinon déplacer en CSS global) */}
       <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+
         @keyframes fadeIn {
           from {
             opacity: 0;
