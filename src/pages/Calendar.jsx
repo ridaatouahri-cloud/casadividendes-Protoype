@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import dividendsData from "../data/dividends.json";
+
+const AVAILABLE_YEARS = [2020, 2021, 2022, 2023, 2024];
 
 /* =========================================================================
    SIDEBAR NEWS (desktop >= xl)
@@ -244,11 +245,51 @@ export default function Calendar() {
   const [timelineView, setTimelineView] = useState("year");
 
   useEffect(() => {
-    setTimeout(() => {
-      setDividends(dividendsData);
-      setLoading(false);
-    }, 300);
-  }, []);
+    const loadDividends = async () => {
+      setLoading(true);
+      try {
+        let allDividends = [];
+
+        if (filters.year === "tous") {
+          const promises = AVAILABLE_YEARS.map(year =>
+            fetch(`/data/dividends/${year}.json`)
+              .then(res => {
+                if (!res.ok) {
+                  console.warn(`Fichier ${year}.json introuvable`);
+                  return [];
+                }
+                return res.json();
+              })
+              .catch(err => {
+                console.warn(`Erreur lors du chargement de ${year}.json:`, err);
+                return [];
+              })
+          );
+
+          const results = await Promise.all(promises);
+          allDividends = results.flat();
+        } else {
+          const year = filters.year;
+          const response = await fetch(`/data/dividends/${year}.json`);
+          if (response.ok) {
+            allDividends = await response.json();
+          } else {
+            console.warn(`Aucune donnée pour l'année ${year}`);
+            allDividends = [];
+          }
+        }
+
+        setDividends(allDividends);
+      } catch (error) {
+        console.error("Erreur lors du chargement des dividendes:", error);
+        setDividends([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDividends();
+  }, [filters.year]);
 
   useEffect(() => {
     let filtered = [...dividends];

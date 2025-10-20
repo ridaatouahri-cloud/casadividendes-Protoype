@@ -1,0 +1,68 @@
+[
+  {
+    "ticker": "IAM",
+    "company": "Maroc Telecom",
+    "sector": "Télécom",
+    "year": 2021,
+    "dividend": 3.75,
+    "exDate": "2021-06-12",
+    "paymentDate": "2021-06-28",
+    "yield": 4.8,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ATW",
+    "company": "Attijariwafa Bank",
+    "sector": "Banques",
+    "year": 2021,
+    "dividend": 13.5,
+    "exDate": "2021-06-12",
+    "paymentDate": "2021-06-30",
+    "yield": 3.9,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BCP",
+    "company": "Banque Populaire",
+    "sector": "Banques",
+    "year": 2021,
+    "dividend": 5.8,
+    "exDate": "2021-06-10",
+    "paymentDate": "2021-06-28",
+    "yield": 4.2,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SNEP",
+    "company": "SNEP",
+    "sector": "Industrie",
+    "year": 2021,
+    "dividend": 4.6,
+    "exDate": "2021-06-22",
+    "paymentDate": "2021-07-10",
+    "yield": 3.4,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ADI",
+    "company": "Addoha",
+    "sector": "Immobilier",
+    "year": 2021,
+    "dividend": 1,
+    "exDate": "2021-07-10",
+    "paymentDate": "2021-07-28",
+    "yield": 1.8,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BCI",
+    "company": "BOA CI",
+    "sector": "Banques",
+    "year": 2021,
+    "dividend": 7.6,
+    "exDate": "2021-07-22",
+    "paymentDate": "2021-08-08",
+    "yield": 3.6,
+    "type": "Ordinaire"
+  }
+]

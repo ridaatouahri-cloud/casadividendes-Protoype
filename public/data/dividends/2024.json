@@ -1,0 +1,68 @@
+[
+  {
+    "ticker": "IAM",
+    "company": "Maroc Telecom",
+    "sector": "Télécom",
+    "year": 2024,
+    "dividend": 4.01,
+    "exDate": "2024-06-12",
+    "paymentDate": "2024-06-28",
+    "yield": 5.2,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ATW",
+    "company": "Attijariwafa Bank",
+    "sector": "Banques",
+    "year": 2024,
+    "dividend": 15,
+    "exDate": "2024-06-05",
+    "paymentDate": "2024-06-21",
+    "yield": 4.3,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BCP",
+    "company": "Banque Populaire",
+    "sector": "Banques",
+    "year": 2024,
+    "dividend": 7,
+    "exDate": "2024-06-03",
+    "paymentDate": "2024-06-18",
+    "yield": 4.8,
+    "type": "Spécial"
+  },
+  {
+    "ticker": "SNEP",
+    "company": "SNEP",
+    "sector": "Industrie",
+    "year": 2024,
+    "dividend": 5.5,
+    "exDate": "2024-06-15",
+    "paymentDate": "2024-07-01",
+    "yield": 3.7,
+    "type": "Intérim"
+  },
+  {
+    "ticker": "ADI",
+    "company": "Addoha",
+    "sector": "Immobilier",
+    "year": 2024,
+    "dividend": 1.2,
+    "exDate": "2024-07-04",
+    "paymentDate": "2024-07-20",
+    "yield": 2.1,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BCI",
+    "company": "BOA CI",
+    "sector": "Banques",
+    "year": 2024,
+    "dividend": 8.5,
+    "exDate": "2024-07-15",
+    "paymentDate": "2024-07-30",
+    "yield": 3.9,
+    "type": "Ordinaire"
+  }
+]
