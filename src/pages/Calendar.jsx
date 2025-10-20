@@ -226,7 +226,7 @@ function NewsSidebar() {
    PAGE CALENDRIER (version VF conservée + wrapper full-width + sidebar)
    ========================================================================= */
 export default function Calendar() {
-  const [view, setView] = useState("calendar");
+  const [view, setView] = useState("table");
   const [dividends, setDividends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filteredData, setFilteredData] = useState([]);
