@@ -2,17 +2,17 @@ import React, { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer,
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  AreaChart, Area, CartesianGrid, Legend, BarChart, Bar
 } from "recharts";
 import {
   ArrowLeft, ExternalLink, TrendingUp, Star, Bookmark, Share2,
-  Settings, ChevronRight, Info, X, Sparkles, Link as LinkIcon, Play, RotateCcw
+  Settings, ChevronRight, Info, X, Sparkles, Link as LinkIcon,
+  Play, RotateCcw, SlidersHorizontal
 } from "lucide-react";
 
 /* =========================================================
-   COMPANY PAGE — Design V2.5 + animations séquentielles + Reset
-   Séquence: C-DRS -> PRT -> NDF -> Score global
-   Bouton "Réinitialiser l'animation" pour rejouer quand on veut
+   COMPANY PAGE — V2.5 + Animations KPI + DRIP Simulator complet
    ========================================================= */
 
 export default function CompanyPage() {
@@ -69,7 +69,7 @@ export default function CompanyPage() {
   };
 
   /* =========================================================
-     LOGIQUE D'ANIMATION (séquentielle) + RESET
+     LOGIQUE D'ANIMATION KPI (séquentielle) + RESET
      idle -> cdrs -> prt -> ndf -> final
      ========================================================= */
   const [phase, setPhase] = useState("idle");
@@ -107,7 +107,6 @@ export default function CompanyPage() {
   const finalMsg = "Nous combinons les 3 indicateurs clés (C-DRS, PRT, NDF) pour évaluer la solidité globale.";
 
   const resetSequence = () => {
-    // Annule toute animation en cours en remettant les états
     setPhase("idle");
     setBannerMsg("");
 
@@ -131,7 +130,6 @@ export default function CompanyPage() {
 
   const startSequence = () => {
     if (phase !== "idle") return;
-    // reset “propre” avant de démarrer
     resetSequence();
     setPhase("cdrs");
     setShowCDRSCalc(true);
@@ -239,6 +237,66 @@ export default function CompanyPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
+  /* =========================================================
+     DRIP SIMULATOR — logique & UI
+     ========================================================= */
+  const [showDRIP, setShowDRIP] = useState(false);
+
+  const defaultDrip = useMemo(() => {
+    // charge du storage si dispo
+    try {
+      const raw = localStorage.getItem("dripSettings");
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return {
+      initial: 10000,
+      monthly: 500,
+      yieldPct: 3.5,     // net annuel
+      growthPct: 6,      // croissance annuelle du dividende
+      years: 5,
+      feePct: 0.3,       // frais annuels
+      price: 480,        // prix/action (optionnel)
+    };
+  }, []);
+
+  const [drip, setDrip] = useState(defaultDrip);
+  useEffect(() => {
+    try { localStorage.setItem("dripSettings", JSON.stringify(drip)); } catch {}
+  }, [drip]);
+
+  const monthlySeries = useMemo(() => {
+    return simulateDRIP({
+      initial: +drip.initial || 0,
+      monthly: +drip.monthly || 0,
+      yieldPct: +drip.yieldPct || 0,
+      growthPct: +drip.growthPct || 0,
+      years: Math.max(1, +drip.years || 1),
+      feePct: Math.max(0, +drip.feePct || 0),
+      price: Math.max(0, +drip.price || 0),
+    });
+  }, [drip]);
+
+  const dripSummary = useMemo(() => {
+    if (!monthlySeries.length) return null;
+    const last = monthlySeries[monthlySeries.length - 1];
+    const invested = last.totalContrib;
+    const value = last.portfolioValue;
+    const dividends = last.dividendsCum;
+    const shares = last.shares;
+    // approximation irr (simple annualisée)
+    const yrs = (drip.years || 1);
+    const irr = invested > 0 ? Math.pow(value / invested, 1 / yrs) - 1 : 0;
+    return {
+      invested, value, dividends, shares, irr: irr * 100,
+    };
+  }, [monthlySeries, drip.years]);
+
+  const applyPreset = (type) => {
+    if (type === "conservative") setDrip((d) => ({ ...d, yieldPct: 3, growthPct: 3, monthly: Math.max(250, d.monthly) }));
+    if (type === "base") setDrip((d) => ({ ...d, yieldPct: 3.5, growthPct: 6, monthly: d.monthly }));
+    if (type === "ambitious") setDrip((d) => ({ ...d, yieldPct: 4.2, growthPct: 9, monthly: Math.max(600, d.monthly) }));
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-100">
       {/* halo décoratif */}
@@ -263,13 +321,13 @@ export default function CompanyPage() {
 
           <div className="md:ml-auto flex items-center gap-3">
             <button
-              onClick={() => setShowScoreCalc(false)}
+              onClick={() => setShowDRIP(true)}
               className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2"
             >
               <TrendingUp className="w-4 h-4" /> DRIP
             </button>
 
-            {/* Bouton RESET */}
+            {/* Bouton RESET KPI */}
             <button
               onClick={resetSequence}
               className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2"
@@ -315,7 +373,7 @@ export default function CompanyPage() {
           </div>
         </nav>
 
-        {/* Bandeau messages dynamiques */}
+        {/* Bandeau messages dynamiques KPI */}
         <AnimatePresence>
           {!!bannerMsg && (
             <motion.div
@@ -410,7 +468,7 @@ export default function CompanyPage() {
           </div>
         </section>
 
-        {/* Stratégie (inchangée) */}
+        {/* Stratégie */}
         <section id="strategy" className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 mb-10">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold flex items-center gap-2">
@@ -499,6 +557,122 @@ export default function CompanyPage() {
           <Settings className="w-5 h-5" />
         </button>
       </div>
+
+      {/* ============== DRIP MODAL (simulateur complet) ============== */}
+      <AnimatePresence>
+        {showDRIP && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
+              className="w-[96vw] max-w-[1024px] rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-4 h-4 text-teal-300" />
+                  <h3 className="font-semibold">DRIP — Simulation de réinvestissement</h3>
+                </div>
+                <button onClick={() => setShowDRIP(false)} className="p-2 rounded-lg hover:bg-zinc-900" aria-label="Fermer">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Paramètres */}
+              <div className="grid md:grid-cols-3 gap-3">
+                <Field label="Montant initial" suffix={currency} value={drip.initial} onChange={(v)=>setDrip(s=>({...s, initial:+v||0}))} />
+                <Field label="Versement mensuel" suffix={currency} value={drip.monthly} onChange={(v)=>setDrip(s=>({...s, monthly:+v||0}))} />
+                <Field label="Horizon (années)" value={drip.years} onChange={(v)=>setDrip(s=>({...s, years:+v||1}))} />
+
+                <Field label="Rendement dividende net (%)" value={drip.yieldPct} onChange={(v)=>setDrip(s=>({...s, yieldPct:+v||0}))} />
+                <Field label="Croissance du dividende (%/an)" value={drip.growthPct} onChange={(v)=>setDrip(s=>({...s, growthPct:+v||0}))} />
+                <Field label="Frais (%/an)" value={drip.feePct} onChange={(v)=>setDrip(s=>({...s, feePct:+v||0}))} />
+
+                <Field label="Prix / action (optionnel)" suffix={currency} value={drip.price} onChange={(v)=>setDrip(s=>({...s, price:+v||0}))} />
+                <div className="md:col-span-2 flex items-center gap-2">
+                  <span className="text-sm text-zinc-400">Scénarios :</span>
+                  <button onClick={()=>applyPreset("conservative")} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Conservateur</button>
+                  <button onClick={()=>applyPreset("base")} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Central</button>
+                  <button onClick={()=>applyPreset("ambitious")} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Ambitieux</button>
+                </div>
+              </div>
+
+              {/* Résumé */}
+              {dripSummary && (
+                <div className="mt-4 grid md:grid-cols-4 gap-3">
+                  <SummaryCard title="Valeur finale" value={fmtMAD(dripSummary.value)} />
+                  <SummaryCard title="Dividendes cumulés" value={fmtMAD(dripSummary.dividends)} />
+                  <SummaryCard title="Parts accumulées" value={`${dripSummary.shares.toFixed(3)} u.`} />
+                  <SummaryCard title="Rendement annualisé (approx.)" value={`${dripSummary.irr.toFixed(2)} %`} />
+                </div>
+              )}
+
+              {/* Graphiques */}
+              <div className="mt-4 grid lg:grid-cols-2 gap-4">
+                {/* 1) Valeur portefeuille */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
+                  <div className="text-sm text-zinc-300 mb-2">Valeur du portefeuille</div>
+                  <div className="h-56">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={monthlySeries}>
+                        <defs>
+                          <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                        <XAxis dataKey="label" hide />
+                        <YAxis stroke="#a1a1aa" />
+                        <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                        <Area type="monotone" dataKey="portfolioValue" stroke="#14b8a6" fill="url(#g1)" strokeWidth={2}/>
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* 2) Dividendes perçus vs réinvestis */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
+                  <div className="text-sm text-zinc-300 mb-2">Dividendes (cumul)</div>
+                  <div className="h-56">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={monthlySeries}>
+                        <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                        <XAxis dataKey="label" hide />
+                        <YAxis stroke="#a1a1aa" />
+                        <Legend />
+                        <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                        <Bar dataKey="dividendsCum" name="Dividendes cumulés" fill="#eab308" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* 3) Parts accumulées */}
+                <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 lg:col-span-2">
+                  <div className="text-sm text-zinc-300 mb-2">Parts accumulées</div>
+                  <div className="h-56">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={monthlySeries}>
+                        <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
+                        <XAxis dataKey="label" hide />
+                        <YAxis stroke="#a1a1aa" />
+                        <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                        <Line type="monotone" dataKey="shares" stroke="#22d3ee" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+
+              <p className="mt-3 text-xs text-zinc-500">
+                Hypothèses : rendement net et croissance lissés, réinvestissement mensuel, frais annuels appliqués pro-rata. Modèle simplifié — n’est pas un conseil en investissement.
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Scroll doux global */}
       <style>{`html { scroll-behavior: smooth; }`}</style>
@@ -711,6 +885,114 @@ function GlobalScoreCard({ value, showCalc, step, progress, tooltip }) {
       {!showCalc && v === 0 && (
         <div className="text-[11px] text-zinc-500 mt-2 text-center">Cliquez d’abord sur C-DRS pour lancer la séquence.</div>
       )}
+    </div>
+  );
+}
+
+/* =========================
+   DRIP — logique de simulation (mensuelle)
+   ========================= */
+function simulateDRIP({ initial, monthly, yieldPct, growthPct, years, feePct, price }) {
+  // Rendement net & croissance annualisés -> mensualisés
+  const months = Math.max(1, Math.round(years * 12));
+  const rDivYear = Math.max(0, yieldPct) / 100;
+  const gYear = Math.max(0, growthPct) / 100;
+  const feeYear = Math.max(0, feePct) / 100;
+
+  const rDivMonth0 = rDivYear / 12;
+  const gMonth = Math.pow(1 + gYear, 1 / 12) - 1;
+  const feeMonth = Math.pow(1 - feeYear, 1 / 12) - 1; // négatif
+
+  let shares = 0;
+  let cash = 0;
+  let pricePerShare = Math.max(0, price || 0); // si 0 → parts approx. via valeur/PRU simple
+  let portfolioValue = initial;
+  if (pricePerShare > 0) {
+    shares = initial / pricePerShare;
+    portfolioValue = shares * pricePerShare;
+  } else {
+    shares = initial > 0 ? initial / 100 : 0; // proxy si pas de prix : base 100
+    pricePerShare = 100;
+    portfolioValue = shares * pricePerShare;
+  }
+
+  let divPerShareMonth = (rDivMonth0) * pricePerShare; // point de départ (dividende/part mensuel)
+  let dividendsCum = 0;
+  let totalContrib = initial;
+  const data = [];
+
+  for (let m = 1; m <= months; m++) {
+    // 1) Contribution mensuelle
+    cash += monthly;
+    totalContrib += monthly;
+
+    // 2) Dividende du mois (net, avec croissance mensuelle du dividende)
+    const monthDividend = shares * divPerShareMonth;
+    dividendsCum += monthDividend;
+    cash += monthDividend;
+
+    // 3) Frais annuels appliqués pro-rata mensuel sur la valeur
+    const grossValue = shares * pricePerShare + cash;
+    const afterFee = grossValue * (1 + feeMonth);
+    const feeAmount = grossValue - afterFee; // >0
+    // on retire les frais de la trésorerie en priorité
+    cash -= feeAmount;
+
+    // 4) Réinvestissement (cash total en actions)
+    if (pricePerShare > 0 && cash > 0) {
+      const buy = cash / pricePerShare;
+      shares += buy;
+      cash = 0;
+    }
+
+    // 5) Mise à jour croissance du dividende
+    divPerShareMonth *= (1 + gMonth);
+
+    // 6) Valeur du portefeuille (approx : prix constant) + enregistrement
+    portfolioValue = shares * pricePerShare + cash;
+
+    data.push({
+      m,
+      label: `M${m}`,
+      portfolioValue: +portfolioValue.toFixed(2),
+      dividendsCum: +dividendsCum.toFixed(2),
+      shares: +shares.toFixed(6),
+      totalContrib: +totalContrib.toFixed(2),
+    });
+  }
+
+  return data;
+}
+
+/* =========================
+   UI Helpers (DRIP)
+   ========================= */
+
+function Field({ label, suffix, value, onChange }) {
+  return (
+    <label className="text-sm">
+      <div className="text-zinc-400 mb-1">{label}</div>
+      <div className="flex">
+        <input
+          value={value}
+          onChange={(e)=>onChange(e.target.value)}
+          className="flex-1 rounded-l-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm focus:border-teal-500 outline-none"
+          inputMode="decimal"
+        />
+        {suffix && (
+          <div className="rounded-r-lg border border-l-0 border-zinc-800 px-3 py-2 text-sm bg-zinc-900/60 text-zinc-300">
+            {suffix}
+          </div>
+        )}
+      </div>
+    </label>
+  );
+}
+function SummaryCard({ title, value }) {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
+      <div className="text-xs text-zinc-400">{title}</div>
+      <div className="text-lg font-semibold">{value}</div>
     </div>
   );
 }
