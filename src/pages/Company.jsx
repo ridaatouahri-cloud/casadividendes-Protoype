@@ -137,21 +137,43 @@ export default function CompanyPage() {
     return () => clearInterval(id);
   };
 
-  // CDRS -> 4 segments en chaîne
-  useEffect(() => {
-    if (phase !== "cdrs") return;
-    setBannerMsg("C-DRS : régularité, croissance, stabilité, magnitude…");
-    animateTo(Math.round(cdrsDetail.regularite), 800, setProgReg, () => {
-      animateTo(Math.round(cdrsDetail.croissance), 900, setProgCroiss, () => {
-        animateTo(Math.round(cdrsDetail.stabilite), 800, setProgStab, () => {
-          animateTo(Math.round(cdrsDetail.magnitude), 700, setProgMag, () => {
-            setTimeout(() => { setPhase("prt"); }, 250);
-          });
-        });
-      });
+ // ===== C-DRS : Régularité → Croissance → Stabilité → Magnitude → anneau global =====
+useEffect(() => {
+  if (phase !== "cdrs") return;
+
+  setBannerMsg("C-DRS : Régularité → Croissance → Stabilité → Magnitude…");
+  setCdrsRing(0);
+
+  const run = (target, ms, setter) =>
+    new Promise((resolve) => {
+      const steps = 60, inc = target / steps;
+      let i = 0;
+      const id = setInterval(() => {
+        i++;
+        const v = Math.min(Math.round(inc * i), target);
+        setter(v);
+        if (i >= steps) { clearInterval(id); resolve(); }
+      }, ms / steps);
     });
-    // eslint-disable-next-line
-  }, [phase]);
+
+  (async () => {
+    await run(Math.round(cdrsDetail.regularite), 700, setProgReg);
+    await run(Math.round(cdrsDetail.croissance), 800, setProgCroiss);
+    await run(Math.round(cdrsDetail.stabilite), 700, setProgStab);
+    await run(Math.round(cdrsDetail.magnitude), 600, setProgMag);
+
+    // Anneau global qui se remplit APRÈS les 4 critères
+    const total = Math.round(
+      cdrsDetail.regularite + cdrsDetail.croissance + cdrsDetail.stabilite + cdrsDetail.magnitude
+    );
+    await run(total, 800, setCdrsRing);
+
+    // enchaîne sur PRT
+    setTimeout(() => setPhase("prt"), 250);
+  })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [phase]);
+
 
   // PRT -> compteur jours jusqu'à prtAvg puis conversion score
   useEffect(() => {
