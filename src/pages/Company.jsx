@@ -567,7 +567,7 @@ export default function CompanyPage() {
           >
             <motion.div
               initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-              className="w-[96vw] max-w-[1024px] rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
+              className="w-[92vw] max-w-[860px] max-h-[85vh] overflow-y-auto rounded-2xl border border-zinc-800 bg-zinc-950 p-4"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
