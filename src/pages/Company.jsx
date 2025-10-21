@@ -6,18 +6,17 @@ import {
 } from "recharts";
 import {
   ArrowLeft, ExternalLink, TrendingUp, Star, Bookmark, Share2,
-  Settings, ChevronRight, Info, X, Sparkles, Link as LinkIcon, Play
+  Settings, ChevronRight, Info, X, Sparkles, Link as LinkIcon, Play, RotateCcw
 } from "lucide-react";
 
 /* =========================================================
-   COMPANY PAGE V2.5 — Design d'origine + animations séquentielles
-   - On garde le style et la structure validés
-   - On ajoute la logique d'animation inspirée du fichier RTF
-     (séquence C-DRS -> PRT -> NDF -> Score global)
+   COMPANY PAGE — Design V2.5 + animations séquentielles + Reset
+   Séquence: C-DRS -> PRT -> NDF -> Score global
+   Bouton "Réinitialiser l'animation" pour rejouer quand on veut
    ========================================================= */
 
 export default function CompanyPage() {
-  // --- Données de démonstration (branche sur tes vraies props/store si besoin)
+  // --- Démo (branche sur tes vraies props/store si besoin)
   const company = {
     ticker: "ATW",
     name: "ATTIJARIWAFA BANK",
@@ -40,7 +39,7 @@ export default function CompanyPage() {
     { name: "TQM", cdrs: 80, yield: 4.2, prt: 58, ndf: 72 },
   ];
 
-  // ======== dérivées (design V2.5 conservé) ========
+  // ======== dérivées ========
   const currency = company.currency || "MAD";
   const yearSorted = useMemo(
     () =>
@@ -70,12 +69,10 @@ export default function CompanyPage() {
   };
 
   /* =========================================================
-     LOGIQUE D'ANIMATION (séquentielle)
+     LOGIQUE D'ANIMATION (séquentielle) + RESET
      idle -> cdrs -> prt -> ndf -> final
-     Incrément en pas réguliers, textes dynamiques, tooltips
      ========================================================= */
   const [phase, setPhase] = useState("idle");
-  const [hasAnimated, setHasAnimated] = useState(false);
 
   const [cdrsProgress, setCdrsProgress] = useState(0);
   const [prtProgress, setPrtProgress] = useState(0);
@@ -109,13 +106,35 @@ export default function CompanyPage() {
   ];
   const finalMsg = "Nous combinons les 3 indicateurs clés (C-DRS, PRT, NDF) pour évaluer la solidité globale.";
 
+  const resetSequence = () => {
+    // Annule toute animation en cours en remettant les états
+    setPhase("idle");
+    setBannerMsg("");
+
+    setCdrsProgress(0);
+    setPrtProgress(0);
+    setNdfProgress(0);
+    setScoreProgress(0);
+
+    setCalculationStep(0);
+    setShowCDRSCalc(false);
+
+    setPRTStep(0);
+    setShowPRTCalc(false);
+
+    setNDFStep(0);
+    setShowNDFCalc(false);
+
+    setScoreStep(0);
+    setShowScoreCalc(false);
+  };
+
   const startSequence = () => {
     if (phase !== "idle") return;
-    setHasAnimated(true);
-    // reset
-    setCdrsProgress(0); setPRTStep(0); setNDFStep(0); setScoreStep(0);
-    setPrtProgress(0); setNdfProgress(0); setScoreProgress(0);
-    setPhase("cdrs"); setShowCDRSCalc(true); setCalculationStep(0);
+    // reset “propre” avant de démarrer
+    resetSequence();
+    setPhase("cdrs");
+    setShowCDRSCalc(true);
   };
 
   // Helpers d’animation en pas réguliers
@@ -142,8 +161,7 @@ export default function CompanyPage() {
     setBannerMsg(msgsCDRS[0]);
     const rot = setInterval(() => { i = (i + 1) % msgsCDRS.length; setBannerMsg(msgsCDRS[i]); }, 900);
 
-    // étapes intermédiaires (visuel de "décomposition")
-    const t1 = setTimeout(() => setCalculationStep(1), 100);
+    const t1 = setTimeout(() => setCalculationStep(1), 120);
     const t2 = setTimeout(() => setCalculationStep(2), 1200);
     const t3 = setTimeout(() => setCalculationStep(3), 2400);
     const t4 = setTimeout(() => setCalculationStep(4), 3600);
@@ -158,7 +176,8 @@ export default function CompanyPage() {
     }, 4600);
 
     return () => { clearInterval(rot); clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(tEnd); };
-  }, [phase, kpi.cdrs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   // PRT
   useEffect(() => {
@@ -181,7 +200,8 @@ export default function CompanyPage() {
     }, 3800);
 
     return () => { clearInterval(rot); clearTimeout(p1); clearTimeout(p2); clearTimeout(p3); clearTimeout(p4); clearTimeout(pEnd); };
-  }, [phase, kpi.prt]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   // NDF
   useEffect(() => {
@@ -204,7 +224,8 @@ export default function CompanyPage() {
     }, 3600);
 
     return () => { clearInterval(rot); clearTimeout(n1); clearTimeout(n2); clearTimeout(n3); clearTimeout(n4); clearTimeout(nEnd); };
-  }, [phase, kpi.ndf]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   // SCORE GLOBAL
   useEffect(() => {
@@ -215,7 +236,8 @@ export default function CompanyPage() {
       });
     }, 800);
     return () => clearTimeout(end);
-  }, [phase, kpi.score]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-100">
@@ -226,7 +248,7 @@ export default function CompanyPage() {
       </div>
 
       <div className="max-w-[1200px] xl:max-w-[1400px] mx-auto px-6 py-8">
-        {/* Header (inchangé) */}
+        {/* Header */}
         <header id="profil" className="flex flex-col md:flex-row md:items-end gap-6 mb-8">
           <div className="flex items-center gap-4">
             <button onClick={() => window.history.back()} className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40">
@@ -240,9 +262,22 @@ export default function CompanyPage() {
           </div>
 
           <div className="md:ml-auto flex items-center gap-3">
-            <button className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2">
+            <button
+              onClick={() => setShowScoreCalc(false)}
+              className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2"
+            >
               <TrendingUp className="w-4 h-4" /> DRIP
             </button>
+
+            {/* Bouton RESET */}
+            <button
+              onClick={resetSequence}
+              className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2"
+              title="Réinitialiser l'animation"
+            >
+              <RotateCcw className="w-4 h-4" /> Réinitialiser
+            </button>
+
             <a
               href={`/#/calendar?ticker=${encodeURIComponent(company.ticker)}`}
               className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2"
@@ -294,9 +329,8 @@ export default function CompanyPage() {
           )}
         </AnimatePresence>
 
-        {/* KPI Section (design gardé, animations ajoutées) */}
+        {/* KPI Section */}
         <section id="kpi" className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* C-DRS */}
           <CDRSCard
             value={kpi.cdrs}
             running={phase !== "idle"}
@@ -307,7 +341,6 @@ export default function CompanyPage() {
             tooltip="Indice de constance du dividende (régularité, stabilité, progression). Explication simplifiée, sans formule."
           />
 
-          {/* PRT */}
           <PRTCard
             value={kpi.prt}
             active={phase !== "idle"}
@@ -317,7 +350,6 @@ export default function CompanyPage() {
             tooltip="Temps de retour estimatif via le dividende. Mesure le rythme moyen de remboursement de l'investissement (explication simplifiée)."
           />
 
-          {/* NDF */}
           <NDFCard
             value={kpi.ndf}
             active={phase !== "idle"}
@@ -327,7 +359,6 @@ export default function CompanyPage() {
             tooltip="Niveau de flux : récurrence et soutenabilité des distributions."
           />
 
-          {/* Score global */}
           <GlobalScoreCard
             value={kpi.score}
             showCalc={showScoreCalc}
@@ -408,7 +439,7 @@ export default function CompanyPage() {
           </div>
         </section>
 
-        {/* Comparatif secteur (inchangé) */}
+        {/* Comparatif secteur */}
         <section id="compare" className="grid lg:grid-cols-2 gap-6 mb-16">
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
             <h3 className="font-semibold mb-3">Comparatif secteur (Radar)</h3>
@@ -462,7 +493,7 @@ export default function CompanyPage() {
         </footer>
       </div>
 
-      {/* FAB mobile (inchangé) */}
+      {/* FAB mobile */}
       <div className="fixed bottom-6 right-6 xl:hidden">
         <button className="rounded-full w-12 h-12 flex items-center justify-center bg-teal-500 text-zinc-950 shadow-lg shadow-teal-500/20">
           <Settings className="w-5 h-5" />
@@ -530,7 +561,6 @@ function CDRSCard({ value, running, showCalc, step, progress, onStart, tooltip }
         </svg>
       </div>
 
-      {/* textes dynamiques durant le “calcul” */}
       {running && showCalc ? (
         <div className="mt-2 text-center text-xs text-zinc-400 min-h-[38px]">
           {step === 0 && "Initialisation…"}
@@ -543,7 +573,6 @@ function CDRSCard({ value, running, showCalc, step, progress, onStart, tooltip }
         <div className="text-xs text-zinc-500 mt-2 text-center">Constance du dividende</div>
       )}
 
-      {/* Bouton déclencheur (uniquement au repos) */}
       {!running && (
         <button
           onClick={onStart}
@@ -571,7 +600,6 @@ function PRTCard({ value, active, showCalc, step, progress, tooltip }) {
 
       <div className="mt-3">
         <div className="h-3 w-full rounded-full bg-zinc-800 overflow-hidden relative">
-          {/* effet va-et-vient pendant le calcul */}
           {active && showCalc && (
             <motion.div
               className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-amber-300/0 via-amber-300/20 to-amber-300/0"
@@ -585,7 +613,6 @@ function PRTCard({ value, active, showCalc, step, progress, tooltip }) {
           />
         </div>
 
-        {/* textes courts durant le calcul */}
         {active && showCalc ? (
           <div className="mt-2 text-xs text-zinc-400 min-h-[30px]">
             {step === 0 && "Analyse…"}
@@ -689,7 +716,7 @@ function GlobalScoreCard({ value, showCalc, step, progress, tooltip }) {
 }
 
 /* =========================
-   Autres composants (identiques V2.5)
+   Autres composants
    ========================= */
 function StrategyCard({ title, points = [] }) {
   return (
