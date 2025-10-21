@@ -12,12 +12,13 @@ import {
 } from "lucide-react";
 
 /* =========================================================================
-   Company.jsx — complet
+   Company.jsx — complet (patché)
    - Loader dividendes réels /public/data/dividends/<year>.json
    - KPI animés (C-DRS™ → PRT™ → NDF™ → CD-Score™)
-   - DRIP Simulator (modale)
-   - Tooltips explicatifs (sans formules)
-   - Bouton NDF “Voir ce mois dans le calendrier”
+   - DRIP Simulator
+   - Tooltips (sans formules)
+   - NDF “Voir ce mois dans le calendrier”
+   - PATCHS: startSequence bloque si loading, C-DRS anneau min 1, PRT garde cdrsRing
    ========================================================================= */
 
 const DAY_MS = 86400000;
@@ -30,9 +31,7 @@ function toDayOfYear(iso) {
   return Math.floor((d - start) / DAY_MS);
 }
 function dayOfYearToDate(day, year = new Date().getFullYear()) {
-  const d = new Date(year, 0);
-  d.setDate(day);
-  return d;
+  const d = new Date(year, 0); d.setDate(day); return d;
 }
 function monthFromDayOfYear(day, year = new Date().getFullYear()) {
   const d = dayOfYearToDate(day, year);
@@ -99,7 +98,7 @@ export default function CompanyPage() {
     (async () => {
       try {
         setLoading(true);
-        const YEARS = [2020, 2021, 2022, 2023, 2024]; // étends si nécessaire
+        const YEARS = [2020, 2021, 2022, 2023, 2024];
         const all = [];
 
         for (const y of YEARS) {
@@ -131,9 +130,7 @@ export default function CompanyPage() {
         if (alive) setLoading(false);
       }
     })();
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [company.ticker]);
 
   /* ===== Dérivés & formats ===== */
@@ -160,13 +157,12 @@ export default function CompanyPage() {
   };
 
   /* ================= Calculs KPI ================= */
-  // C-DRS™ (pondérations implémentées dans computeCDRS)
   const cdrsDetail = useMemo(() => computeCDRS(divs), [divs]);
   const CDRS_total = Math.round(
     cdrsDetail.regularite + cdrsDetail.croissance + cdrsDetail.stabilite + cdrsDetail.magnitude
   );
 
-  // PRT™ proxy: (paiement - ex-date) sur 3 dernières lignes connues (fallback 21j)
+  // PRT proxy: (paiement - ex-date) sur 3 dernières lignes connues (fallback 21j)
   const prtDaysArr = useMemo(() => {
     const last3 = [...divs].reverse().slice(0, 3);
     const days = last3.map((d) => {
@@ -184,19 +180,17 @@ export default function CompanyPage() {
 
   const prtScore = useMemo(() => Math.max(0, Math.round(100 - 1.5 * prtAvg)), [prtAvg]);
 
-  // NDF™ (montant probable, fourchette, ex-date estimée, confiance, jour de l’année)
+  // NDF
   const ndf = useMemo(() => computeNDF(divs), [divs]);
 
-  // CD-Score™ (profil pondéré)
+  // CD-Score (profil)
   const [profile, setProfile] = useState("equilibre"); // "passif" | "equilibre" | "actif"
   const weights = {
     passif: { a: 0.60, b: 0.00, c: 0.40 },
     equilibre: { a: 0.40, b: 0.30, c: 0.30 },
     actif: { a: 0.20, b: 0.50, c: 0.30 },
   }[profile];
-  const cdScore = Math.round(
-    CDRS_total * weights.a + prtScore * weights.b + (ndf?.confidence || 0) * weights.c
-  );
+  const cdScore = Math.round(CDRS_total * weights.a + prtScore * weights.b + (ndf?.confidence || 0) * weights.c);
 
   /* ================= Animations séquentielles ================= */
   const [phase, setPhase] = useState("idle");
@@ -213,8 +207,8 @@ export default function CompanyPage() {
   const [prtCounter, setPrtCounter] = useState(0);
   const [prtScoreView, setPrtScoreView] = useState(0);
 
-  // NDF: étapes + confiance
-  const [ndfStep, setNdfStep] = useState(0); // 1 montant, 2 fourchette, 3 ex-date, 4 confiance
+  // NDF
+  const [ndfStep, setNdfStep] = useState(0);
   const [ndfConfView, setNdfConfView] = useState(0);
 
   // Global
@@ -227,7 +221,10 @@ export default function CompanyPage() {
     setNdfStep(0); setNdfConfView(0);
     setGlobalView(0);
   };
+
+  // PATCH ①: empêcher le lancement pendant le chargement
   const startSequence = () => {
+    if (loading) return;                 // <<< NEW
     if (phase !== "idle") return;
     resetSequence();
     setPhase("cdrs");
@@ -256,7 +253,8 @@ export default function CompanyPage() {
       await animateTo(Math.round(cdrsDetail.croissance), 800, setProgCroiss);
       await animateTo(Math.round(cdrsDetail.stabilite), 700, setProgStab);
       await animateTo(Math.round(cdrsDetail.magnitude), 600, setProgMag);
-      await animateTo(CDRS_total, 800, setCdrsRing);
+      // PATCH ②: anneau global min 1 pour assurer l'enchaînement
+      await animateTo(Math.max(1, CDRS_total), 800, setCdrsRing);  // <<< NEW
       setTimeout(() => setPhase("prt"), 250);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -265,6 +263,7 @@ export default function CompanyPage() {
   // ===== PRT : compteur jours → barre score
   useEffect(() => {
     if (phase !== "prt") return;
+    if (cdrsRing <= 0) return; // PATCH ③: s'assurer que C-DRS a fini   <<< NEW
     setBannerMsg("PRT : calcul du temps moyen de recovery…");
     let day = 0;
     const target = Math.max(1, Math.round(prtAvg));
@@ -280,8 +279,8 @@ export default function CompanyPage() {
       }
     }, 22);
     return () => clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, prtAvg, prtScore]);
+    // dépend aussi de cdrsRing (PATCH ③)
+  }, [phase, prtAvg, prtScore, cdrsRing]); // <<< NEW dep
 
   // ===== NDF : Montant → Fourchette → Ex-date → Confiance
   useEffect(() => {
@@ -443,7 +442,7 @@ export default function CompanyPage() {
             score={prtScore}
             daysProgress={prtCounter}
             scoreProgress={prtScoreView}
-            active={phase !== "idle" && (cdrsRing>0)}
+            active={phase === "prt" || (phase !== "idle" && cdrsRing > 0)} /* option visuelle */
           />
           <NDFCard
             loading={loading}
@@ -470,7 +469,7 @@ export default function CompanyPage() {
                 <LineChart data={yearly}>
                   <XAxis dataKey="year" stroke="#a1a1aa" />
                   <YAxis stroke="#a1a1aa" />
-                  <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                  <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid "#27272a", color: "#e4e4e7" }} />
                   <Line type="monotone" dataKey="total" stroke="#14b8a6" strokeWidth={2} dot />
                 </LineChart>
               </ResponsiveContainer>
@@ -731,7 +730,7 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart, running })
               </svg>
             </div>
 
-            {/* Critères qui se complètent un à un */}
+            {/* Critères */}
             <div className="text-xs flex-1 space-y-1">
               {steps.map(({ label, vNow, vFull, color }, i) => (
                 <div key={i} className="flex items-center justify-between gap-2">
@@ -750,14 +749,17 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart, running })
             </div>
           </div>
 
-          {!running && (
-            <button
-              onClick={onStart}
-              className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm border border-teal-500/30 text-teal-300 hover:bg-teal-500/10"
-            >
-              <Play className="w-4 h-4" /> Lancer le calcul
-            </button>
-          )}
+          <button
+            disabled={loading}
+            onClick={onStart}
+            className={`mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm border ${
+              loading
+                ? "border-zinc-800 text-zinc-500 cursor-not-allowed"
+                : "border-teal-500/30 text-teal-300 hover:bg-teal-500/10"
+            }`}
+          >
+            <Play className="w-4 h-4" /> Lancer le calcul
+          </button>
         </>
       )}
     </div>
@@ -795,7 +797,7 @@ function PRTCard({ loading, prtAvg, score, daysProgress, scoreProgress, active }
         </div>
       ) : (
         <>
-          {/* 1) Compteur ‘jours de recovery’ */}
+          {/* Compteur jours */}
           <div className="mt-1">
             <div className="h-3 w-full rounded-full bg-zinc-800 overflow-hidden relative">
               {active && daysProgress < prtAvg && (
@@ -816,7 +818,7 @@ function PRTCard({ loading, prtAvg, score, daysProgress, scoreProgress, active }
             </div>
           </div>
 
-          {/* 2) Score PRT (après le compteur jours) */}
+          {/* Score PRT */}
           <div className="mt-3">
             <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden">
               <div className={`h-2 transition-[width] duration-200 ${barColor}`} style={{ width: `${scoreProgress}%` }} />
@@ -980,7 +982,6 @@ function SummaryCard({ title, value }) {
 
 /* ================= Calculs KPI & DRIP ================= */
 function computeCDRS(divs) {
-  // Inputs: [{year, amount}]
   const byYear = Object.fromEntries(divs.map(d=>[d.year,d.amount||0]));
   const weightsYear = { 2020:1, 2021:2, 2022:3, 2023:4, 2024:5 }; // somme = 15
 
@@ -989,7 +990,7 @@ function computeCDRS(divs) {
   const paidW = Object.entries(weightsYear).reduce((s,[y,w])=> s + (byYear[y]>0 ? w : 0), 0);
   const regularite = (paidW / sumW) * 25;
 
-  // 2) Croissance (35) — hausses pondérées + bonus séquence − pénalité baisses
+  // 2) Croissance (35)
   const ups = [
     {from:2020,to:2021,w:2}, {from:2021,to:2022,w:3}, {from:2022,to:2023,w:4}, {from:2023,to:2024,w:5}
   ].reduce((s,u)=>{
@@ -1019,7 +1020,7 @@ function computeCDRS(divs) {
   const pen = Math.max(-5, drops.reduce((A,B)=>A+B,0));
   const croissance = Math.max(0, Math.min(35, croissA + bonus + pen));
 
-  // 3) Stabilité (25) — CV → 25 − cv/2
+  // 3) Stabilité (25)
   const series = [2020,2021,2022,2023,2024].map(y=>byYear[y]||0).filter(v=>v>0);
   let stabilite = 0;
   if (series.length>=2) {
@@ -1029,7 +1030,7 @@ function computeCDRS(divs) {
     stabilite = Math.max(0, 25 - (cv/2));
   }
 
-  // 4) Magnitude (15) — TCAM 2020→2024 ; cas d0=0 → 7
+  // 4) Magnitude (15)
   const d0 = byYear[2020]||0, d4 = byYear[2024]||0;
   let magnitude = 0;
   if (d0>0 && d4>0) {
@@ -1083,7 +1084,7 @@ function computeNDF(divs) {
 }
 function ratio(b,a){ if(a==null||a<=0||b==null) return null; return (b-a)/a; }
 
-/* ===== DRIP simulation (mensuelle) ===== */
+/* ===== DRIP simulation ===== */
 function simulateDRIP({ initial, monthly, yieldPct, growthPct, years, feePct, price }) {
   const months = Math.max(1, Math.round(years*12));
   const rDivYear = Math.max(0, yieldPct)/100;
