@@ -1,7 +1,7 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer,
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis
 } from "recharts";
 import {
@@ -10,35 +10,37 @@ import {
 } from "lucide-react";
 
 /* =========================================================
-   COMPANY PAGE PREMIUM (V2.5 + "calcul premium" séquentiel)
+   COMPANY PAGE V2.5 — Design d'origine + animations séquentielles
+   - On garde le style et la structure validés
+   - On ajoute la logique d'animation inspirée du fichier RTF
+     (séquence C-DRS -> PRT -> NDF -> Score global)
    ========================================================= */
 
-export default function CompanyPagePremium({
-  company = {
+export default function CompanyPage() {
+  // --- Données de démonstration (branche sur tes vraies props/store si besoin)
+  const company = {
     ticker: "ATW",
     name: "ATTIJARIWAFA BANK",
     sector: "Banques",
     price: 480,
     currency: "MAD",
     logo: "/logos/ATW.svg",
-  },
-  kpi = { cdrs: 82, prt: 68, ndf: 74, score: 86 },
-  dividends = [
+  };
+  const kpi = { cdrs: 82, prt: 68, ndf: 74, score: 86 };
+  const dividends = [
     { year: 2020, exDate: "2021-07-05", paymentDate: "2021-08-27", dividend: 11 },
     { year: 2021, exDate: "2022-07-07", paymentDate: "2022-07-21", dividend: 13.5 },
     { year: 2022, exDate: "2023-07-10", paymentDate: "2023-07-23", dividend: 15.5 },
     { year: 2023, exDate: "2024-07-10", paymentDate: "2024-07-23", dividend: 17.0 },
-  ],
-  sectorPeers = [
+  ];
+  const sectorPeers = [
     { name: "ATW", cdrs: 82, yield: 3.6, prt: 68, ndf: 74 },
     { name: "BCP", cdrs: 78, yield: 3.8, prt: 65, ndf: 71 },
     { name: "CDM", cdrs: 75, yield: 3.1, prt: 62, ndf: 70 },
     { name: "TQM", cdrs: 80, yield: 4.2, prt: 58, ndf: 72 },
-  ],
-}) {
-  const [showDRIP, setShowDRIP] = useState(false);
+  ];
 
-  // ======== derived ========
+  // ======== dérivées (design V2.5 conservé) ========
   const currency = company.currency || "MAD";
   const yearSorted = useMemo(
     () =>
@@ -52,7 +54,6 @@ export default function CompanyPagePremium({
     for (const d of yearSorted) map.set(d.year, (map.get(d.year) || 0) + Number(d.dividend || 0));
     return Array.from(map.entries()).map(([year, total]) => ({ year, total: Number(total.toFixed(2)) }));
   }, [yearSorted]);
-
   const cagr = useMemo(() => {
     if (yearly.length < 2) return null;
     const sorted = [...yearly].sort((a, b) => a.year - b.year);
@@ -61,7 +62,6 @@ export default function CompanyPagePremium({
     return Number(((Math.pow(yN / y0, 1 / n) - 1) * 100).toFixed(1));
   }, [yearly]);
 
-  // ======== helpers ========
   const fmtMAD = (v) => (v == null ? "—" : `${Number(v).toFixed(2)} ${currency}`);
   const fmtDate = (iso) => {
     if (!iso) return "—";
@@ -70,163 +70,163 @@ export default function CompanyPagePremium({
   };
 
   /* =========================================================
-     STATE MACHINE du "calcul premium"
-     phases: idle → cdrs → prt → ndf → final
+     LOGIQUE D'ANIMATION (séquentielle)
+     idle -> cdrs -> prt -> ndf -> final
+     Incrément en pas réguliers, textes dynamiques, tooltips
      ========================================================= */
   const [phase, setPhase] = useState("idle");
+  const [hasAnimated, setHasAnimated] = useState(false);
+
   const [cdrsProgress, setCdrsProgress] = useState(0);
   const [prtProgress, setPrtProgress] = useState(0);
   const [ndfProgress, setNdfProgress] = useState(0);
   const [scoreProgress, setScoreProgress] = useState(0);
-  const [message, setMessage] = useState("");
 
-  const msgsCdrs = [
+  const [calculationStep, setCalculationStep] = useState(0);
+  const [showCDRSCalc, setShowCDRSCalc] = useState(false);
+  const [prtStep, setPRTStep] = useState(0);
+  const [showPRTCalc, setShowPRTCalc] = useState(false);
+  const [ndfStep, setNDFStep] = useState(0);
+  const [showNDFCalc, setShowNDFCalc] = useState(false);
+  const [scoreStep, setScoreStep] = useState(0);
+  const [showScoreCalc, setShowScoreCalc] = useState(false);
+
+  const [bannerMsg, setBannerMsg] = useState("");
+
+  const msgsCDRS = [
     "Nous analysons la régularité du dividende…",
     "Nous vérifions la stabilité des paiements…",
     "Nous mesurons la croissance…",
     "Nous évaluons la fiabilité globale…",
   ];
-  const msgsPrt = [
+  const msgsPRT = [
     "Analyse du temps de retour sur investissement…",
     "Calcul du rythme moyen de remboursement…",
   ];
-  const msgsNdf = [
+  const msgsNDF = [
     "Mesure du niveau de flux récurrents…",
     "Consolidation des signaux de solidité…",
   ];
-  const finalMsg =
-    "Nous combinons les 3 indicateurs clés (C-DRS, PRT, NDF) pour évaluer la solidité globale.";
+  const finalMsg = "Nous combinons les 3 indicateurs clés (C-DRS, PRT, NDF) pour évaluer la solidité globale.";
 
-  // Séquence orchestrée
-  const runSequence = () => {
+  const startSequence = () => {
     if (phase !== "idle") return;
-    setPhase("cdrs");
+    setHasAnimated(true);
+    // reset
+    setCdrsProgress(0); setPRTStep(0); setNDFStep(0); setScoreStep(0);
+    setPrtProgress(0); setNdfProgress(0); setScoreProgress(0);
+    setPhase("cdrs"); setShowCDRSCalc(true); setCalculationStep(0);
+  };
+
+  // Helpers d’animation en pas réguliers
+  const animateTo = (target, durationMs, onTick, onDone) => {
+    const steps = 60;
+    const inc = target / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current++;
+      const val = Math.min(Math.round(inc * current), target);
+      onTick(val);
+      if (current >= steps) {
+        clearInterval(timer);
+        onDone && onDone();
+      }
+    }, durationMs / steps);
+    return () => clearInterval(timer);
   };
 
   // C-DRS
   useEffect(() => {
     if (phase !== "cdrs") return;
     let i = 0;
-    setMessage(msgsCdrs[0]);
-    const msgTimer = setInterval(() => {
-      i = (i + 1) % msgsCdrs.length;
-      setMessage(msgsCdrs[i]);
-    }, 900);
+    setBannerMsg(msgsCDRS[0]);
+    const rot = setInterval(() => { i = (i + 1) % msgsCDRS.length; setBannerMsg(msgsCDRS[i]); }, 900);
 
-    const start = performance.now();
-    const target = Math.max(0, Math.min(100, kpi.cdrs));
-    let raf;
-    const animate = (t) => {
-      const p = Math.min(1, (t - start) / 1600);
-      setCdrsProgress(Math.round(target * p));
-      if (p < 1) {
-        raf = requestAnimationFrame(animate);
-      } else {
-        clearInterval(msgTimer);
-        setTimeout(() => setPhase("prt"), 300);
-      }
-    };
-    raf = requestAnimationFrame(animate);
+    // étapes intermédiaires (visuel de "décomposition")
+    const t1 = setTimeout(() => setCalculationStep(1), 100);
+    const t2 = setTimeout(() => setCalculationStep(2), 1200);
+    const t3 = setTimeout(() => setCalculationStep(3), 2400);
+    const t4 = setTimeout(() => setCalculationStep(4), 3600);
 
-    return () => {
-      clearInterval(msgTimer);
-      cancelAnimationFrame(raf);
-    };
+    const tEnd = setTimeout(() => {
+      setShowCDRSCalc(false);
+      setCalculationStep(0);
+      animateTo(Math.max(0, Math.min(100, kpi.cdrs)), 1500, setCdrsProgress, () => {
+        clearInterval(rot);
+        setTimeout(() => { setPhase("prt"); setShowPRTCalc(true); setPRTStep(0); }, 250);
+      });
+    }, 4600);
+
+    return () => { clearInterval(rot); clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(tEnd); };
   }, [phase, kpi.cdrs]);
 
   // PRT
   useEffect(() => {
     if (phase !== "prt") return;
     let i = 0;
-    setMessage(msgsPrt[0]);
-    const msgTimer = setInterval(() => {
-      i = (i + 1) % msgsPrt.length;
-      setMessage(msgsPrt[i]);
-    }, 1000);
+    setBannerMsg(msgsPRT[0]);
+    const rot = setInterval(() => { i = (i + 1) % msgsPRT.length; setBannerMsg(msgsPRT[i]); }, 1000);
 
-    const start = performance.now();
-    const target = Math.max(0, Math.min(100, kpi.prt));
-    let raf;
-    const animate = (t) => {
-      const p = Math.min(1, (t - start) / 1600);
-      setPrtProgress(Math.round(target * p));
-      if (p < 1) {
-        raf = requestAnimationFrame(animate);
-      } else {
-        clearInterval(msgTimer);
-        setTimeout(() => setPhase("ndf"), 300);
-      }
-    };
-    raf = requestAnimationFrame(animate);
+    const p1 = setTimeout(() => setPRTStep(1), 120);
+    const p2 = setTimeout(() => setPRTStep(2), 1000);
+    const p3 = setTimeout(() => setPRTStep(3), 2000);
+    const p4 = setTimeout(() => setPRTStep(4), 3000);
 
-    return () => {
-      clearInterval(msgTimer);
-      cancelAnimationFrame(raf);
-    };
+    const pEnd = setTimeout(() => {
+      setShowPRTCalc(false); setPRTStep(0);
+      animateTo(Math.max(0, Math.min(100, kpi.prt)), 1500, setPrtProgress, () => {
+        clearInterval(rot);
+        setTimeout(() => { setPhase("ndf"); setShowNDFCalc(true); setNDFStep(0); }, 250);
+      });
+    }, 3800);
+
+    return () => { clearInterval(rot); clearTimeout(p1); clearTimeout(p2); clearTimeout(p3); clearTimeout(p4); clearTimeout(pEnd); };
   }, [phase, kpi.prt]);
 
   // NDF
   useEffect(() => {
     if (phase !== "ndf") return;
     let i = 0;
-    setMessage(msgsNdf[0]);
-    const msgTimer = setInterval(() => {
-      i = (i + 1) % msgsNdf.length;
-      setMessage(msgsNdf[i]);
-    }, 1000);
+    setBannerMsg(msgsNDF[0]);
+    const rot = setInterval(() => { i = (i + 1) % msgsNDF.length; setBannerMsg(msgsNDF[i]); }, 1000);
 
-    const start = performance.now();
-    const target = Math.max(0, Math.min(100, kpi.ndf));
-    let raf;
-    const animate = (t) => {
-      const p = Math.min(1, (t - start) / 1400);
-      setNdfProgress(Math.round(target * p));
-      if (p < 1) {
-        raf = requestAnimationFrame(animate);
-      } else {
-        clearInterval(msgTimer);
-        setTimeout(() => setPhase("final"), 350);
-      }
-    };
-    raf = requestAnimationFrame(animate);
+    const n1 = setTimeout(() => setNDFStep(1), 120);
+    const n2 = setTimeout(() => setNDFStep(2), 1000);
+    const n3 = setTimeout(() => setNDFStep(3), 2000);
+    const n4 = setTimeout(() => setNDFStep(4), 3000);
 
-    return () => {
-      clearInterval(msgTimer);
-      cancelAnimationFrame(raf);
-    };
+    const nEnd = setTimeout(() => {
+      setShowNDFCalc(false); setNDFStep(0);
+      animateTo(Math.max(0, Math.min(100, kpi.ndf)), 1400, setNdfProgress, () => {
+        clearInterval(rot);
+        setTimeout(() => { setPhase("final"); setShowScoreCalc(true); setScoreStep(0); setBannerMsg(finalMsg); }, 300);
+      });
+    }, 3600);
+
+    return () => { clearInterval(rot); clearTimeout(n1); clearTimeout(n2); clearTimeout(n3); clearTimeout(n4); clearTimeout(nEnd); };
   }, [phase, kpi.ndf]);
 
-  // Final score
+  // SCORE GLOBAL
   useEffect(() => {
     if (phase !== "final") return;
-    setMessage(finalMsg);
-    const start = performance.now();
-    const target = Math.max(0, Math.min(100, kpi.score));
-    let raf;
-    const animate = (t) => {
-      const p = Math.min(1, (t - start) / 1300);
-      setScoreProgress(Math.round(target * p));
-      if (p < 1) {
-        raf = requestAnimationFrame(animate);
-      } else {
-        // fin de séquence → message reste affiché un moment
-        setTimeout(() => setMessage(""), 1600);
-      }
-    };
-    raf = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(raf);
+    const end = setTimeout(() => {
+      animateTo(Math.max(0, Math.min(100, kpi.score)), 1300, setScoreProgress, () => {
+        setTimeout(() => { setShowScoreCalc(false); setScoreStep(0); setBannerMsg(""); }, 1200);
+      });
+    }, 800);
+    return () => clearTimeout(end);
   }, [phase, kpi.score]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-100">
-      {/* Decorative halo */}
+      {/* halo décoratif */}
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-amber-400/5 blur-3xl rounded-full" />
         <div className="absolute bottom-[-15%] left-[-10%] w-[40rem] h-[40rem] bg-teal-400/5 blur-3xl rounded-full" />
       </div>
 
       <div className="max-w-[1200px] xl:max-w-[1400px] mx-auto px-6 py-8">
-        {/* Header */}
+        {/* Header (inchangé) */}
         <header id="profil" className="flex flex-col md:flex-row md:items-end gap-6 mb-8">
           <div className="flex items-center gap-4">
             <button onClick={() => window.history.back()} className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40">
@@ -240,10 +240,7 @@ export default function CompanyPagePremium({
           </div>
 
           <div className="md:ml-auto flex items-center gap-3">
-            <button
-              onClick={() => setShowDRIP(true)}
-              className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2"
-            >
+            <button className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" /> DRIP
             </button>
             <a
@@ -266,7 +263,7 @@ export default function CompanyPagePremium({
           </div>
         </header>
 
-        {/* Sticky Anchor Nav */}
+        {/* Nav sticky */}
         <nav className="sticky top-4 z-20 mb-6">
           <div className="inline-flex rounded-2xl border border-zinc-800 bg-zinc-900/60 p-1 backdrop-blur">
             {[
@@ -283,59 +280,64 @@ export default function CompanyPagePremium({
           </div>
         </nav>
 
-        {/* KPI Section — interactive */}
-        <section id="kpi" className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {/* C-DRS: déclenche la séquence */}
-          <KPI_CDRS
-            title="C-DRS"
-            value={kpi.cdrs}
-            progress={phase === "idle" ? 0 : cdrsProgress}
-            onStart={runSequence}
-            running={phase !== "idle"}
-            tooltip="Indice de constance du dividende dans le temps. Analyse la régularité, la stabilité et la progression du dividende (explication simplifiée, sans formule)."
-          />
-
-          {/* PRT: jauge horizontale */}
-          <KPI_PRT
-            title="PRT"
-            value={kpi.prt}
-            progress={phase === "prt" || phase === "ndf" || phase === "final" ? prtProgress : 0}
-            active={phase !== "idle"}
-            tooltip="Temps de retour sur investissement estimatif. Mesure le rythme auquel le dividende rembourse le prix d’entrée (explication simplifiée)."
-          />
-
-          {/* NDF: barre verticale */}
-          <KPI_NDF
-            title="NDF"
-            value={kpi.ndf}
-            progress={phase === "ndf" || phase === "final" ? ndfProgress : 0}
-            active={phase !== "idle"}
-            tooltip="Niveau de flux : indicateur de soutenabilité des distributions et de la récurrence des paiements (explication simplifiée)."
-          />
-
-          {/* Score global: anneau + compteur */}
-          <KPI_Global
-            value={phase === "final" ? scoreProgress : 0}
-            target={kpi.score}
-            tooltip="Score synthétique pondéré combinant C-DRS, PRT et NDF pour évaluer la solidité globale."
-          />
-        </section>
-
-        {/* Bandeau message dynamique pendant la séquence */}
+        {/* Bandeau messages dynamiques */}
         <AnimatePresence>
-          {!!message && (
+          {!!bannerMsg && (
             <motion.div
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}
               className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-sm text-zinc-300"
             >
-              {message}
+              {bannerMsg}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* History + Chart */}
+        {/* KPI Section (design gardé, animations ajoutées) */}
+        <section id="kpi" className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {/* C-DRS */}
+          <CDRSCard
+            value={kpi.cdrs}
+            running={phase !== "idle"}
+            showCalc={showCDRSCalc}
+            step={calculationStep}
+            progress={cdrsProgress}
+            onStart={startSequence}
+            tooltip="Indice de constance du dividende (régularité, stabilité, progression). Explication simplifiée, sans formule."
+          />
+
+          {/* PRT */}
+          <PRTCard
+            value={kpi.prt}
+            active={phase !== "idle"}
+            showCalc={showPRTCalc}
+            step={prtStep}
+            progress={prtProgress}
+            tooltip="Temps de retour estimatif via le dividende. Mesure le rythme moyen de remboursement de l'investissement (explication simplifiée)."
+          />
+
+          {/* NDF */}
+          <NDFCard
+            value={kpi.ndf}
+            active={phase !== "idle"}
+            showCalc={showNDFCalc}
+            step={ndfStep}
+            progress={ndfProgress}
+            tooltip="Niveau de flux : récurrence et soutenabilité des distributions."
+          />
+
+          {/* Score global */}
+          <GlobalScoreCard
+            value={kpi.score}
+            showCalc={showScoreCalc}
+            step={scoreStep}
+            progress={scoreProgress}
+            tooltip="Synthèse pondérée des KPI (C-DRS, PRT, NDF) évaluant la solidité globale."
+          />
+        </section>
+
+        {/* Historique + Détails */}
         <section id="history" className="grid lg:grid-cols-2 gap-6 mb-10">
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
             <div className="flex items-center justify-between mb-3">
@@ -349,13 +351,13 @@ export default function CompanyPagePremium({
                 <LineChart data={yearly}>
                   <XAxis dataKey="year" stroke="#a1a1aa" />
                   <YAxis stroke="#a1a1aa" />
-                  <Tooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                  <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
                   <Line type="monotone" dataKey="total" stroke="#14b8a6" strokeWidth={2} dot />
                 </LineChart>
               </ResponsiveContainer>
             </div>
             <div className="mt-3 text-sm text-zinc-400">
-              Somme annuelle des dividendes en {currency}. Données issues de CasaDividendes (2020–2024).
+              Somme annuelle des dividendes en {currency}. Données CasaDividendes (2020–2024).
             </div>
           </div>
 
@@ -377,7 +379,7 @@ export default function CompanyPagePremium({
           </div>
         </section>
 
-        {/* Strategy */}
+        {/* Stratégie (inchangée) */}
         <section id="strategy" className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 mb-10">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold flex items-center gap-2">
@@ -406,7 +408,7 @@ export default function CompanyPagePremium({
           </div>
         </section>
 
-        {/* Compare Sector */}
+        {/* Comparatif secteur (inchangé) */}
         <section id="compare" className="grid lg:grid-cols-2 gap-6 mb-16">
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
             <h3 className="font-semibold mb-3">Comparatif secteur (Radar)</h3>
@@ -419,8 +421,7 @@ export default function CompanyPagePremium({
                     stroke="#a1a1aa"
                     tick={(props) => {
                       const { x, y, payload, textAnchor } = props;
-                      const active =
-                        String(payload.value).toUpperCase() === String(company.ticker).toUpperCase();
+                      const active = String(payload.value).toUpperCase() === String(company.ticker).toUpperCase();
                       return (
                         <text
                           x={x} y={y} textAnchor={textAnchor} fontSize={12}
@@ -461,64 +462,46 @@ export default function CompanyPagePremium({
         </footer>
       </div>
 
-      {/* Mobile FAB */}
+      {/* FAB mobile (inchangé) */}
       <div className="fixed bottom-6 right-6 xl:hidden">
         <button className="rounded-full w-12 h-12 flex items-center justify-center bg-teal-500 text-zinc-950 shadow-lg shadow-teal-500/20">
           <Settings className="w-5 h-5" />
         </button>
       </div>
 
-      {/* DRIP Modal */}
-      <AnimatePresence>
-        {showDRIP && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
-          >
-            <motion.div
-              initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }}
-              className="w-[92vw] max-w-[680px] rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">DRIP — Réinvestissement des dividendes</h3>
-                <button onClick={() => setShowDRIP(false)} className="p-2 rounded-lg hover:bg-zinc-900">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              <p className="text-sm text-zinc-400 mb-4">
-                Simulez l’impact du réinvestissement automatique des dividendes sur votre position.
-              </p>
-              <div className="grid sm:grid-cols-3 gap-3">
-                <Field label="Montant initial" suffix={currency} defaultValue="10000" />
-                <Field label="Horizon (ans)" defaultValue="5" />
-                <Field label="Rendement (%)" defaultValue="3.5" />
-              </div>
-              <div className="mt-4 text-right">
-                <button className="rounded-xl px-4 py-2 bg-teal-500/20 border border-teal-500/30 text-teal-300 hover:bg-teal-500/30">
-                  Calculer
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Scroll doux global */}
-      <style>{`
-        html { scroll-behavior: smooth; }
-      `}</style>
+      <style>{`html { scroll-behavior: smooth; }`}</style>
     </div>
   );
 }
 
 /* =========================
-   KPI COMPONENTS (interactifs)
+   CARTES KPI — animations intégrées
    ========================= */
 
-// C-DRS : cercle qui se remplit + tooltip + bouton de lancement
-function KPI_CDRS({ title, value, progress, onStart, running, tooltip }) {
+function TooltipInfo({ text }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative">
+      <span
+        onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}
+        className="text-zinc-500 text-xs border border-zinc-700 rounded-md px-1.5 py-0.5 cursor-default"
+      >
+        i
+      </span>
+      {show && (
+        <div className="absolute right-0 mt-2 z-20 w-64 text-xs leading-relaxed bg-zinc-950 border border-zinc-800 rounded-lg p-3 shadow-lg">
+          {text}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* C-DRS: cercle qui se remplit + textes dynamiques + bouton démarrage */
+function CDRSCard({ value, running, showCalc, step, progress, onStart, tooltip }) {
   const target = Math.max(0, Math.min(100, value));
-  const showing = running ? progress : 0;
+  const showing = running ? progress : target;
   const size = 116, stroke = 10, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const offset = c * (1 - (showing || 0) / 100);
 
@@ -526,15 +509,12 @@ function KPI_CDRS({ title, value, progress, onStart, running, tooltip }) {
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4 group">
       <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-emerald-500/10 via-emerald-500/0 to-transparent blur-2xl" />
       <div className="flex items-center justify-between">
-        <div className="text-sm text-zinc-400">{title}</div>
+        <div className="text-sm text-zinc-400">C-DRS</div>
         <TooltipInfo text={tooltip} />
       </div>
 
       <div className="mt-2 relative flex items-center justify-center">
-        {/* halo animé lorsque ça tourne */}
-        {running && (
-          <div className="absolute w-24 h-24 rounded-full bg-teal-500/10 animate-ping" />
-        )}
+        {running && showCalc && <div className="absolute w-24 h-24 rounded-full bg-teal-500/10 animate-ping" />}
         <svg width={size} height={size} className="block">
           <circle cx={size/2} cy={size/2} r={r} stroke="#27272a" strokeWidth={stroke} fill="none" />
           <circle
@@ -542,49 +522,61 @@ function KPI_CDRS({ title, value, progress, onStart, running, tooltip }) {
             stroke="#14b8a6" strokeWidth={stroke} fill="none"
             strokeDasharray={c} strokeDashoffset={offset}
             strokeLinecap="round"
-            style={{ transition: "stroke-dashoffset .5s ease" }}
+            style={{ transition: "stroke-dashoffset .45s ease" }}
           />
           <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="fill-zinc-100 font-semibold">
-            {running ? showing : target}
+            {showing}
           </text>
         </svg>
       </div>
 
-      <div className="text-xs text-zinc-500 mt-2 text-center">Constance du dividende</div>
+      {/* textes dynamiques durant le “calcul” */}
+      {running && showCalc ? (
+        <div className="mt-2 text-center text-xs text-zinc-400 min-h-[38px]">
+          {step === 0 && "Initialisation…"}
+          {step === 1 && "Nous analysons la régularité du dividende…"}
+          {step === 2 && "Nous vérifions la stabilité des paiements…"}
+          {step === 3 && "Nous mesurons la croissance…"}
+          {step === 4 && "Nous évaluons la fiabilité globale…"}
+        </div>
+      ) : (
+        <div className="text-xs text-zinc-500 mt-2 text-center">Constance du dividende</div>
+      )}
 
-      {/* Bouton démarrage */}
-      <button
-        onClick={onStart}
-        disabled={running}
-        className={`mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm border transition
-          ${running ? "border-zinc-800 text-zinc-500 cursor-not-allowed" : "border-teal-500/30 text-teal-300 hover:bg-teal-500/10"}`}
-      >
-        <Play className="w-4 h-4" /> Lancer le calcul
-      </button>
+      {/* Bouton déclencheur (uniquement au repos) */}
+      {!running && (
+        <button
+          onClick={onStart}
+          className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm border border-teal-500/30 text-teal-300 hover:bg-teal-500/10"
+        >
+          <Play className="w-4 h-4" /> Lancer le calcul
+        </button>
+      )}
     </div>
   );
 }
 
-// PRT : jauge horizontale + effet va-et-vient pendant le calcul + tooltip
-function KPI_PRT({ title, value, progress, active, tooltip }) {
+/* PRT: jauge horizontale avec shimmer pendant calcul */
+function PRTCard({ value, active, showCalc, step, progress, tooltip }) {
   const target = Math.max(0, Math.min(100, value));
-  const p = active ? progress : 0;
+  const p = active ? progress : target;
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-amber-500/10 via-amber-500/0 to-transparent blur-2xl" />
       <div className="flex items-center justify-between">
-        <div className="text-sm text-zinc-400">{title}</div>
+        <div className="text-sm text-zinc-400">PRT</div>
         <TooltipInfo text={tooltip} />
       </div>
 
       <div className="mt-3">
         <div className="h-3 w-full rounded-full bg-zinc-800 overflow-hidden relative">
-          {/* va-et-vient shimmer pendant le calcul */}
-          {active && p < target && (
+          {/* effet va-et-vient pendant le calcul */}
+          {active && showCalc && (
             <motion.div
               className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-amber-300/0 via-amber-300/20 to-amber-300/0"
               animate={{ x: ["-20%", "100%"] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
             />
           )}
           <div
@@ -592,35 +584,47 @@ function KPI_PRT({ title, value, progress, active, tooltip }) {
             style={{ width: `${p}%` }}
           />
         </div>
-        <div className="mt-2 flex items-center justify-between text-xs">
-          <span className="text-zinc-500">Payout ratio tendanciel</span>
-          <span className="text-zinc-300">{active ? p : target}</span>
-        </div>
+
+        {/* textes courts durant le calcul */}
+        {active && showCalc ? (
+          <div className="mt-2 text-xs text-zinc-400 min-h-[30px]">
+            {step === 0 && "Analyse…"}
+            {step === 1 && "Analyse du temps de retour sur investissement…"}
+            {step === 2 && "Calcul du rythme moyen de remboursement…"}
+            {step === 3 && "Consolidation du profil de remboursement…"}
+            {step === 4 && "Validation du PRT…"}
+          </div>
+        ) : (
+          <div className="mt-2 flex items-center justify-between text-xs">
+            <span className="text-zinc-500">Payout ratio tendanciel</span>
+            <span className="text-zinc-300">{p}</span>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-// NDF : barre verticale + tooltip
-function KPI_NDF({ title, value, progress, active, tooltip }) {
+/* NDF: barre verticale avec motif animé */
+function NDFCard({ value, active, showCalc, step, progress, tooltip }) {
   const target = Math.max(0, Math.min(100, value));
-  const p = active ? progress : 0;
+  const p = active ? progress : target;
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="pointer-events-none absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br from-sky-500/10 via-sky-500/0 to-transparent blur-2xl" />
       <div className="flex items-center justify-between">
-        <div className="text-sm text-zinc-400">{title}</div>
+        <div className="text-sm text-zinc-400">NDF</div>
         <TooltipInfo text={tooltip} />
       </div>
 
       <div className="mt-3 h-28 flex items-end justify-center">
         <div className="w-8 h-full bg-zinc-800 rounded-lg overflow-hidden relative">
-          {/* animation interne */}
-          {active && p < target && (
+          {active && showCalc && (
             <motion.div
               className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_50%_0%,#38bdf8_0%,transparent_60%)]"
               animate={{ backgroundPositionY: ["0%", "100%"] }}
-              transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 1.1, repeat: Infinity, ease: "easeInOut" }}
             />
           )}
           <div
@@ -629,23 +633,33 @@ function KPI_NDF({ title, value, progress, active, tooltip }) {
           />
         </div>
       </div>
-      <div className="mt-2 text-xs text-zinc-300 text-center">{active ? p : target}</div>
-      <div className="text-xs text-zinc-500 text-center">Niveau de flux</div>
+
+      {active && showCalc ? (
+        <div className="mt-2 text-xs text-zinc-400 min-h-[30px] text-center">
+          {step === 0 && "Calcul…"}
+          {step === 1 && "Mesure du niveau de flux récurrents…"}
+          {step === 2 && "Estimation de la tendance…"}
+          {step === 3 && "Détermination de la fourchette…"}
+          {step === 4 && "Validation du signal…"}
+        </div>
+      ) : (
+        <div className="mt-2 text-xs text-zinc-500 text-center">Niveau de flux</div>
+      )}
     </div>
   );
 }
 
-// Global score : anneau + compteur numérique + tooltip
-function KPI_Global({ value, target, tooltip }) {
+/* Global Score: anneau + compteur numérique */
+function GlobalScoreCard({ value, showCalc, step, progress, tooltip }) {
   const size = 116, stroke = 10, r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  const v = Math.max(0, Math.min(100, value));
+  const v = progress || 0;
   const offset = c * (1 - v / 100);
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="text-sm text-zinc-400 flex items-center justify-between">
         <span>Score global</span>
-        <TooltipInfo text="Synthèse pondérée des trois indicateurs clés (C-DRS, PRT, NDF). Plus le score est élevé, plus la solidité globale est robuste." />
+        <TooltipInfo text={tooltip} />
       </div>
       <div className="mt-2 relative flex items-center justify-center">
         {v > 0 && <div className="absolute w-24 h-24 rounded-full bg-teal-500/10 animate-ping" />}
@@ -654,42 +668,29 @@ function KPI_Global({ value, target, tooltip }) {
           <circle
             cx={size/2} cy={size/2} r={r}
             stroke="#14b8a6" strokeWidth={stroke} fill="none"
-            strokeDasharray={c} strokeDashoffset={offset}
+            strokeDasharray={c}
+            strokeDashoffset={offset}
             strokeLinecap="round"
-            style={{ transition: "stroke-dashoffset .5s ease" }}
+            style={{ transition: "stroke-dashoffset .45s ease" }}
           />
           <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="fill-zinc-100 font-semibold">
-            {v || 0}
+            {v}
           </text>
         </svg>
       </div>
       <div className="text-xs text-zinc-500 mt-2 text-center">
         Nous combinons les 3 indicateurs clés (C-DRS, PRT, NDF) pour évaluer la solidité globale.
       </div>
-      {v === 0 && (
-        <div className="text-[11px] text-zinc-500 mt-2 text-center">
-          Cliquez d’abord sur C-DRS pour lancer la séquence.
-        </div>
+      {!showCalc && v === 0 && (
+        <div className="text-[11px] text-zinc-500 mt-2 text-center">Cliquez d’abord sur C-DRS pour lancer la séquence.</div>
       )}
     </div>
   );
 }
 
 /* =========================
-   Small shared components
+   Autres composants (identiques V2.5)
    ========================= */
-
-function TooltipInfo({ text }) {
-  return (
-    <div className="relative">
-      <span className="text-zinc-500 text-xs border border-zinc-700 rounded-md px-1.5 py-0.5 cursor-default">i</span>
-      <div className="absolute right-0 mt-2 hidden group-hover:block md:group-hover:block z-20 w-64 text-xs leading-relaxed bg-zinc-950 border border-zinc-800 rounded-lg p-3 shadow-lg">
-        {text}
-      </div>
-    </div>
-  );
-}
-
 function StrategyCard({ title, points = [] }) {
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
@@ -705,30 +706,10 @@ function StrategyCard({ title, points = [] }) {
     </div>
   );
 }
-
 function QuickAction({ icon, label }) {
   return (
     <button className="rounded-xl border border-zinc-800 bg-zinc-900/60 hover:border-teal-500/40 px-3 py-2 flex items-center gap-2">
       {icon} <span>{label}</span>
     </button>
-  );
-}
-
-function Field({ label, suffix, defaultValue }) {
-  return (
-    <label className="text-sm">
-      <div className="text-zinc-400 mb-1">{label}</div>
-      <div className="flex">
-        <input
-          defaultValue={defaultValue}
-          className="flex-1 rounded-l-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm focus:border-teal-500 outline-none"
-        />
-        {suffix && (
-          <div className="rounded-r-lg border border-l-0 border-zinc-800 px-3 py-2 text-sm bg-zinc-900/60 text-zinc-300">
-            {suffix}
-          </div>
-        )}
-      </div>
-    </label>
   );
 }
