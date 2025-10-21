@@ -91,6 +91,7 @@ export default function CompanyPage() {
      ========================================================= */
   const [phase, setPhase] = useState("idle");
   const [bannerMsg, setBannerMsg] = useState("");
+  const [cdrsRing, setCdrsRing] = useState(0);
 
   // CDRS segments progress
   const [progReg, setProgReg] = useState(0);
