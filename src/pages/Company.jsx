@@ -8,19 +8,78 @@ import {
 import {
   ArrowLeft, ExternalLink, TrendingUp, Star, Bookmark, Share2,
   Settings, ChevronRight, Info, X, Sparkles, Link as LinkIcon,
-  Play, RotateCcw, SlidersHorizontal, Calendar as CalIcon
+  Play, RotateCcw, SlidersHorizontal
 } from "lucide-react";
 
-/* =========================================================
-   COMPANY PAGE — V3
-   - Loader de données réelles par année (JSON)
-   - KPI branchés (CDRS/PRT/NDF) + animations séquentielles
-   - Deep-link calendrier depuis NDF
-   - DRIP conservé
-   ========================================================= */
+/* =========================================================================
+   Company.jsx — complet
+   - Loader dividendes réels /public/data/dividends/<year>.json
+   - KPI animés (C-DRS™ → PRT™ → NDF™ → CD-Score™)
+   - DRIP Simulator (modale)
+   - Tooltips explicatifs (sans formules)
+   - Bouton NDF “Voir ce mois dans le calendrier”
+   ========================================================================= */
 
+const DAY_MS = 86400000;
+
+/* ================= Helpers Date ================= */
+function toDayOfYear(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return null;
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / DAY_MS);
+}
+function dayOfYearToDate(day, year = new Date().getFullYear()) {
+  const d = new Date(year, 0);
+  d.setDate(day);
+  return d;
+}
+function monthFromDayOfYear(day, year = new Date().getFullYear()) {
+  const d = dayOfYearToDate(day, year);
+  return d.getMonth() + 1; // 1..12
+}
+function dayToRoughDate(n, refYear = 2024) {
+  if (n == null) return "—";
+  const d = dayOfYearToDate(n, refYear);
+  const m = d.toLocaleString("fr-FR", { month: "long" });
+  const dd = d.getDate();
+  const pos = dd <= 10 ? "début" : dd <= 20 ? "mi" : "fin";
+  return `${pos} ${m}`;
+}
+
+/* ================= Tooltip riche ================= */
+function Tip({ title, points = [] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        className="text-zinc-400 hover:text-zinc-200 w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center"
+        aria-label="Informations"
+      >
+        i
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 z-30 w-80 rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-sm shadow-xl">
+          <div className="font-medium text-zinc-100 mb-2">{title}</div>
+          <ul className="space-y-1 text-zinc-300">
+            {points.map((p, i) => (
+              <li key={i} className="flex gap-2">
+                <span className="text-teal-400">•</span>
+                <span>{p}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =================== Page =================== */
 export default function CompanyPage() {
-  // --- Demo: tu peux passer ces infos via props / route
+  // ---- Identité entreprise (remplace par tes props/store au besoin)
   const company = {
     ticker: "ATW",
     name: "ATTIJARIWAFA BANK",
@@ -31,53 +90,131 @@ export default function CompanyPage() {
   };
   const currency = company.currency || "MAD";
 
-  /* ============== 1) DATA LOADER (réel) ============== */
-  const { loading, error, divs } = useDividendSeries(company.ticker);
+  /* ===== Loader dividendes réels ===== */
+  const [loading, setLoading] = useState(true);
+  const [divs, setDivs] = useState([]); // [{year, amount, exDate, pay}]
 
-  // C-D-R-S (méthodo pondérée)
-  const cdrsDetail = useMemo(() => (loading || !divs.length ? emptyCDRS() : computeCDRS(divs)), [loading, divs]);
-  const CDRS = Math.round(cdrsDetail.regularite + cdrsDetail.croissance + cdrsDetail.stabilite + cdrsDetail.magnitude);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const YEARS = [2020, 2021, 2022, 2023, 2024]; // étends si nécessaire
+        const all = [];
 
-  // PRT: si pas de série de retour-prix, proxy = (paymentDate - exDate) ; 3 dernières obs
-  const prtDays = useMemo(() => {
-    if (loading || !divs.length) return [];
-    const sorted = [...divs].sort((a,b)=> (a.year===b.year ? new Date(a.exDate)-new Date(b.exDate) : a.year-b.year));
-    const last3 = sorted.slice(-3);
-    return last3.map(d => daysBetween(d.exDate, d.paymentDate) ?? 21);
-  }, [loading, divs]);
-  const prtAvg = useMemo(() => (!prtDays.length ? 0 : prtDays.reduce((a,b)=>a+b,0) / prtDays.length), [prtDays]);
-  const prtScore = Math.max(0, Math.round(100 - 1.5 * prtAvg));
+        for (const y of YEARS) {
+          const res = await fetch(`/data/dividends/${y}.json`);
+          if (!res.ok) continue;
+          const arr = await res.json();
+          // Structure: [{ ticker, sector, payments: [{ exDate, paymentDate, amount }] }, ...]
+          const row = arr.find(
+            (r) => String(r.ticker).toUpperCase() === String(company.ticker).toUpperCase()
+          );
+          if (!row || !row.payments) continue;
 
-  // NDF
-  const ndf = useMemo(() => (loading || !divs.length ? emptyNDF() : computeNDF(divs)), [loading, divs]);
+          for (const p of row.payments) {
+            all.push({
+              year: y,
+              amount: Number(p.amount || 0),
+              exDate: p.exDate || null,
+              pay: p.paymentDate || null,
+            });
+          }
+        }
 
-  // CAGR pour le graphe historique
-  const yearly = useMemo(() => divs.map(d => ({ year: d.year, total: d.amount })), [divs]);
+        all.sort((a, b) => (a.year - b.year) || (new Date(a.exDate) - new Date(b.exDate)));
+        if (alive) setDivs(all);
+      } catch (e) {
+        console.error("Dividends load error", e);
+        if (alive) setDivs([]);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [company.ticker]);
+
+  /* ===== Dérivés & formats ===== */
+  const yearly = useMemo(() => {
+    const map = new Map();
+    for (const d of divs) map.set(d.year, (map.get(d.year) || 0) + Number(d.amount || 0));
+    return Array.from(map.entries()).map(([year, total]) => ({ year, total: Number(total.toFixed(2)) }));
+  }, [divs]);
+
   const cagr = useMemo(() => {
     if (yearly.length < 2) return null;
-    const s = [...yearly].sort((a,b)=>a.year-b.year);
-    const y0 = s[0].total, yN = s[s.length-1].total, n = s.length-1;
-    if (y0<=0 || n<=0) return null;
-    return +(((Math.pow(yN/y0, 1/n)-1)*100).toFixed(1));
+    const sorted = [...yearly].sort((a, b) => a.year - b.year);
+    const first = sorted[0], last = sorted[sorted.length - 1];
+    if (!first?.total || !last?.total) return null;
+    const n = sorted.length - 1;
+    return Number(((Math.pow(last.total / first.total, 1 / n) - 1) * 100).toFixed(1));
   }, [yearly]);
 
-  /* ============== 2) ANIMATIONS KPI ============== */
-  const [phase, setPhase] = useState("idle"); // idle -> cdrs -> prt -> ndf -> final
+  const fmtMAD = (v) => (v == null ? "—" : `${Number(v).toFixed(2)} ${currency}`);
+  const fmtDate = (iso) => {
+    if (!iso) return "—";
+    const d = new Date(iso);
+    return isNaN(d) ? "—" : d.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  };
+
+  /* ================= Calculs KPI ================= */
+  // C-DRS™ (pondérations implémentées dans computeCDRS)
+  const cdrsDetail = useMemo(() => computeCDRS(divs), [divs]);
+  const CDRS_total = Math.round(
+    cdrsDetail.regularite + cdrsDetail.croissance + cdrsDetail.stabilite + cdrsDetail.magnitude
+  );
+
+  // PRT™ proxy: (paiement - ex-date) sur 3 dernières lignes connues (fallback 21j)
+  const prtDaysArr = useMemo(() => {
+    const last3 = [...divs].reverse().slice(0, 3);
+    const days = last3.map((d) => {
+      const a = d.exDate ? new Date(d.exDate) : null;
+      const b = d.pay ? new Date(d.pay) : null;
+      return a && b ? Math.max(1, Math.round((b - a) / DAY_MS)) : 21;
+    });
+    return days.reverse();
+  }, [divs]);
+
+  const prtAvg = useMemo(() => {
+    if (!prtDaysArr.length) return 21;
+    return prtDaysArr.reduce((a, b) => a + b, 0) / prtDaysArr.length;
+  }, [prtDaysArr]);
+
+  const prtScore = useMemo(() => Math.max(0, Math.round(100 - 1.5 * prtAvg)), [prtAvg]);
+
+  // NDF™ (montant probable, fourchette, ex-date estimée, confiance, jour de l’année)
+  const ndf = useMemo(() => computeNDF(divs), [divs]);
+
+  // CD-Score™ (profil pondéré)
+  const [profile, setProfile] = useState("equilibre"); // "passif" | "equilibre" | "actif"
+  const weights = {
+    passif: { a: 0.60, b: 0.00, c: 0.40 },
+    equilibre: { a: 0.40, b: 0.30, c: 0.30 },
+    actif: { a: 0.20, b: 0.50, c: 0.30 },
+  }[profile];
+  const cdScore = Math.round(
+    CDRS_total * weights.a + prtScore * weights.b + (ndf?.confidence || 0) * weights.c
+  );
+
+  /* ================= Animations séquentielles ================= */
+  const [phase, setPhase] = useState("idle");
   const [bannerMsg, setBannerMsg] = useState("");
 
-  // CDRS progress par critère + anneau final
+  // C-DRS: critères + anneau final
   const [progReg, setProgReg] = useState(0);
   const [progCroiss, setProgCroiss] = useState(0);
   const [progStab, setProgStab] = useState(0);
   const [progMag, setProgMag] = useState(0);
   const [cdrsRing, setCdrsRing] = useState(0);
 
-  // PRT compteur jours + score
+  // PRT: compteur jours + score
   const [prtCounter, setPrtCounter] = useState(0);
   const [prtScoreView, setPrtScoreView] = useState(0);
 
-  // NDF step + confiance
-  const [ndfStep, setNdfStep] = useState(0);
+  // NDF: étapes + confiance
+  const [ndfStep, setNdfStep] = useState(0); // 1 montant, 2 fourchette, 3 ex-date, 4 confiance
   const [ndfConfView, setNdfConfView] = useState(0);
 
   // Global
@@ -86,23 +223,30 @@ export default function CompanyPage() {
   const resetSequence = () => {
     setPhase("idle"); setBannerMsg("");
     setProgReg(0); setProgCroiss(0); setProgStab(0); setProgMag(0); setCdrsRing(0);
-    setPrtCounter(0); setPrtScoreView(0); setNdfStep(0); setNdfConfView(0); setGlobalView(0);
+    setPrtCounter(0); setPrtScoreView(0);
+    setNdfStep(0); setNdfConfView(0);
+    setGlobalView(0);
   };
   const startSequence = () => {
-    if (loading || !divs.length) return; // attend données
     if (phase !== "idle") return;
-    resetSequence(); setPhase("cdrs");
+    resetSequence();
+    setPhase("cdrs");
   };
 
-  const animateTo = (target, ms, onTick) => new Promise((resolve) => {
-    const steps = 60, inc = target / steps; let i = 0;
-    const id = setInterval(() => {
-      i++; const v = Math.min(Math.round(inc*i), target);
-      onTick(v); if (i>=steps) { clearInterval(id); resolve(); }
-    }, ms/steps);
-  });
+  // helper animation
+  const animateTo = (target, ms, onTick) =>
+    new Promise((resolve) => {
+      const steps = 60, inc = target / steps;
+      let i = 0;
+      const id = setInterval(() => {
+        i++;
+        const v = Math.min(Math.round(inc * i), target);
+        onTick(v);
+        if (i >= steps) { clearInterval(id); resolve(); }
+      }, ms / steps);
+    });
 
-  // C-DRS séquentiel: Régularité -> Croissance -> Stabilité -> Magnitude -> anneau
+  // ===== C-DRS : Régularité → Croissance → Stabilité → Magnitude → anneau global
   useEffect(() => {
     if (phase !== "cdrs") return;
     setBannerMsg("C-DRS : Régularité → Croissance → Stabilité → Magnitude…");
@@ -112,98 +256,100 @@ export default function CompanyPage() {
       await animateTo(Math.round(cdrsDetail.croissance), 800, setProgCroiss);
       await animateTo(Math.round(cdrsDetail.stabilite), 700, setProgStab);
       await animateTo(Math.round(cdrsDetail.magnitude), 600, setProgMag);
-      const total = Math.round(cdrsDetail.regularite + cdrsDetail.croissance + cdrsDetail.stabilite + cdrsDetail.magnitude);
-      await animateTo(total, 800, setCdrsRing);
-      setTimeout(()=>setPhase("prt"), 250);
+      await animateTo(CDRS_total, 800, setCdrsRing);
+      setTimeout(() => setPhase("prt"), 250);
     })();
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
-  // PRT : compteur jours -> score
+  // ===== PRT : compteur jours → barre score
   useEffect(() => {
     if (phase !== "prt") return;
     setBannerMsg("PRT : calcul du temps moyen de recovery…");
-    setPrtCounter(0); setPrtScoreView(0);
-    const target = Math.round(prtAvg || 0);
     let day = 0;
+    const target = Math.max(1, Math.round(prtAvg));
     const id = setInterval(() => {
-      day++; setPrtCounter(Math.min(day, target));
+      day++;
+      setPrtCounter(day);
       if (day >= target) {
         clearInterval(id);
         setTimeout(async () => {
           await animateTo(prtScore, 900, setPrtScoreView);
           setPhase("ndf");
-        }, 250);
+        }, 300);
       }
     }, 22);
     return () => clearInterval(id);
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, prtAvg, prtScore]);
 
-  // NDF : montant → fourchette → ex-date → confiance
+  // ===== NDF : Montant → Fourchette → Ex-date → Confiance
   useEffect(() => {
     if (phase !== "ndf") return;
     setBannerMsg("NDF : estimation du montant, fourchette et date…");
     setNdfStep(1);
-    const t1 = setTimeout(()=>setNdfStep(2), 900);
-    const t2 = setTimeout(()=>setNdfStep(3), 1700);
-    const t3 = setTimeout(async ()=>{ setNdfStep(4); await animateTo(Math.round(ndf.confidence), 900, setNdfConfView); setPhase("final"); }, 2500);
+    const t1 = setTimeout(() => setNdfStep(2), 900);
+    const t2 = setTimeout(() => setNdfStep(3), 1700);
+    const t3 = setTimeout(async () => {
+      setNdfStep(4);
+      await animateTo(Math.round(ndf.confidence || 0), 900, setNdfConfView);
+      setPhase("final");
+    }, 2500);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, ndf.confidence]);
 
-  // Global → score final
-  const [profile, setProfile] = useState("equilibre"); // passif / equilibre / actif
-  const weights = {
-    passif: { a: 0.60, b: 0.00, c: 0.40 },
-    equilibre: { a: 0.40, b: 0.30, c: 0.30 },
-    actif: { a: 0.20, b: 0.50, c: 0.30 },
-  }[profile];
-  const cdScore = Math.round(CDRS*weights.a + prtScore*weights.b + ndf.confidence*weights.c);
-
+  // ===== Score global
   useEffect(() => {
     if (phase !== "final") return;
-    setBannerMsg("Calcul du score global (profil)…");
-    (async ()=>{ await animateTo(cdScore, 1000, setGlobalView); setTimeout(()=>setBannerMsg(""), 800); })();
-    // eslint-disable-next-line
+    setBannerMsg("Calcul du score global (profil) …");
+    (async () => {
+      await animateTo(cdScore, 1000, setGlobalView);
+      setTimeout(() => setBannerMsg(""), 800);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, cdScore]);
 
-  /* ============== 3) DRIP SIMULATOR (conservé) ============== */
+  /* ================= Actions ================= */
+  function goToCalendarMonth() {
+    const doy = ndf?.exDayOfYear ?? null;
+    let targetYear = new Date().getFullYear();
+    const lastEx = [...divs].reverse().find((d) => d.exDate)?.exDate;
+    if (lastEx) targetYear = new Date(lastEx).getFullYear() + 1;
+    const month = doy ? monthFromDayOfYear(doy, targetYear) : null;
+    const url = month
+      ? `/#/calendar?year=${targetYear}&month=${month}&ticker=${encodeURIComponent(company.ticker)}`
+      : `/#/calendar?ticker=${encodeURIComponent(company.ticker)}`;
+    window.location.href = url;
+  }
+
+  /* ================= DRIP Simulator ================= */
   const [showDRIP, setShowDRIP] = useState(false);
   const defaultDrip = useMemo(() => {
     try { const raw = localStorage.getItem("dripSettings"); if (raw) return JSON.parse(raw); } catch {}
-    return { initial: 10000, monthly: 500, yieldPct: 3.5, growthPct: 6, years: 5, feePct: 0.3, price: company.price || 0 };
-  }, [company.price]);
+    return { initial: 10000, monthly: 500, yieldPct: 3.5, growthPct: 6, years: 5, feePct: 0.3, price: 480 };
+  }, []);
   const [drip, setDrip] = useState(defaultDrip);
-  useEffect(()=>{ try { localStorage.setItem("dripSettings", JSON.stringify(drip)); } catch {} }, [drip]);
+  useEffect(() => { try { localStorage.setItem("dripSettings", JSON.stringify(drip)); } catch {} }, [drip]);
+
   const monthlySeries = useMemo(() => simulateDRIP({
-    initial:+drip.initial||0, monthly:+drip.monthly||0, yieldPct:+drip.yieldPct||0, growthPct:+drip.growthPct||0,
-    years:Math.max(1,+drip.years||1), feePct:Math.max(0,+drip.feePct||0), price:Math.max(0,+drip.price||0),
+    initial: +drip.initial||0, monthly: +drip.monthly||0, yieldPct:+drip.yieldPct||0, growthPct:+drip.growthPct||0,
+    years: Math.max(1,+drip.years||1), feePct: Math.max(0,+drip.feePct||0), price: Math.max(0,+drip.price||0),
   }), [drip]);
   const dripSummary = useMemo(() => {
     if (!monthlySeries.length) return null;
-    const last = monthlySeries[monthlySeries.length-1];
-    const invested = last.totalContrib, value=last.portfolioValue, dividends=last.dividendsCum, shares=last.shares;
+    const last = monthlySeries[monthlySeries.length - 1];
+    const invested = last.totalContrib, value = last.portfolioValue, dividends = last.dividendsCum, shares = last.shares;
     const yrs = (drip.years||1); const irr = invested>0 ? Math.pow(value/invested,1/yrs)-1 : 0;
     return { invested, value, dividends, shares, irr: irr*100 };
   }, [monthlySeries, drip.years]);
-
-  /* ============== 4) Helpers UI ============== */
-  const fmtMAD = (v) => (v == null ? "—" : `${Number(v).toFixed(2)} ${currency}`);
-  const fmtDate = (iso) => {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    return isNaN(d) ? "—" : d.toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" });
+  const applyPreset = (t) => {
+    if (t==="conservative") setDrip(d=>({...d, yieldPct:3, growthPct:3, monthly:Math.max(250,d.monthly)}));
+    if (t==="base") setDrip(d=>({...d, yieldPct:3.5, growthPct:6}));
+    if (t==="ambitious") setDrip(d=>({...d, yieldPct:4.2, growthPct:9, monthly:Math.max(600,d.monthly)}));
   };
 
-  // Aller au mois estimé dans le calendrier
-  const goToEstimatedMonth = () => {
-    if (!ndf.exMonthIndex || !ndf.targetYear) return;
-    const month = String(ndf.exMonthIndex).padStart(2,"0"); // 01..12
-    window.location.href = `/#/calendar?year=${ndf.targetYear}&month=${month}&ticker=${encodeURIComponent(company.ticker)}`;
-  };
-
-  /* ============== 5) RENDER ============== */
+  /* ================= Render ================= */
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-100">
       {/* halo décoratif */}
@@ -216,7 +362,9 @@ export default function CompanyPage() {
         {/* Header */}
         <header id="profil" className="flex flex-col md:flex-row md:items-end gap-6 mb-8">
           <div className="flex items-center gap-4">
-            <button onClick={() => window.history.back()} className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40"><ArrowLeft className="w-5 h-5" /></button>
+            <button onClick={() => window.history.back()} className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40" aria-label="Retour">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
             <img src={company.logo} alt="" className="w-12 h-12 rounded-lg border border-zinc-800 bg-zinc-900/70 object-contain" />
             <div>
               <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">{company.name}</h1>
@@ -228,20 +376,18 @@ export default function CompanyPage() {
             <button onClick={() => setShowDRIP(true)} className="rounded-xl px-3 py-2 bg-teal-500/15 border border-teal-500/30 text-teal-300 hover:bg-teal-500/25 flex items-center gap-2">
               <TrendingUp className="w-4 h-4" /> DRIP
             </button>
-            <button onClick={resetSequence} className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2" title="Réinitialiser">
+            <button onClick={resetSequence} className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2" title="Réinitialiser l'animation">
               <RotateCcw className="w-4 h-4" /> Réinitialiser
             </button>
-            <a href={`/#/calendar?ticker=${encodeURIComponent(company.ticker)}`} className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2">
-              📅 Calendrier
-            </a>
+            <a href={`/#/calendar?ticker=${encodeURIComponent(company.ticker)}`} className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-amber-400/40 text-amber-300 flex items-center gap-2">📅 Calendrier</a>
             <a href="https://www.casablanca-bourse.com" target="_blank" rel="noreferrer" className="rounded-xl px-3 py-2 bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40 flex items-center gap-2">
               <ExternalLink className="w-4 h-4" /> Fiche BVC
             </a>
-            <button className="rounded-xl p-2 bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40"><Share2 className="w-4 h-4" /></button>
+            <button className="rounded-xl p-2 bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40" aria-label="Partager"><Share2 className="w-4 h-4" /></button>
           </div>
         </header>
 
-        {/* Nav sticky + profil de score */}
+        {/* Nav + profil */}
         <nav className="sticky top-4 z-20 mb-6 flex items-center justify-between">
           <div className="inline-flex rounded-2xl border border-zinc-800 bg-zinc-900/60 p-1 backdrop-blur">
             {[
@@ -281,48 +427,36 @@ export default function CompanyPage() {
           )}
         </AnimatePresence>
 
-        {/* KPI Section */}
+        {/* ================= KPI ================= */}
         <section id="kpi" className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {loading ? (
-            <>
-              <SkeletonCard title="C-DRS™" />
-              <SkeletonCard title="PRT™" />
-              <SkeletonCard title="NDF™" />
-              <SkeletonCard title="CD-Score™" />
-            </>
-          ) : error ? (
-            <div className="sm:col-span-2 lg:col-span-4 p-4 rounded-xl border border-red-900/40 bg-red-950/30 text-red-200">
-              Erreur de chargement des données — vérifie les fichiers JSON annuels.
-            </div>
-          ) : (
-            <>
-              <CDRSCard
-                detail={cdrsDetail}
-                progress={{ reg:progReg, croiss:progCroiss, stab:progStab, mag:progMag }}
-                ringProgress={cdrsRing}
-                onStart={startSequence}
-                running={phase !== "idle"}
-              />
-              <PRTCard
-                prtAvg={Math.round(prtAvg)}
-                score={prtScore}
-                daysProgress={prtCounter}
-                scoreProgress={prtScoreView}
-                active={phase !== "idle" && (cdrsRing>0)}
-              />
-              <NDFCard
-                ndf={ndf}
-                step={ndfStep}
-                confProgress={ndfConfView}
-                active={phase !== "idle" && (prtScoreView>0)}
-                onGoToMonth={goToEstimatedMonth}
-              />
-              <GlobalScoreCard value={Math.round(CDRS*weights.a + prtScore*weights.b + ndf.confidence*weights.c)} progress={globalView} />
-            </>
-          )}
+          <CDRSCard
+            loading={loading}
+            detail={cdrsDetail}
+            progress={{ reg:progReg, croiss:progCroiss, stab:progStab, mag:progMag }}
+            ringProgress={cdrsRing}
+            onStart={startSequence}
+            running={phase !== "idle"}
+          />
+          <PRTCard
+            loading={loading}
+            prtAvg={Math.round(prtAvg)}
+            score={prtScore}
+            daysProgress={prtCounter}
+            scoreProgress={prtScoreView}
+            active={phase !== "idle" && (cdrsRing>0)}
+          />
+          <NDFCard
+            loading={loading}
+            ndf={ndf}
+            step={ndfStep}
+            confProgress={ndfConfView}
+            active={phase !== "idle" && (prtScoreView>0)}
+            onGoCalendar={goToCalendarMonth}
+          />
+          <GlobalScoreCard loading={loading} value={cdScore} progress={globalView} />
         </section>
 
-        {/* Historique + Détails */}
+        {/* ================= Historique & Détails ================= */}
         <section id="history" className="grid lg:grid-cols-2 gap-6 mb-10">
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
             <div className="flex items-center justify-between mb-3">
@@ -351,7 +485,7 @@ export default function CompanyPage() {
                 <li key={`${d.year}-${i}`} className="py-3 flex items-center justify-between gap-4">
                   <div>
                     <div className="font-medium">{d.year}</div>
-                    <div className="text-xs text-zinc-400">Ex-date: {fmtDate(d.exDate)} • Paiement: {fmtDate(d.paymentDate)}</div>
+                    <div className="text-xs text-zinc-400">Ex-date: {fmtDate(d.exDate)} • Paiement: {fmtDate(d.pay)}</div>
                   </div>
                   <div className="text-teal-300 font-semibold">{fmtMAD(d.amount)}</div>
                 </li>
@@ -360,7 +494,7 @@ export default function CompanyPage() {
           </div>
         </section>
 
-        {/* Stratégie & Comparatif (identiques visuellement, données dynamiques possibles ensuite) */}
+        {/* ================= Stratégie ================= */}
         <section id="strategy" className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 mb-10">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold flex items-center gap-2">Stratégie recommandée <Sparkles className="w-4 h-4 text-amber-400" /></h3>
@@ -368,12 +502,12 @@ export default function CompanyPage() {
           </div>
           <div className="mt-3 grid md:grid-cols-3 gap-4">
             <StrategyCard title="Profil" points={[
-              "Entreprise solide et régulière sur le dividende",
+              "Entreprise régulière sur le dividende",
               "C-DRS élevé → constance attractive",
-              "NDF élevé → bonne prévisibilité",
+              "NDF solide → bonne prévisibilité",
             ]}/>
             <StrategyCard title="Entrée idéale" points={[
-              "Sur repli vers PRT bas",
+              "Sur repli vers PRT modéré/bas",
               "Confirmation par volume & news flow",
               "Fenêtre avant ex-date pour capter le coupon",
             ]}/>
@@ -385,13 +519,14 @@ export default function CompanyPage() {
           </div>
         </section>
 
+        {/* ================= Comparatif ================= */}
         <section id="compare" className="grid lg:grid-cols-2 gap-6 mb-16">
           <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
             <h3 className="font-semibold mb-3">Comparatif secteur (Radar)</h3>
             <div className="h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <RadarChart data={[
-                  { name:company.ticker, cdrs:CDRS, yield:3.6, prt:prtScore, ndf:ndf.confidence },
+                  { name:"ATW", cdrs:CDRS_total, yield:3.6, prt:prtScore, ndf:ndf.confidence||0 },
                   { name:"BCP", cdrs:78, yield:3.8, prt:65, ndf:71 },
                   { name:"CDM", cdrs:75, yield:3.1, prt:62, ndf:70 },
                   { name:"TQM", cdrs:80, yield:4.2, prt:58, ndf:72 },
@@ -428,12 +563,12 @@ export default function CompanyPage() {
 
       {/* FAB mobile */}
       <div className="fixed bottom-6 right-6 xl:hidden">
-        <button className="rounded-full w-12 h-12 flex items-center justify-center bg-teal-500 text-zinc-950 shadow-lg shadow-teal-500/20">
+        <button className="rounded-full w-12 h-12 flex items-center justify-center bg-teal-500 text-zinc-950 shadow-lg shadow-teal-500/20" aria-label="Paramètres rapides">
           <Settings className="w-5 h-5" />
         </button>
       </div>
 
-      {/* ============== DRIP MODAL (simulateur) ============== */}
+      {/* ================= DRIP MODAL ================= */}
       <AnimatePresence>
         {showDRIP && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -444,21 +579,27 @@ export default function CompanyPage() {
                 <div className="flex items-center gap-2"><SlidersHorizontal className="w-4 h-4 text-teal-300" /><h3 className="font-semibold">DRIP — Simulation</h3></div>
                 <button onClick={() => setShowDRIP(false)} className="p-2 rounded-lg hover:bg-zinc-900" aria-label="Fermer"><X className="w-4 h-4" /></button>
               </div>
+
+              {/* Paramètres */}
               <div className="grid md:grid-cols-3 gap-3">
                 <Field label="Montant initial" suffix={currency} value={drip.initial} onChange={(v)=>setDrip(s=>({...s, initial:+v||0}))} />
                 <Field label="Versement mensuel" suffix={currency} value={drip.monthly} onChange={(v)=>setDrip(s=>({...s, monthly:+v||0}))} />
                 <Field label="Horizon (années)" value={drip.years} onChange={(v)=>setDrip(s=>({...s, years:+v||1}))} />
+
                 <Field label="Rendement net (%)" value={drip.yieldPct} onChange={(v)=>setDrip(s=>({...s, yieldPct:+v||0}))} />
                 <Field label="Croissance dividende (%/an)" value={drip.growthPct} onChange={(v)=>setDrip(s=>({...s, growthPct:+v||0}))} />
                 <Field label="Frais (%/an)" value={drip.feePct} onChange={(v)=>setDrip(s=>({...s, feePct:+v||0}))} />
+
                 <Field label="Prix / action (optionnel)" suffix={currency} value={drip.price} onChange={(v)=>setDrip(s=>({...s, price:+v||0}))} />
                 <div className="md:col-span-2 flex items-center gap-2">
                   <span className="text-sm text-zinc-400">Scénarios :</span>
-                  <button onClick={()=>setDrip(d=>({...d, yieldPct:3,   growthPct:3,  monthly:Math.max(250,d.monthly)}))} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Conservateur</button>
-                  <button onClick={()=>setDrip(d=>({...d, yieldPct:3.5, growthPct:6}))} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Central</button>
-                  <button onClick={()=>setDrip(d=>({...d, yieldPct:4.2, growthPct:9,  monthly:Math.max(600,d.monthly)}))} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Ambitieux</button>
+                  <button onClick={()=>applyPreset("conservative")} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Conservateur</button>
+                  <button onClick={()=>applyPreset("base")} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Central</button>
+                  <button onClick={()=>applyPreset("ambitious")} className="text-xs rounded-lg px-2 py-1 border border-zinc-800 hover:border-teal-500/40">Ambitieux</button>
                 </div>
               </div>
+
+              {/* Résumé */}
               {dripSummary && (
                 <div className="mt-4 grid md:grid-cols-4 gap-3">
                   <SummaryCard title="Valeur finale" value={fmtMAD(dripSummary.value)} />
@@ -467,15 +608,20 @@ export default function CompanyPage() {
                   <SummaryCard title="Rendement annualisé (approx.)" value={`${dripSummary.irr.toFixed(2)} %`} />
                 </div>
               )}
+
+              {/* Graphiques */}
               <div className="mt-4 grid lg:grid-cols-2 gap-4">
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
                   <div className="text-sm text-zinc-300 mb-2">Valeur du portefeuille</div>
                   <div className="h-48">
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={monthlySeries}>
-                        <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.4}/><stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
-                        </linearGradient></defs>
+                        <defs>
+                          <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.4}/>
+                            <stop offset="95%" stopColor="#14b8a6" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
                         <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
                         <XAxis dataKey="label" hide /><YAxis stroke="#a1a1aa" />
                         <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
@@ -484,6 +630,7 @@ export default function CompanyPage() {
                     </ResponsiveContainer>
                   </div>
                 </div>
+
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3">
                   <div className="text-sm text-zinc-300 mb-2">Dividendes (cumul)</div>
                   <div className="h-48">
@@ -491,12 +638,14 @@ export default function CompanyPage() {
                       <BarChart data={monthlySeries}>
                         <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
                         <XAxis dataKey="label" hide /><YAxis stroke="#a1a1aa" />
-                        <Legend /><RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                        <Legend />
+                        <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
                         <Bar dataKey="dividendsCum" name="Dividendes cumulés" fill="#eab308" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                 </div>
+
                 <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-3 lg:col-span-2">
                   <div className="text-sm text-zinc-300 mb-2">Parts accumulées</div>
                   <div className="h-48">
@@ -511,7 +660,10 @@ export default function CompanyPage() {
                   </div>
                 </div>
               </div>
-              <p className="mt-3 text-xs text-zinc-500">Hypothèses : rendement net/croissance lissés, réinvestissement mensuel, frais annuels pro-rata. Modèle simplifié — non constitutif d’un conseil.</p>
+
+              <p className="mt-3 text-xs text-zinc-500">
+                Hypothèses : rendement net/croissance lissés, réinvestissement mensuel, frais annuels pro-rata. Modèle simplifié — non constitutif d’un conseil.
+              </p>
             </motion.div>
           </motion.div>
         )}
@@ -522,300 +674,353 @@ export default function CompanyPage() {
   );
 }
 
-/* =========================
-   KPI CARDS + Tooltips
-   ========================= */
+/* ================= KPI Cards ================= */
 
-function Tip({ title, points = [] }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="relative">
-      <button onMouseEnter={()=>setOpen(true)} onMouseLeave={()=>setOpen(false)}
-        className="text-zinc-400 hover:text-zinc-200 w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center" aria-label="Informations">i</button>
-      {open && (
-        <div className="absolute right-0 mt-2 z-30 w-80 rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-sm shadow-xl">
-          <div className="font-medium text-zinc-100 mb-2">{title}</div>
-          <ul className="space-y-1 text-zinc-300">
-            {points.map((p, i) => (<li key={i} className="flex gap-2"><span className="text-teal-400">•</span><span>{p}</span></li>))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function CDRSCard({ detail, progress, ringProgress, onStart, running }) {
+function CDRSCard({ loading, detail, progress, ringProgress, onStart, running }) {
   const total = Math.round(detail.regularite + detail.croissance + detail.stabilite + detail.magnitude);
   const size = 120, stroke = 9, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const off = c * (1 - (Math.min(100, ringProgress) / 100));
+
   const steps = [
-    { label: "Régularité", vNow: progress.reg,    vFull: Math.round(detail.regularite), color: "#22d3ee" },
+    { label: "Régularité", vNow: progress.reg, vFull: Math.round(detail.regularite), color: "#22d3ee" },
     { label: "Croissance", vNow: progress.croiss, vFull: Math.round(detail.croissance), color: "#14b8a6" },
     { label: "Stabilité",  vNow: progress.stab,   vFull: Math.round(detail.stabilite),  color: "#f59e0b" },
     { label: "Magnitude",  vNow: progress.mag,    vFull: Math.round(detail.magnitude),  color: "#eab308" },
   ];
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="flex items-center justify-between mb-2">
         <div className="text-sm text-zinc-400">C-DRS™</div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-zinc-400">25/35/25/15</span>
-          <Tip title="Casa-Dividend Reliability Score" points={[
-            "Régularité : paiement constant sur 5 ans",
-            "Croissance : augmentation progressive",
-            "Stabilité : faible volatilité des montants",
-            "Magnitude : niveau et tendance du dividende",
-          ]}/>
+          <Tip
+            title="Casa-Dividend Reliability Score"
+            points={[
+              "Régularité : paiement constant sur 5 ans",
+              "Croissance : augmentation progressive",
+              "Stabilité : faible volatilité des montants",
+              "Magnitude : niveau et tendance du dividende",
+            ]}
+          />
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <svg width={size} height={size}>
-            <circle cx={size/2} cy={size/2} r={r} stroke="#27272a" strokeWidth={stroke} fill="none" />
-            <circle cx={size/2} cy={size/2} r={r} stroke="#eab308" strokeWidth={stroke} fill="none"
-              strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" style={{ transition: "stroke-dashoffset .45s ease" }} />
-            <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="fill-zinc-100 font-semibold">
-              {ringProgress > 0 ? Math.min(100, Math.round(ringProgress)) : total}
-            </text>
-          </svg>
+
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
         </div>
-        <div className="text-xs flex-1 space-y-1">
-          {steps.map(({ label, vNow, vFull, color }, i) => (
-            <div key={i} className="flex items-center justify-between gap-2">
-              <span className="text-zinc-300">{label}</span>
-              <div className="flex items-center gap-2">
-                <div className="w-24 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
-                  <div className="h-1.5 rounded-full" style={{ width: `${(vNow / Math.max(1, vFull)) * 100}%`, background: color, transition: "width .25s" }} />
-                </div>
-                <span className="w-8 text-right text-zinc-200">{Math.min(vNow, vFull)}</span>
-              </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-3">
+            {/* Anneau global (ne se remplit qu’à la fin) */}
+            <div className="relative">
+              <svg width={size} height={size}>
+                <circle cx={size/2} cy={size/2} r={r} stroke="#27272a" strokeWidth={stroke} fill="none" />
+                <circle
+                  cx={size/2} cy={size/2} r={r}
+                  stroke="#eab308" strokeWidth={stroke} fill="none"
+                  strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round"
+                  style={{ transition: "stroke-dashoffset .45s ease" }}
+                />
+                <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="fill-zinc-100 font-semibold">
+                  {ringProgress > 0 ? Math.min(100, Math.round(ringProgress)) : total}
+                </text>
+              </svg>
             </div>
-          ))}
-        </div>
-      </div>
-      {!running && (
-        <button onClick={onStart} className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm border border-teal-500/30 text-teal-300 hover:bg-teal-500/10">
-          <Play className="w-4 h-4" /> Lancer le calcul
-        </button>
+
+            {/* Critères qui se complètent un à un */}
+            <div className="text-xs flex-1 space-y-1">
+              {steps.map(({ label, vNow, vFull, color }, i) => (
+                <div key={i} className="flex items-center justify-between gap-2">
+                  <span className="text-zinc-300">{label}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-1.5 rounded-full"
+                        style={{ width: `${(vNow / Math.max(1, vFull)) * 100}%`, background: color, transition: "width .25s" }}
+                      />
+                    </div>
+                    <span className="w-8 text-right text-zinc-200">{Math.min(vNow, vFull)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {!running && (
+            <button
+              onClick={onStart}
+              className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm border border-teal-500/30 text-teal-300 hover:bg-teal-500/10"
+            >
+              <Play className="w-4 h-4" /> Lancer le calcul
+            </button>
+          )}
+        </>
       )}
     </div>
   );
 }
 
-function PRTCard({ prtAvg, score, daysProgress, scoreProgress, active }) {
+function PRTCard({ loading, prtAvg, score, daysProgress, scoreProgress, active }) {
   const barColor = scoreProgress >= 78 ? "bg-emerald-500/60"
     : scoreProgress >= 55 ? "bg-sky-500/60"
     : scoreProgress >= 33 ? "bg-yellow-500/60"
-    : scoreProgress >= 10 ? "bg-orange-500/60" : "bg-red-500/60";
+    : scoreProgress >= 10 ? "bg-orange-500/60"
+    : "bg-red-500/60";
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="flex items-center justify-between mb-2">
         <div className="text-sm text-zinc-400">PRT™</div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-zinc-400">Moyenne 3 ex-dates</span>
-          <Tip title="Price Recovery Time" points={[
-            "Temps pour retrouver le prix ex-date",
-            "Échantillon : 3 dernières distributions",
-            "Lecture : court = rotation plus active, long = buy & hold",
-          ]}/>
-        </div>
-      </div>
-      <div className="mt-1">
-        <div className="h-3 w-full rounded-full bg-zinc-800 overflow-hidden relative">
-          {active && daysProgress < prtAvg && (
-            <motion.div className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-zinc-300/0 via-zinc-300/20 to-zinc-300/0"
-              animate={{ x: ["-20%", "100%"] }} transition={{ duration: 1.0, repeat: Infinity, ease: "easeInOut" }}/>
-          )}
-          <div className={`h-3 rounded-full transition-[width] duration-200 ${barColor}`} style={{ width: `${Math.min(100, (daysProgress/Math.max(1, prtAvg))*100)}%` }} />
-        </div>
-        <div className="mt-2 text-xs text-zinc-300 flex items-center justify-between">
-          <span>Recovery moyen</span><span>{Math.min(daysProgress, prtAvg)} / {prtAvg} jours</span>
-        </div>
-      </div>
-      <div className="mt-3">
-        <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden">
-          <div className={`h-2 transition-[width] duration-200 ${barColor}`} style={{ width: `${scoreProgress}%` }} />
-        </div>
-        <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
-          <span>Score PRT</span><span className="text-zinc-200">{scoreProgress || 0}/100</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function NDFCard({ ndf, step, confProgress, active, onGoToMonth }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-sm text-zinc-400">NDF™</div>
-        <Tip title="Next Dividend Forecast" points={[
-          "Montant probable via croissance pondérée",
-          "Fourchette basée sur la volatilité historique",
-          "Ex-date estimée par pattern de dates passées",
-          "Confiance = régularité + stabilité + tendance",
-        ]}/>
-      </div>
-
-      <div className="space-y-2 text-sm">
-        <div className="flex items-center justify-between">
-          <span className="text-zinc-400">Montant probable</span>
-          <span className="font-semibold">{step >= 1 ? `${ndf.probable.toFixed(2)} MAD` : "…"}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-zinc-400">Fourchette</span>
-          <span className="font-semibold">{step >= 2 ? `${ndf.min.toFixed(2)} – ${ndf.max.toFixed(2)} MAD` : "…"}</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-zinc-400">Ex-date estimée</span>
-          <span className="font-semibold">{step >= 3 ? ndf.exDate : "…"}</span>
+          <Tip
+            title="Price Recovery Time"
+            points={[
+              "Mesure le temps nécessaire pour que le cours retrouve son niveau d’avant détachement",
+              "Échantillon : 3 dernières distributions",
+              "Lecture : court = rotation plus active, long = buy & hold",
+            ]}
+          />
         </div>
       </div>
 
-      <div className="mt-3">
-        <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden relative">
-          {active && step < 4 && (
-            <motion.div className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-emerald-300/0 via-emerald-300/20 to-emerald-300/0"
-              animate={{ x: ["-20%", "100%"] }} transition={{ duration: 1.0, repeat: Infinity, ease: "easeInOut" }}/>
-          )}
-          <div className="h-2 bg-teal-500/70 rounded-full transition-[width] duration-200" style={{ width: `${confProgress}%` }} />
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-3 w-full bg-zinc-800 rounded animate-pulse" />
+          <div className="h-2 w-3/4 bg-zinc-800 rounded animate-pulse" />
         </div>
-        <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
-          <span>Confiance</span><span className="text-zinc-200">{confProgress || 0}/100</span>
-        </div>
-      </div>
+      ) : (
+        <>
+          {/* 1) Compteur ‘jours de recovery’ */}
+          <div className="mt-1">
+            <div className="h-3 w-full rounded-full bg-zinc-800 overflow-hidden relative">
+              {active && daysProgress < prtAvg && (
+                <motion.div
+                  className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-zinc-300/0 via-zinc-300/20 to-zinc-300/0"
+                  animate={{ x: ["-20%", "100%"] }}
+                  transition={{ duration: 1.0, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+              <div
+                className={`h-3 rounded-full transition-[width] duration-200 ${barColor}`}
+                style={{ width: `${Math.min(100, (daysProgress / Math.max(1, prtAvg)) * 100)}%` }}
+              />
+            </div>
+            <div className="mt-2 text-xs text-zinc-300 flex items-center justify-between">
+              <span>Recovery moyen</span>
+              <span>{Math.min(daysProgress, prtAvg)} / {prtAvg} jours</span>
+            </div>
+          </div>
 
-      {step >= 3 && ndf.exMonthIndex && ndf.targetYear && (
-        <button onClick={onGoToMonth} className="mt-3 inline-flex items-center gap-2 text-amber-300 hover:underline text-sm">
-          <CalIcon className="w-4 h-4" /> Voir ce mois dans le calendrier
-        </button>
+          {/* 2) Score PRT (après le compteur jours) */}
+          <div className="mt-3">
+            <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden">
+              <div className={`h-2 transition-[width] duration-200 ${barColor}`} style={{ width: `${scoreProgress}%` }} />
+            </div>
+            <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
+              <span>Score PRT</span>
+              <span className="text-zinc-200">{scoreProgress || 0}/100</span>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-function GlobalScoreCard({ value, progress }) {
+function NDFCard({ loading, ndf, step, confProgress, active, onGoCalendar }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm text-zinc-400">NDF™</div>
+        <Tip
+          title="Next Dividend Forecast"
+          points={[
+            "Montant probable via croissance pondérée des dernières années",
+            "Fourchette basée sur la volatilité historique (capée)",
+            "Ex-date estimée par pattern de dates passées",
+            "Confiance = régularité + stabilité + tendance de croissance",
+          ]}
+        />
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+        </div>
+      ) : (
+        <>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400">Montant probable</span>
+              <span className="font-semibold">{step >= 1 ? `${(ndf?.probable ?? 0).toFixed(2)} MAD` : "…"}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400">Fourchette</span>
+              <span className="font-semibold">{step >= 2 ? `${(ndf?.min ?? 0).toFixed(2)} – ${(ndf?.max ?? 0).toFixed(2)} MAD` : "…"}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400">Ex-date estimée</span>
+              <span className="font-semibold">{step >= 3 ? (ndf?.exDate || "—") : "…"}</span>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden relative">
+              {active && step < 4 && (
+                <motion.div
+                  className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-emerald-300/0 via-emerald-300/20 to-emerald-300/0"
+                  animate={{ x: ["-20%", "100%"] }}
+                  transition={{ duration: 1.0, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+              <div className="h-2 bg-teal-500/70 rounded-full transition-[width] duration-200" style={{ width: `${confProgress}%` }} />
+            </div>
+            <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
+              <span>Confiance</span><span className="text-zinc-200">{confProgress || 0}/100</span>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <button
+              onClick={onGoCalendar}
+              className="w-full rounded-lg border border-teal-500/30 text-teal-300 hover:bg-teal-500/10 px-3 py-2 text-sm"
+            >
+              Voir ce mois dans le calendrier
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function GlobalScoreCard({ loading, value, progress }) {
   const size = 116, stroke = 10, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const off = c * (1 - (Math.min(100, progress) / 100));
   return (
     <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
       <div className="text-sm text-zinc-400 flex items-center justify-between">
-        <span>CD-Score™</span><span className="text-zinc-300">{value}/100</span>
+        <span>CD-Score™</span><span className="text-zinc-300">{loading ? "…" : `${value}/100`}</span>
       </div>
-      <div className="mt-2 relative flex items-center justify-center">
-        <svg width={size} height={size}>
-          <circle cx={size/2} cy={size/2} r={r} stroke="#27272a" strokeWidth={stroke} fill="none" />
-          <circle cx={size/2} cy={size/2} r={r} stroke="#14b8a6" strokeWidth={stroke} fill="none"
-            strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" style={{ transition: "stroke-dashoffset .45s ease" }} />
-          <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="fill-zinc-100 font-semibold">
-            {Math.min(100, Math.round(progress || 0))}
-          </text>
-        </svg>
-      </div>
-      <div className="text-xs text-zinc-500 mt-2 text-center">Synthèse pondérée C-DRS / PRT / NDF selon le profil choisi.</div>
+      {loading ? (
+        <div className="mt-3 h-[116px] bg-zinc-800 rounded animate-pulse" />
+      ) : (
+        <>
+          <div className="mt-2 relative flex items-center justify-center">
+            <svg width={size} height={size}>
+              <circle cx={size/2} cy={size/2} r={r} stroke="#27272a" strokeWidth={stroke} fill="none" />
+              <circle
+                cx={size/2} cy={size/2} r={r}
+                stroke="#14b8a6" strokeWidth={stroke} fill="none"
+                strokeDasharray={c} strokeDashoffset={off}
+                strokeLinecap="round" style={{ transition: "stroke-dashoffset .45s ease" }}
+              />
+              <text x="50%" y="50%" dominantBaseline="middle" textAnchor="middle" className="fill-zinc-100 font-semibold">
+                {Math.min(100, Math.round(progress || 0))}
+              </text>
+            </svg>
+          </div>
+          <div className="text-xs text-zinc-500 mt-2 text-center">Synthèse pondérée C-DRS / PRT / NDF selon le profil choisi.</div>
+        </>
+      )}
     </div>
   );
 }
 
-/* =========================
-   LOADER — données réelles
-   ========================= */
-
-function useDividendSeries(ticker) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState(null);
-  const [divs, setDivs]     = useState([]); // [{year, amount, exDate, paymentDate}]
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        setLoading(true); setError(null);
-        const now = new Date().getFullYear();
-        const years = Array.from({length:5}, (_,i)=> now - 4 + i); // 5 dernières années
-        // ESSAI 1: /data/dividends/YYYY.json ; ESSAI 2: /data/YYYY.json
-        const base1 = (y) => `${process.env.PUBLIC_URL || ""}/data/dividends/${y}.json`;
-        const base2 = (y) => `${process.env.PUBLIC_URL || ""}/data/${y}.json`;
-
-        const yearData = await Promise.all(years.map(async (y) => {
-          for (const url of [base1(y), base2(y)]) {
-            try {
-              const res = await fetch(url, { cache: "no-store" });
-              if (res.ok) { return await res.json(); }
-            } catch { /* next url */ }
-          }
-          return null;
-        }));
-
-        const rows = [];
-        years.forEach((y, idx) => {
-          const arr = yearData[idx];
-          if (!Array.isArray(arr)) return;
-          // format attendu : [{ticker, name, sector, exDate, paymentDate, amount, currency, ...}, ...]
-          const row = arr.find(r => (r.ticker || r.Ticker || r.symbol) === ticker);
-          if (!row) return;
-          rows.push({
-            year: y,
-            amount: +row.amount || +row.dividend || 0,
-            exDate: row.exDate || row.exdate || row.ex_date || null,
-            paymentDate: row.paymentDate || row.payDate || row.payment || null,
-          });
-        });
-
-        if (alive) setDivs(rows.filter(r=>r.amount>0 && r.exDate));
-      } catch (e) {
-        if (alive) setError(e?.message || "Load error");
-      } finally {
-        if (alive) setLoading(false);
-      }
-    })();
-    return () => { alive = false; };
-  }, [ticker]);
-
-  return { loading, error, divs };
+/* ================= Stratégie & UI utils ================= */
+function StrategyCard({ title, points = [] }) {
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="font-medium">{title}</div>
+      <ul className="mt-2 text-sm text-zinc-300 space-y-1">
+        {points.map((p, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="text-teal-300 mt-0.5">•</span>
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+function QuickAction({ icon, label }) {
+  return (
+    <button className="rounded-xl border border-zinc-800 bg-zinc-900/60 hover:border-teal-500/40 px-3 py-2 flex items-center gap-2">
+      {icon} <span>{label}</span>
+    </button>
+  );
+}
+function Field({ label, suffix, value, onChange }) {
+  return (
+    <label className="text-sm">
+      <div className="text-zinc-400 mb-1">{label}</div>
+      <div className="flex">
+        <input value={value} onChange={(e)=>onChange(e.target.value)}
+          className="flex-1 rounded-l-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm focus:border-teal-500 outline-none" inputMode="decimal"/>
+        {suffix && <div className="rounded-r-lg border border-l-0 border-zinc-800 px-3 py-2 text-sm bg-zinc-900/60 text-zinc-300">{suffix}</div>}
+      </div>
+    </label>
+  );
+}
+function SummaryCard({ title, value }) {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
+      <div className="text-xs text-zinc-400">{title}</div>
+      <div className="text-lg font-semibold">{value}</div>
+    </div>
+  );
 }
 
-/* =========================
-   CALCULS — C-DRS, NDF, DRIP
-   ========================= */
-
-function emptyCDRS(){ return { regularite:0, croissance:0, stabilite:0, magnitude:0 }; }
+/* ================= Calculs KPI & DRIP ================= */
 function computeCDRS(divs) {
   // Inputs: [{year, amount}]
-  const years = [...new Set(divs.map(d=>d.year))].sort((a,b)=>a-b);
-  const byYear = Object.fromEntries(years.map(y=>[y,(divs.find(d=>d.year===y)?.amount)||0]));
-  // pondérations relatives sur 5 ans (1..5)
-  const base = years[0] ?? 0;
-  const W = Object.fromEntries(years.map((y,i)=>[y, i+1]));
-  const sumW = Object.values(W).reduce((a,b)=>a+b,0);
+  const byYear = Object.fromEntries(divs.map(d=>[d.year,d.amount||0]));
+  const weightsYear = { 2020:1, 2021:2, 2022:3, 2023:4, 2024:5 }; // somme = 15
 
-  // Régularité (25)
-  const paidW = Object.entries(W).reduce((s,[y,w])=> s + ((byYear[y]>0)? w : 0), 0);
-  const regularite = (paidW / Math.max(1,sumW)) * 25;
+  // 1) Régularité (25)
+  const sumW = Object.values(weightsYear).reduce((a,b)=>a+b,0);
+  const paidW = Object.entries(weightsYear).reduce((s,[y,w])=> s + (byYear[y]>0 ? w : 0), 0);
+  const regularite = (paidW / sumW) * 25;
 
-  // Croissance (35): hausses pondérées (20) + bonus séquence (10) - pénalité baisses (cap -5)
-  const ys = years;
-  const upsW = ys.slice(1).reduce((s, y, i) => {
-    const prev = ys[i], a = byYear[prev]||0, b = byYear[y]||0;
-    return s + ((b>a) ? (i+2) : 0); // poids 2..5
-  }, 0);
-  const croissA = (upsW / Math.max(1, ys.length>=5 ? 14 : (ys.length-1)*2)) * 20; // approx
+  // 2) Croissance (35) — hausses pondérées + bonus séquence − pénalité baisses
+  const ups = [
+    {from:2020,to:2021,w:2}, {from:2021,to:2022,w:3}, {from:2022,to:2023,w:4}, {from:2023,to:2024,w:5}
+  ].reduce((s,u)=>{
+    const a = byYear[u.from]||0, b = byYear[u.to]||0;
+    return s + (b>a ? u.w : 0);
+  },0);
+  const croissA = (ups / (2+3+4+5)) * 20;
 
-  const consec = ys.slice(1).reduce((s, y, i) => s + ((byYear[y]||0) > (byYear[ys[i]]||0) ? 1 : 0), 0);
+  const consec =
+    (byYear[2021]>byYear[2020]?1:0) +
+    (byYear[2022]>byYear[2021]?1:0) +
+    (byYear[2023]>byYear[2022]?1:0) +
+    (byYear[2024]>byYear[2023]?1:0);
   const bonus = consec>=4?10: consec===3?8: consec===2?5:0;
 
-  const drops = ys.slice(1).map((y,i)=>{
-    const prev=ys[i], a=byYear[prev]||0, b=byYear[y]||0;
-    const pct = a>0 ? (a-b)/a : 0;
-    let basePen = 0;
-    if (pct>0.30) basePen = 3; else if (pct>0.20) basePen = 2; else if (pct>0.10) basePen = 1;
-    return -basePen * (i+2)/2; // pénalise plus récent
-  }).reduce((a,b)=>a+b,0);
-  const pen = Math.max(-5, drops);
+  const penMult = { 2021:1.0, 2022:1.2, 2023:1.5, 2024:2.0 };
+  const drops = [
+    {y:2021, a:byYear[2020], b:byYear[2021]},
+    {y:2022, a:byYear[2021], b:byYear[2022]},
+    {y:2023, a:byYear[2022], b:byYear[2023]},
+    {y:2024, a:byYear[2023], b:byYear[2024]},
+  ].map(x=>{
+    const {a,b} = x; const pct = a>0? (a-b)/a : 0;
+    let base = 0; if (pct>0.30) base=3; else if (pct>0.20) base=2; else if (pct>0.10) base=1;
+    return -(base * (penMult[x.y]||1));
+  });
+  const pen = Math.max(-5, drops.reduce((A,B)=>A+B,0));
   const croissance = Math.max(0, Math.min(35, croissA + bonus + pen));
 
-  // Stabilité (25): CV
-  const series = ys.map(y=>byYear[y]).filter(v=>v>0);
+  // 3) Stabilité (25) — CV → 25 − cv/2
+  const series = [2020,2021,2022,2023,2024].map(y=>byYear[y]||0).filter(v=>v>0);
   let stabilite = 0;
   if (series.length>=2) {
     const mean = series.reduce((a,b)=>a+b,0)/series.length;
@@ -824,82 +1029,61 @@ function computeCDRS(divs) {
     stabilite = Math.max(0, 25 - (cv/2));
   }
 
-  // Magnitude (15): TCAM grossier sur la fenêtre
+  // 4) Magnitude (15) — TCAM 2020→2024 ; cas d0=0 → 7
+  const d0 = byYear[2020]||0, d4 = byYear[2024]||0;
   let magnitude = 0;
-  if (series.length>=2) {
-    const first = series[0], last = series[series.length-1];
-    const n = series.length-1;
-    if (first>0 && last>0) {
-      const tcam = Math.pow(last/first, 1/n) - 1;
-      magnitude = Math.min(15, (tcam*100/10)*15);
-    }
-  } else if (series.length===1) {
-    magnitude = Math.min(15, (series[0]>0 ? 5 : 0));
+  if (d0>0 && d4>0) {
+    const tcam = Math.pow(d4/d0, 1/4) - 1;
+    magnitude = Math.min(15, (tcam*100/10)*15);
+  } else if (d0===0 && d4>0) {
+    magnitude = 7;
   }
 
   return { regularite, croissance, stabilite, magnitude };
 }
 
-function emptyNDF(){ return { probable:0, min:0, max:0, exDate:"—", exMonthIndex:null, targetYear:null, confidence:0 }; }
 function computeNDF(divs) {
+  const w = { 2021:2, 2022:3, 2023:4, 2024:5 };
   const byYear = Object.fromEntries(divs.map(d=>[d.year, d.amount||0]));
-  const years = [...new Set(divs.map(d=>d.year))].sort((a,b)=>a-b);
-  const lastYear = years[years.length-1];
+  const grows = [
+    {y:2021, g: ratio(byYear[2021],byYear[2020])},
+    {y:2022, g: ratio(byYear[2022],byYear[2021])},
+    {y:2023, g: ratio(byYear[2023],byYear[2022])},
+    {y:2024, g: ratio(byYear[2024],byYear[2023])},
+  ];
+  const num = grows.reduce((s,x)=> s + ((x.g ?? 0) * (w[x.y]||0)), 0);
+  const den = Object.values(w).reduce((a,b)=>a+b,0);
+  const tcamW = num / den;
 
-  // croissance pondérée récente
-  const weights = years.slice(1).reduce((obj,y,i)=> (obj[y] = (i+2), obj), {}); // 2..n
-  const grows = years.slice(1).map((y,i)=> ratio(byYear[y], byYear[years[i]]) );
-  const num = grows.reduce((s,g,i)=> s + ((g||0) * (i+2)), 0);
-  const den = years.length>=2 ? (years.length+2)*(years.length-1)/2 - 1 : 1; // somme 2..n
-  const tcamW = num / Math.max(1, den);
+  const lastYear = Math.max(0, ...divs.map(d=>d.year));
+  const base = byYear[lastYear] || 0;
+  const probable = +(base * (1 + (tcamW||0))).toFixed(2);
 
-  const lastAmt = byYear[lastYear]||0;
-  const probable = +(lastAmt * (1 + (tcamW||0))).toFixed(2);
-
-  // fourchette via vol capée 15%
-  const series = years.map(y=>byYear[y]).filter(v=>v>0);
-  const mean = series.reduce((a,b)=>a+b,0)/Math.max(1,series.length);
-  const sd = Math.sqrt(series.reduce((s,x)=>s + Math.pow(x-mean,2),0)/Math.max(1,series.length));
+  const series = divs.map(d=>d.amount||0).filter(x=>x>0);
+  const mean = series.length ? series.reduce((a,b)=>a+b,0)/series.length : 0;
+  const sd = series.length ? Math.sqrt(series.reduce((s,x)=>s + Math.pow(x-mean,2),0)/series.length) : 0;
   const vol = Math.min(0.15, mean>0 ? sd/mean : 0);
   const min = +(probable * (1 - vol)).toFixed(2);
   const max = +(probable * (1 + vol)).toFixed(2);
 
-  // ex-date moyenne (mois)
-  const months = divs.map(d => {
-    const dt = new Date(d.exDate); return isNaN(dt) ? null : dt.getMonth()+1; // 1..12
-  }).filter(Boolean);
-  const m = months.length ? Math.round(months.reduce((a,b)=>a+b,0)/months.length) : 7;
-  const exDate = roughMonth(m);
-  const exMonthIndex = m; // 1..12
-  const targetYear = (lastYear || new Date().getFullYear()) + 1; // prochaine ex-date probable
+  const known = divs.map(d=>d.exDate).filter(Boolean);
+  const dOYs = known.map(toDayOfYear).filter(x=>x!=null);
+  const exDayOfYear = dOYs.length ? Math.round(dOYs.reduce((a,b)=>a+b,0) / dOYs.length) : null;
+  const exDate = dayToRoughDate(exDayOfYear, 2024);
 
-  // confiance
-  const paidYears = series.length;
-  const reg = Math.min(40, (paidYears/Math.max(1,years.length))*40);
+  const paidYears = new Set(divs.map(d=>d.year)).size;
+  const reg = Math.min(40, (paidYears/5)*40);
   const volPct = mean>0 ? (sd/mean)*100 : 100;
-  const stab = Math.max(0, Math.min(30, 30 - volPct)); // borne
-  const ups = grows.filter(g=>g!=null && g>0).length;
-  const growCons = (ups/Math.max(1,grows.length))*30;
-  const confidence = Math.min(100, Math.max(0, Math.round(reg + stab + growCons)));
+  const stab = Math.max(0, Math.min(30, 30 - volPct));
+  const ups = grows.filter(g=>g.g!=null && g.g>0).length;
+  const growCons = Math.min(30, (ups/4)*30);
+  const confidence = Math.min(100, Math.round(reg + stab + growCons));
 
-  return { probable, min, max, exDate, exMonthIndex, targetYear, confidence };
+  return { probable, min, max, exDate, exDayOfYear, confidence };
 }
-
 function ratio(b,a){ if(a==null||a<=0||b==null) return null; return (b-a)/a; }
-function roughMonth(m){
-  const month = new Date(2024, m-1, 15).toLocaleString("fr-FR",{month:"long"});
-  return `mi ${month}`;
-}
 
-function daysBetween(a,b){
-  const da = new Date(a), db = new Date(b);
-  if (isNaN(da) || isNaN(db)) return null;
-  return Math.max(0, Math.round((db - da) / (1000*60*60*24)));
-}
-
-/* =========================
-   DRIP — simulation
-   ========================= */
+/* ===== DRIP simulation (mensuelle) ===== */
 function simulateDRIP({ initial, monthly, yieldPct, growthPct, years, feePct, price }) {
   const months = Math.max(1, Math.round(years*12));
   const rDivYear = Math.max(0, yieldPct)/100;
@@ -927,60 +1111,4 @@ function simulateDRIP({ initial, monthly, yieldPct, growthPct, years, feePct, pr
     data.push({ m, label:`M${m}`, portfolioValue:+portfolioValue.toFixed(2), dividendsCum:+dividendsCum.toFixed(2), shares:+shares.toFixed(6), totalContrib:+totalContrib.toFixed(2) });
   }
   return data;
-}
-
-/* =========================
-   UI small helpers
-   ========================= */
-function Field({ label, suffix, value, onChange }) {
-  return (
-    <label className="text-sm">
-      <div className="text-zinc-400 mb-1">{label}</div>
-      <div className="flex">
-        <input value={value} onChange={(e)=>onChange(e.target.value)}
-          className="flex-1 rounded-l-lg bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm focus:border-teal-500 outline-none" inputMode="decimal"/>
-        {suffix && <div className="rounded-r-lg border border-l-0 border-zinc-800 px-3 py-2 text-sm bg-zinc-900/60 text-zinc-300">{suffix}</div>}
-      </div>
-    </label>
-  );
-}
-function SummaryCard({ title, value }) {
-  return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
-      <div className="text-xs text-zinc-400">{title}</div>
-      <div className="text-lg font-semibold">{value}</div>
-    </div>
-  );
-}
-function StrategyCard({ title, points = [] }) {
-  return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
-      <div className="font-medium">{title}</div>
-      <ul className="mt-2 text-sm text-zinc-300 space-y-1">
-        {points.map((p, i) => (<li key={i} className="flex items-start gap-2"><span className="text-teal-300 mt-0.5">•</span><span>{p}</span></li>))}
-      </ul>
-    </div>
-  );
-}
-function QuickAction({ icon, label }) {
-  return (
-    <button className="rounded-xl border border-zinc-800 bg-zinc-900/60 hover:border-teal-500/40 px-3 py-2 flex items-center gap-2">
-      {icon} <span>{label}</span>
-    </button>
-  );
-}
-function SkeletonCard({ title }) {
-  return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-zinc-400">{title}</div>
-        <div className="w-6 h-6 rounded-full border border-zinc-700" />
-      </div>
-      <div className="mt-3 space-y-2">
-        <div className="h-3 w-3/4 bg-zinc-800 rounded animate-pulse" />
-        <div className="h-3 w-2/3 bg-zinc-800 rounded animate-pulse" />
-        <div className="h-3 w-1/2 bg-zinc-800 rounded animate-pulse" />
-      </div>
-    </div>
-  );
 }
