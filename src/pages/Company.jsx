@@ -541,15 +541,15 @@ export default function Company() {
               </section>
 
               <section className="space-y-4">
-                <div className="flex flex-col-reverse lg:flex-row gap-4">
-                  <div className="flex-1 lg:w-[60%] p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                <div className="grid lg:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-semibold">Historique des dividendes</h3>
                       <div className="text-xs text-zinc-400 flex items-center gap-1.5">
                         <Info className="w-3.5 h-3.5" /> CAGR: <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
                       </div>
                     </div>
-                    <div className="h-40">
+                    <div className="h-52">
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={yearly}>
                           <XAxis dataKey="year" stroke="#71717a" tick={{ fontSize: 11 }} />
@@ -579,7 +579,7 @@ export default function Company() {
                     </div>
                   </div>
 
-                  <div className="flex-1 lg:w-[40%] p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 lg:sticky lg:top-6 lg:self-start">
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                     <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
                     <DatesTimeline items={last5Years} fmtDate={fmtDate} />
                   </div>
@@ -614,7 +614,9 @@ export default function Company() {
                     />
                   </div>
                   <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
-                    <strong>Données à caractère informatif :</strong> Les indicateurs et estimations affichés sur cette page sont fournis à titre strictement informatif et ne sauraient être interprétés comme un conseil en investissement. Toute décision d’investissement relève de votre appréciation personnelle et, le cas échéant, du recours à un conseiller financier dûment qualifié.
+                    <strong>Disclaimer :</strong> Ces informations sont fournies à titre
+                    indicatif et ne constituent pas un conseil financier. Faites vos propres
+                    recherches.
                   </div>
                 </div>
               </section>
@@ -946,26 +948,26 @@ function NDFCard({ loading, ndf, step, confProgress, active }) {
             </div>
           ) : (
             <>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-zinc-500">Montant probable</span>
-                  <span className="font-medium text-zinc-200">
+              <div className="space-y-2 text-xs">
+                <div>
+                  <div className="text-zinc-500 text-[10px] mb-1">Montant probable</div>
+                  <div className="font-medium text-zinc-200">
                     {step >= 1 ? `${(ndf?.probable ?? 0).toFixed(2)} MAD` : "..."}
-                  </span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-zinc-500">Fourchette</span>
-                  <span className="font-medium text-zinc-200">
+                <div>
+                  <div className="text-zinc-500 text-[10px] mb-1">Fourchette</div>
+                  <div className="font-medium text-zinc-200">
                     {step >= 2 ? `${(ndf?.min ?? 0).toFixed(2)}—${(ndf?.max ?? 0).toFixed(2)}` : "..."}
-                  </span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-zinc-500">Ex-date estimée</span>
-                  <span className="font-medium text-zinc-200">{step >= 3 ? ndf?.exDate || "—" : "..."}</span>
+                <div>
+                  <div className="text-zinc-500 text-[10px] mb-1">Ex-date estimée</div>
+                  <div className="font-medium text-zinc-200">{step >= 3 ? ndf?.exDate || "—" : "..."}</div>
                 </div>
               </div>
 
-              <div className="mt-2.5">
+              <div className="mt-3">
                 <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden relative">
                   {active && step < 4 && (
                     <motion.div
@@ -985,7 +987,7 @@ function NDFCard({ loading, ndf, step, confProgress, active }) {
                 </div>
               </div>
 
-              <div className="mt-2.5">
+              <div className="mt-3">
                 <button className="w-full rounded-lg border border-teal-500/30 text-teal-300 hover:bg-teal-500/10 px-2.5 py-1.5 text-xs transition-all duration-300">
                   Voir dans calendrier
                 </button>
