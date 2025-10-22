@@ -1,0 +1,626 @@
+[
+  {
+    "ticker": "ADH",
+    "isin": "MA0000011512",
+    "name": "DOUJA PROM ADDOHA",
+    "compartment": "Principal A",
+    "shares_outstanding": 402551254,
+    "sector": "participation et promotion immobilire"
+  },
+  {
+    "ticker": "ADI",
+    "isin": "MA0000011819",
+    "name": "ALLIANCES",
+    "compartment": "Principal A",
+    "shares_outstanding": 22078588,
+    "sector": "participation et promotion immobilire"
+  },
+  {
+    "ticker": "AFI",
+    "isin": "MA0000012114",
+    "name": "AFRIC INDUSTRIES SA",
+    "compartment": "Principal B",
+    "shares_outstanding": 291500,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "AFM",
+    "isin": "MA0000012296",
+    "name": "AFMA",
+    "compartment": "Principal B",
+    "shares_outstanding": 1000000,
+    "sector": "Assurances"
+  },
+  {
+    "ticker": "AGM",
+    "isin": "MA0000010944",
+    "name": "AGMA",
+    "compartment": "Alternatif A",
+    "shares_outstanding": 200000,
+    "sector": "Assurances"
+  },
+  {
+    "ticker": "AKT",
+    "isin": "MA0000012585",
+    "name": "AKDITAL",
+    "compartment": "Principal A",
+    "shares_outstanding": 14159207,
+    "sector": "Sant"
+  },
+  {
+    "ticker": "ALM",
+    "isin": "MA0000010936",
+    "name": "ALUMINIUM DU MAROC",
+    "compartment": "Principal B",
+    "shares_outstanding": 465954,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "ARD",
+    "isin": "MA0000012460",
+    "name": "ARADEI CAPITAL",
+    "compartment": "Principal F",
+    "shares_outstanding": 12568130,
+    "sector": "Socits de placement immobilier"
+  },
+  {
+    "ticker": "ATH",
+    "isin": "MA0000010969",
+    "name": "AUTO HALL",
+    "compartment": "Principal B",
+    "shares_outstanding": 50294528,
+    "sector": "Distributeurs"
+  },
+  {
+    "ticker": "ATL",
+    "isin": "MA0000011710",
+    "name": "ATLANTASANAD",
+    "compartment": "Principal A",
+    "shares_outstanding": 60283595,
+    "sector": "Assurances"
+  },
+  {
+    "ticker": "ATW",
+    "isin": "MA0000012445",
+    "name": "ATTIJARIWAFA BANK",
+    "compartment": "Principal A",
+    "shares_outstanding": 215140839,
+    "sector": "Banques"
+  },
+  {
+    "ticker": "BAL",
+    "isin": "MA0000011991",
+    "name": "BALIMA",
+    "compartment": "Principal B",
+    "shares_outstanding": 1744000,
+    "sector": "Socits de placement immobilier"
+  },
+  {
+    "ticker": "BCI",
+    "isin": "MA0000010811",
+    "name": "BMCI",
+    "compartment": "Principal A",
+    "shares_outstanding": 13279286,
+    "sector": "Banques"
+  },
+  {
+    "ticker": "BCP",
+    "isin": "MA0000011884",
+    "name": "BCP",
+    "compartment": "Principal A",
+    "shares_outstanding": 203312473,
+    "sector": "Banques"
+  },
+  {
+    "ticker": "BOA",
+    "isin": "MA0000012437",
+    "name": "BANK OF AFRICA",
+    "compartment": "Principal A",
+    "shares_outstanding": 215786333,
+    "sector": "Banques"
+  },
+  {
+    "ticker": "CDM",
+    "isin": "MA0000010381",
+    "name": "CDM",
+    "compartment": "Principal A",
+    "shares_outstanding": 10881214,
+    "sector": "Banques"
+  },
+  {
+    "ticker": "CFG",
+    "isin": "MA0000012627",
+    "name": "CFG BANK",
+    "compartment": "Principal F",
+    "shares_outstanding": 35007960,
+    "sector": "Banques"
+  },
+  {
+    "ticker": "CIH",
+    "isin": "MA0000011454",
+    "name": "CIH",
+    "compartment": "Principal A",
+    "shares_outstanding": 35605624,
+    "sector": "Banques"
+  },
+  {
+    "ticker": "CMA",
+    "isin": "MA0000010506",
+    "name": "CIMENTS DU MAROC",
+    "compartment": "Principal A",
+    "shares_outstanding": 14436004,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "CMG",
+    "isin": "MA0000012718",
+    "name": "CMGP GROUP",
+    "compartment": "Principal B",
+    "shares_outstanding": 17000900,
+    "sector": "Industrie Agricole"
+  },
+  {
+    "ticker": "CMT",
+    "isin": "MA0000011793",
+    "name": "MINIERE TOUISSIT",
+    "compartment": "Principal B",
+    "shares_outstanding": 1681233,
+    "sector": "Mines"
+  },
+  {
+    "ticker": "COL",
+    "isin": "MA0000011934",
+    "name": "COLORADO",
+    "compartment": "Alternatif A",
+    "shares_outstanding": 16117611,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "CRS",
+    "isin": "MA0000011868",
+    "name": "CARTIER SAADA",
+    "compartment": "Principal B",
+    "shares_outstanding": 5265000,
+    "sector": "Agroalimentaire et Production"
+  },
+  {
+    "ticker": "CSR",
+    "isin": "MA0000012247",
+    "name": "COSUMAR",
+    "compartment": "Principal A",
+    "shares_outstanding": 94487143,
+    "sector": "Agroalimentaire et Production"
+  },
+  {
+    "ticker": "CTM",
+    "isin": "MA0000010340",
+    "name": "CTM",
+    "compartment": "Principal B",
+    "shares_outstanding": 1225978,
+    "sector": "Transport"
+  },
+  {
+    "ticker": "DHO",
+    "isin": "MA0000011850",
+    "name": "DELTA HOLDING",
+    "compartment": "Principal B",
+    "shares_outstanding": 87600000,
+    "sector": "Socits de portefeuille / Holdings"
+  },
+  {
+    "ticker": "DIS",
+    "isin": "MA0000010639",
+    "name": "DIAC SALAF",
+    "compartment": "Principal B",
+    "shares_outstanding": 1053404,
+    "sector": "socit de financement et autres activits financires"
+  },
+  {
+    "ticker": "DLM",
+    "isin": "MA0000012551",
+    "name": "DELATTRE LEVIVIER MAROC",
+    "compartment": "Principal B",
+    "shares_outstanding": 1750000,
+    "sector": "ingnierie des biens et quipements industriels"
+  },
+  {
+    "ticker": "DRI",
+    "isin": "MA0000011421",
+    "name": "DARI COUSPATE",
+    "compartment": "Principal B",
+    "shares_outstanding": 298375,
+    "sector": "Agroalimentaire et Production"
+  },
+  {
+    "ticker": "DWY",
+    "isin": "MA0000011637",
+    "name": "DISWAY",
+    "compartment": "Principal B",
+    "shares_outstanding": 1885762,
+    "sector": "Matriels,Logiciels et services informatique"
+  },
+  {
+    "ticker": "DYT",
+    "isin": "MA0000012536",
+    "name": "DISTY TECHNOLOGIES",
+    "compartment": "Alternatif A",
+    "shares_outstanding": 998110,
+    "sector": "Matriels,Logiciels et services informatique"
+  },
+  {
+    "ticker": "EQD",
+    "isin": "MA0000010357",
+    "name": "EQDOM",
+    "compartment": "Principal B",
+    "shares_outstanding": 1670250,
+    "sector": "socit de financement et autres activits financires"
+  },
+  {
+    "ticker": "FBR",
+    "isin": "MA0000011587",
+    "name": "FENIE BROSSETTE",
+    "compartment": "Principal B",
+    "shares_outstanding": 1438984,
+    "sector": "Distributeurs"
+  },
+  {
+    "ticker": "GAZ",
+    "isin": "MA0000010951",
+    "name": "AFRIQUIA GAZ",
+    "compartment": "Principal A",
+    "shares_outstanding": 3437500,
+    "sector": "Ptrole et Gaz"
+  },
+  {
+    "ticker": "HPS",
+    "isin": "MA0000012619",
+    "name": "HPS",
+    "compartment": "Principal B",
+    "shares_outstanding": 7406190,
+    "sector": "Matriels,Logiciels et services informatique"
+  },
+  {
+    "ticker": "IAM",
+    "isin": "MA0000011488",
+    "name": "ITISSALAT AL-MAGHRIB",
+    "compartment": "Principal A",
+    "shares_outstanding": 879095340,
+    "sector": "30"
+  },
+  {
+    "ticker": "IBC",
+    "isin": "MA0000011132",
+    "name": "IB MAROC.COM",
+    "compartment": "Principal B",
+    "shares_outstanding": 417486,
+    "sector": "30"
+  },
+  {
+    "ticker": "IMO",
+    "isin": "MA0000012387",
+    "name": "IMMORENTE INVEST",
+    "compartment": "Principal B",
+    "shares_outstanding": 9007000,
+    "sector": "Socits de placement immobilier"
+  },
+  {
+    "ticker": "INV",
+    "isin": "MA0000011579",
+    "name": "INVOLYS",
+    "compartment": "Alternatif A",
+    "shares_outstanding": 382716,
+    "sector": "Matriels,Logiciels et services informatique"
+  },
+  {
+    "ticker": "JET",
+    "isin": "MA0000012080",
+    "name": "JET CONTRACTORS",
+    "compartment": "Principal B",
+    "shares_outstanding": 3029522,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "LBV",
+    "isin": "MA0000011801",
+    "name": "LABEL VIE",
+    "compartment": "Principal A",
+    "shares_outstanding": 2893957,
+    "sector": "Distributeurs"
+  },
+  {
+    "ticker": "LES",
+    "isin": "MA0000012031",
+    "name": "LESIEUR CRISTAL",
+    "compartment": "Principal A",
+    "shares_outstanding": 27631510,
+    "sector": "Agroalimentaire et Production"
+  },
+  {
+    "ticker": "LHM",
+    "isin": "MA0000012320",
+    "name": "LAFARGEHOLCIM MAROC",
+    "compartment": "Principal A",
+    "shares_outstanding": 23431240,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "M2M",
+    "isin": "MA0000011678",
+    "name": "M2M Group",
+    "compartment": "Principal B",
+    "shares_outstanding": 647777,
+    "sector": "Matriels,Logiciels et services informatique"
+  },
+  {
+    "ticker": "MAB",
+    "isin": "MA0000011215",
+    "name": "MAGHREBAIL",
+    "compartment": "Principal B",
+    "shares_outstanding": 1384182,
+    "sector": "socit de financement et autres activits financires"
+  },
+  {
+    "ticker": "MDP",
+    "isin": "MA0000012593",
+    "name": "MED PAPER",
+    "compartment": "Principal B",
+    "shares_outstanding": 4783823,
+    "sector": "Sylviculture et papier"
+  },
+  {
+    "ticker": "MIC",
+    "isin": "MA0000012163",
+    "name": "MICRODATA",
+    "compartment": "Alternatif A",
+    "shares_outstanding": 1680000,
+    "sector": "Matriels,Logiciels et services informatique"
+  },
+  {
+    "ticker": "MLE",
+    "isin": "MA0000010035",
+    "name": "MAROC LEASING",
+    "compartment": "Principal B",
+    "shares_outstanding": 2776768,
+    "sector": "socit de financement et autres activits financires"
+  },
+  {
+    "ticker": "MNG",
+    "isin": "MA0000011058",
+    "name": "MANAGEM",
+    "compartment": "Principal A",
+    "shares_outstanding": 11864676,
+    "sector": "Mines"
+  },
+  {
+    "ticker": "MOX",
+    "isin": "MA0000010985",
+    "name": "MAGHREB OXYGENE",
+    "compartment": "Principal B",
+    "shares_outstanding": 812500,
+    "sector": "Chimie"
+  },
+  {
+    "ticker": "MSA",
+    "isin": "MA0000012312",
+    "name": "SODEP-Marsa Maroc",
+    "compartment": "Principal A",
+    "shares_outstanding": 73395600,
+    "sector": "Service de transport"
+  },
+  {
+    "ticker": "MUT",
+    "isin": "MA0000012395",
+    "name": "MUTANDIS SCA",
+    "compartment": "Principal B",
+    "shares_outstanding": 9246737,
+    "sector": "Agroalimentaire et Production"
+  },
+  {
+    "ticker": "NEJ",
+    "isin": "MA0000011009",
+    "name": "AUTO NEJMA",
+    "compartment": "Principal B",
+    "shares_outstanding": 1023264,
+    "sector": "Distributeurs"
+  },
+  {
+    "ticker": "NKL",
+    "isin": "MA0000011942",
+    "name": "ENNAKL",
+    "compartment": "Principal B",
+    "shares_outstanding": 30000000,
+    "sector": "Distributeurs"
+  },
+  {
+    "ticker": "OUL",
+    "isin": "MA0000010415",
+    "name": "OULMES",
+    "compartment": "Principal B",
+    "shares_outstanding": 1980000,
+    "sector": "Boissons"
+  },
+  {
+    "ticker": "PRO",
+    "isin": "MA0000011660",
+    "name": "PROMOPHARM S.A.",
+    "compartment": "Principal B",
+    "shares_outstanding": 1000000,
+    "sector": "Industrie Pharmacetique"
+  },
+  {
+    "ticker": "RDS",
+    "isin": "MA0000012239",
+    "name": "RESIDENCES DAR SAADA",
+    "compartment": "Principal B",
+    "shares_outstanding": 26208850,
+    "sector": "participation et promotion immobilire"
+  },
+  {
+    "ticker": "REB",
+    "isin": "MA0000010993",
+    "name": "REBAB COMPANY",
+    "compartment": "Principal B",
+    "shares_outstanding": 176456,
+    "sector": "Mines"
+  },
+  {
+    "ticker": "RIS",
+    "isin": "MA0000011462",
+    "name": "RISMA",
+    "compartment": "Principal B",
+    "shares_outstanding": 14326947,
+    "sector": "Loisirs et htel"
+  },
+  {
+    "ticker": "S2M",
+    "isin": "MA0000012106",
+    "name": "S.M MONETIQUE",
+    "compartment": "Principal B",
+    "shares_outstanding": 812070,
+    "sector": "Matriels,Logiciels et services informatique"
+  },
+  {
+    "ticker": "SAH",
+    "isin": "MA0000012007",
+    "name": "SANLAM MAROC",
+    "compartment": "Principal A",
+    "shares_outstanding": 4116874,
+    "sector": "Assurances"
+  },
+  {
+    "ticker": "SAM",
+    "isin": "MA0000010803",
+    "name": "SAMIR",
+    "compartment": "Principal B",
+    "shares_outstanding": 11899665,
+    "sector": "Ptrole et Gaz"
+  },
+  {
+    "ticker": "SBM",
+    "isin": "MA0000010365",
+    "name": "SOCIETE DES BOISSONS DU MAROC",
+    "compartment": "Principal A",
+    "shares_outstanding": 2829653,
+    "sector": "Boissons"
+  },
+  {
+    "ticker": "SID",
+    "isin": "MA0000010019",
+    "name": "SONASID",
+    "compartment": "Principal B",
+    "shares_outstanding": 3900000,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "SLF",
+    "isin": "MA0000011744",
+    "name": "SALAFIN",
+    "compartment": "Principal B",
+    "shares_outstanding": 3124119,
+    "sector": "socit de financement et autres activits financires"
+  },
+  {
+    "ticker": "SMI",
+    "isin": "MA0000010068",
+    "name": "SMI",
+    "compartment": "Principal B",
+    "shares_outstanding": 1645090,
+    "sector": "Mines"
+  },
+  {
+    "ticker": "SNA",
+    "isin": "MA0000012700",
+    "name": "STOKVIS NORD AFRIQUE",
+    "compartment": "Principal B",
+    "shares_outstanding": 17695150,
+    "sector": "Distributeurs"
+  },
+  {
+    "ticker": "SNP",
+    "isin": "MA0000011728",
+    "name": "SNEP",
+    "compartment": "Principal B",
+    "shares_outstanding": 2400000,
+    "sector": "Chimie"
+  },
+  {
+    "ticker": "SOT",
+    "isin": "MA0000012502",
+    "name": "SOTHEMA",
+    "compartment": "Principal A",
+    "shares_outstanding": 7200000,
+    "sector": "Industrie Pharmacetique"
+  },
+  {
+    "ticker": "SRM",
+    "isin": "MA0000011595",
+    "name": "REALISATIONS MECANIQUES",
+    "compartment": "Principal B",
+    "shares_outstanding": 320000,
+    "sector": "Distributeurs"
+  },
+  {
+    "ticker": "STR",
+    "isin": "MA0000012056",
+    "name": "STROC INDUSTRIE",
+    "compartment": "Principal B",
+    "shares_outstanding": 1248515,
+    "sector": "ingnierie des biens et quipements industriels"
+  },
+  {
+    "ticker": "TGC",
+    "isin": "MA0000012528",
+    "name": "TGCC S.A",
+    "compartment": "Principal F",
+    "shares_outstanding": 34674332,
+    "sector": "Btiment et Matriaux de construction"
+  },
+  {
+    "ticker": "TMA",
+    "isin": "MA0000012262",
+    "name": "TOTALENERGIES MARKETING MAROC",
+    "compartment": "Principal A",
+    "shares_outstanding": 8960000,
+    "sector": "Ptrole et Gaz"
+  },
+  {
+    "ticker": "TQM",
+    "isin": "MA0000012205",
+    "name": "TAQA MOROCCO",
+    "compartment": "Principal A",
+    "shares_outstanding": 23588542,
+    "sector": "Electricit"
+  },
+  {
+    "ticker": "UMR",
+    "isin": "MA0000012023",
+    "name": "UNIMER",
+    "compartment": "Principal B",
+    "shares_outstanding": 11413880,
+    "sector": "Agroalimentaire et Production"
+  },
+  {
+    "ticker": "VCN",
+    "isin": "MA0000012759",
+    "name": "VICENNE",
+    "compartment": "Principal F",
+    "shares_outstanding": 10258850,
+    "sector": "Sant"
+  },
+  {
+    "ticker": "WAA",
+    "isin": "MA0000010928",
+    "name": "WAFA ASSURANCE",
+    "compartment": "Principal A",
+    "shares_outstanding": 3500000,
+    "sector": "Assurances"
+  },
+  {
+    "ticker": "ZDJ",
+    "isin": "MA0000010571",
+    "name": "ZELLIDJA S.A",
+    "compartment": "Principal B",
+    "shares_outstanding": 572849,
+    "sector": "Socits de portefeuille / Holdings \u0000"
+  }
+]
