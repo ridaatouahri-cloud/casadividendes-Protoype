@@ -55,12 +55,12 @@ function Tip({ title, points = [] }) {
         i
       </button>
       {open && (
-        <div className="absolute right-0 mt-2 z-30 w-80 rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-sm shadow-xl">
+        <div className="absolute right-0 top-6 z-50 w-72 rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-sm shadow-2xl">
           <div className="font-medium text-zinc-100 mb-2">{title}</div>
-          <ul className="space-y-1 text-zinc-300">
+          <ul className="space-y-1 text-zinc-300 text-xs leading-relaxed">
             {points.map((p, i) => (
               <li key={i} className="flex gap-2">
-                <span className="text-teal-400">•</span>
+                <span className="text-teal-400 shrink-0">•</span>
                 <span>{p}</span>
               </li>
             ))}
@@ -559,46 +559,48 @@ export default function Company() {
               </section>
 
               <section className="space-y-4">
-                <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-semibold">Historique des dividendes</h3>
-                    <div className="text-xs text-zinc-400 flex items-center gap-1.5">
-                      <Info className="w-3.5 h-3.5" /> CAGR: <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
+                <div className="grid lg:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold">Historique des dividendes</h3>
+                      <div className="text-xs text-zinc-400 flex items-center gap-1.5">
+                        <Info className="w-3.5 h-3.5" /> CAGR: <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
+                      </div>
+                    </div>
+                    <div className="h-40">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={yearly}>
+                          <XAxis dataKey="year" stroke="#71717a" tick={{ fontSize: 11 }} />
+                          <YAxis stroke="#71717a" tick={{ fontSize: 11 }} />
+                          <RTooltip
+                            contentStyle={{
+                              background: "#0a0a0a",
+                              border: "1px solid #27272a",
+                              color: "#e4e4e7",
+                              fontSize: "12px",
+                              borderRadius: "8px"
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="total"
+                            stroke="#14b8a6"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="mt-2 text-xs text-zinc-500">
+                      Somme annuelle (2020-2025) en {company.currency}
                     </div>
                   </div>
-                  <div className="h-40">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={yearly}>
-                        <XAxis dataKey="year" stroke="#71717a" tick={{ fontSize: 11 }} />
-                        <YAxis stroke="#71717a" tick={{ fontSize: 11 }} />
-                        <RTooltip
-                          contentStyle={{
-                            background: "#0a0a0a",
-                            border: "1px solid #27272a",
-                            color: "#e4e4e7",
-                            fontSize: "12px",
-                            borderRadius: "8px"
-                          }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="total"
-                          stroke="#14b8a6"
-                          strokeWidth={2}
-                          dot={{ r: 3 }}
-                          connectNulls={false}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="mt-2 text-xs text-zinc-500">
-                    Somme annuelle (2020-2025) en {company.currency}
-                  </div>
-                </div>
 
-                <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-                  <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
-                  <DatesTimeline items={last5Years} fmtDate={fmtDate} />
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                    <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
+                    <DatesTimeline items={last5Years} fmtDate={fmtDate} />
+                  </div>
                 </div>
               </section>
 
@@ -771,9 +773,9 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart, running })
             <div className="text-xs flex-1 space-y-1">
               {steps.map(({ label, vNow, vFull, color }, i) => (
                 <div key={i} className="flex items-center justify-between gap-2">
-                  <span className="text-zinc-400 text-xs">{label}</span>
+                  <span className="text-zinc-400 text-[10px]">{label}</span>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-16 h-1 rounded-full bg-zinc-800 overflow-hidden">
+                    <div className="w-20 h-1 rounded-full bg-zinc-800 overflow-hidden">
                       <div
                         className="h-1 rounded-full"
                         style={{
@@ -783,7 +785,7 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart, running })
                         }}
                       />
                     </div>
-                    <span className="w-5 text-right text-zinc-300 text-xs">
+                    <span className="w-6 text-right text-zinc-300 text-[10px]">
                       {Math.min(vNow, vFull)}
                     </span>
                   </div>
