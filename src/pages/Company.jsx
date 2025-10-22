@@ -540,95 +540,86 @@ export default function Company() {
                 />
               </section>
 
-  {/* ===== Analytics section (Charts + Timeline) ===== */}
-<section className="space-y-4 relative z-0">
-  <div className="grid gap-4 lg:grid-cols-12">
-    {/* Détails paiements (right on desktop, first on mobile) */}
-    <div className="order-1 lg:order-2 lg:col-span-5">
-      <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 sticky top-6">
-        <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
-        <DatesTimeline items={last5Years} fmtDate={fmtDate} />
-      </div>
-    </div>
+              <section className="space-y-4">
+                <div className="grid lg:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold">Historique des dividendes</h3>
+                      <div className="text-xs text-zinc-400 flex items-center gap-1.5">
+                        <Info className="w-3.5 h-3.5" /> CAGR: <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
+                      </div>
+                    </div>
+                    <div className="h-40">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={yearly}>
+                          <XAxis dataKey="year" stroke="#71717a" tick={{ fontSize: 11 }} />
+                          <YAxis stroke="#71717a" tick={{ fontSize: 11 }} />
+                          <RTooltip
+                            contentStyle={{
+                              background: "#0a0a0a",
+                              border: "1px solid #27272a",
+                              color: "#e4e4e7",
+                              fontSize: "12px",
+                              borderRadius: "8px"
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="total"
+                            stroke="#14b8a6"
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            connectNulls={false}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="mt-2 text-xs text-zinc-500">
+                      Somme annuelle (2020-2025) en {company.currency}
+                    </div>
+                  </div>
 
-    {/* Historique des dividendes (left on desktop, second on mobile) */}
-    <div className="order-2 lg:order-1 lg:col-span-7">
-      <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-semibold">Historique des dividendes</h3>
-          <div className="text-xs text-zinc-400 flex items-center gap-1.5">
-            <Info className="w-3.5 h-3.5" /> CAGR:{" "}
-            <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
-          </div>
-        </div>
+                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                    <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
+                    <DatesTimeline items={last5Years} fmtDate={fmtDate} />
+                  </div>
+                </div>
 
-        <div className="h-48 md:h-56 lg:h-60">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={yearly} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-              <XAxis dataKey="year" stroke="#71717a" tick={{ fontSize: 11 }} />
-              <YAxis stroke="#71717a" tick={{ fontSize: 11 }} />
-              <RTooltip
-                contentStyle={{
-                  background: "#0a0a0a",
-                  border: "1px solid #27272a",
-                  color: "#e4e4e7",
-                  fontSize: "12px",
-                  borderRadius: "8px",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="total"
-                stroke="#14b8a6"
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                connectNulls={false}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="mt-2 text-xs text-zinc-500">
-          Somme annuelle (2020–2025) en {company.currency}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {/* (Keep your existing “Stratégie recommandée” block below, unchanged) */}
-  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-    <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
-    <div className="grid md:grid-cols-3 gap-3">
-      <StrategyCard
-        title="Profil"
-        points={[
-          "Entreprise régulière sur le dividende",
-          "C-DRS élevé → constance attractive",
-          "NDF solide → bonne prévisibilité",
-        ]}
-      />
-      <StrategyCard
-        title="Entrée idéale"
-        points={[
-          "Sur repli vers PRT modéré/bas",
-          "Confirmation par volume & news flow",
-          "Fenêtre avant ex-date pour capter le coupon",
-        ]}
-      />
-      <StrategyCard
-        title="Gestion du risque"
-        points={[
-          "Position taille < 5% du portefeuille",
-          "Surveillance du payout et cash-flow",
-          "Diversification intra-secteur",
-        ]}
-      />
-    </div>
-    <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
-      <strong>Disclaimer :</strong> Ces informations sont fournies à titre indicatif et ne constituent pas un conseil financier. Faites vos propres recherches.
-    </div>
-  </div>
-</section>
+                <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                  <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    <StrategyCard
+                      title="Profil"
+                      points={[
+                        "Entreprise régulière sur le dividende",
+                        "C-DRS élevé → constance attractive",
+                        "NDF solide → bonne prévisibilité",
+                      ]}
+                    />
+                    <StrategyCard
+                      title="Entrée idéale"
+                      points={[
+                        "Sur repli vers PRT modéré/bas",
+                        "Confirmation par volume & news flow",
+                        "Fenêtre avant ex-date pour capter le coupon",
+                      ]}
+                    />
+                    <StrategyCard
+                      title="Gestion du risque"
+                      points={[
+                        "Position taille < 5% du portefeuille",
+                        "Surveillance du payout et cash-flow",
+                        "Diversification intra-secteur",
+                      ]}
+                    />
+                  </div>
+                  <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
+                    <strong>Disclaimer :</strong> Ces informations sont fournies à titre
+                    indicatif et ne constituent pas un conseil financier. Faites vos propres
+                    recherches.
+                  </div>
+                </div>
+              </section>
             </main>
           </div>
 
