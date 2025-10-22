@@ -657,3 +657,483 @@ export default function Company() {
                         type="monotone"
                         dataKey="total"
                         stroke="#14b8a6"
+                        strokeWidth={2}
+                        dot
+                        connectNulls={false}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="mt-3 text-sm text-zinc-400">
+                  Somme annuelle des dividendes en {company.currency}.
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50">
+                <h3 className="font-semibold mb-4">Détails (ex-date / paiement)</h3>
+                <DatesTimeline items={last5Years} fmtDate={fmtDate} />
+              </div>
+            </section>
+
+            {/* Stratégie */}
+            <section className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/50 mb-10">
+              <h3 className="font-semibold mb-3">Stratégie recommandée</h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                <StrategyCard
+                  title="Profil"
+                  points={[
+                    "Entreprise régulière sur le dividende",
+                    "C-DRS élevé → constance attractive",
+                    "NDF solide → bonne prévisibilité",
+                  ]}
+                />
+                <StrategyCard
+                  title="Entrée idéale"
+                  points={[
+                    "Sur repli vers PRT modéré/bas",
+                    "Confirmation par volume & news flow",
+                    "Fenêtre avant ex-date pour capter le coupon",
+                  ]}
+                />
+                <StrategyCard
+                  title="Gestion du risque"
+                  points={[
+                    "Position taille < 5% du portefeuille",
+                    "Surveillance du payout et cash-flow",
+                    "Diversification intra-secteur",
+                  ]}
+                />
+              </div>
+              <div className="mt-4 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5 text-sm text-zinc-300">
+                <strong>Disclaimer :</strong> Ces informations sont fournies à titre
+                indicatif et ne constituent pas un conseil financier. Faites vos propres
+                recherches.
+              </div>
+            </section>
+          </main>
+        </div>
+
+        <footer className="text-sm text-zinc-500 pb-8 border-t border-zinc-800/60 pt-4 mt-8">
+          Données CasaDividendes — à titre informatif. © {new Date().getFullYear()}
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+/* ================= KPI Cards ================= */
+function CDRSCard({ loading, detail, progress, ringProgress, onStart, running }) {
+  const total = Math.round(
+    detail.regularite + detail.croissance + detail.stabilite + detail.magnitude
+  );
+  const size = 100,
+    stroke = 8,
+    r = (size - stroke) / 2,
+    c = 2 * Math.PI * r;
+  const off = c * (1 - Math.min(100, ringProgress) / 100);
+
+  const steps = [
+    {
+      label: "Régularité",
+      vNow: progress.reg,
+      vFull: Math.round(detail.regularite),
+      color: "#22d3ee",
+    },
+    {
+      label: "Croissance",
+      vNow: progress.croiss,
+      vFull: Math.round(detail.croissance),
+      color: "#14b8a6",
+    },
+    {
+      label: "Stabilité",
+      vNow: progress.stab,
+      vFull: Math.round(detail.stabilite),
+      color: "#f59e0b",
+    },
+    {
+      label: "Magnitude",
+      vNow: progress.mag,
+      vFull: Math.round(detail.magnitude),
+      color: "#eab308",
+    },
+  ];
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm text-zinc-400">C-DRS™</div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-zinc-400">25/35/25/15</span>
+          <Tip
+            title="Casa-Dividend Reliability Score"
+            points={[
+              "Régularité : paiement constant sur 5 ans",
+              "Croissance : augmentation progressive",
+              "Stabilité : faible volatilité des montants",
+              "Magnitude : niveau et tendance du dividende",
+            ]}
+          />
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+        </div>
+      ) : (
+        <>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <svg width={size} height={size}>
+                <circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={r}
+                  stroke="#27272a"
+                  strokeWidth={stroke}
+                  fill="none"
+                />
+                <circle
+                  cx={size / 2}
+                  cy={size / 2}
+                  r={r}
+                  stroke="#eab308"
+                  strokeWidth={stroke}
+                  fill="none"
+                  strokeDasharray={c}
+                  strokeDashoffset={off}
+                  strokeLinecap="round"
+                  style={{ transition: "stroke-dashoffset .45s ease" }}
+                />
+                <text
+                  x="50%"
+                  y="50%"
+                  dominantBaseline="middle"
+                  textAnchor="middle"
+                  className="fill-zinc-100 font-semibold text-lg"
+                >
+                  {ringProgress > 0 ? Math.min(100, Math.round(ringProgress)) : total}
+                </text>
+              </svg>
+            </div>
+
+            <div className="text-xs flex-1 space-y-1">
+              {steps.map(({ label, vNow, vFull, color }, i) => (
+                <div key={i} className="flex items-center justify-between gap-2">
+                  <span className="text-zinc-300">{label}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 h-1.5 rounded-full bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-1.5 rounded-full"
+                        style={{
+                          width: `${(vNow / Math.max(1, vFull)) * 100}%`,
+                          background: color,
+                          transition: "width .25s",
+                        }}
+                      />
+                    </div>
+                    <span className="w-6 text-right text-zinc-200">
+                      {Math.min(vNow, vFull)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <button
+            disabled={loading}
+            onClick={onStart}
+            className={`mt-3 w-full inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm border ${
+              loading
+                ? "border-zinc-800 text-zinc-500 cursor-not-allowed"
+                : "border-teal-500/30 text-teal-300 hover:bg-teal-500/10"
+            }`}
+          >
+            <Play className="w-4 h-4" /> Lancer le calcul
+          </button>
+        </>
+      )}
+    </div>
+  );
+}
+
+function PRTCard({ loading, prtAvg, score, daysProgress, scoreProgress, active }) {
+  const barColor =
+    scoreProgress >= 78
+      ? "bg-emerald-500/60"
+      : scoreProgress >= 55
+      ? "bg-sky-500/60"
+      : scoreProgress >= 33
+      ? "bg-yellow-500/60"
+      : scoreProgress >= 10
+      ? "bg-orange-500/60"
+      : "bg-red-500/60";
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm text-zinc-400">PRT™</div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-zinc-400">Moyenne 3 ex-dates</span>
+          <Tip
+            title="Price Recovery Time"
+            points={[
+              "Mesure le temps nécessaire pour que le cours retrouve son niveau d'avant détachement",
+              "Échantillon : 3 dernières distributions",
+              "Lecture : court = rotation plus active, long = buy & hold",
+            ]}
+          />
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-3 w-full bg-zinc-800 rounded animate-pulse" />
+          <div className="h-2 w-3/4 bg-zinc-800 rounded animate-pulse" />
+        </div>
+      ) : (
+        <>
+          <div className="mt-1">
+            <div className="h-3 w-full rounded-full bg-zinc-800 overflow-hidden relative">
+              {active && daysProgress < prtAvg && (
+                <motion.div
+                  className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-zinc-300/0 via-zinc-300/20 to-zinc-300/0"
+                  animate={{ x: ["-20%", "100%"] }}
+                  transition={{ duration: 1.0, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+              <div
+                className={`h-3 rounded-full transition-[width] duration-200 ${barColor}`}
+                style={{
+                  width: `${Math.min(100, (daysProgress / Math.max(1, prtAvg)) * 100)}%`,
+                }}
+              />
+            </div>
+            <div className="mt-2 text-xs text-zinc-300 flex items-center justify-between">
+              <span>Recovery moyen</span>
+              <span>
+                {Math.min(daysProgress, prtAvg)} / {prtAvg} jours
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden">
+              <div
+                className={`h-2 transition-[width] duration-200 ${barColor}`}
+                style={{ width: `${scoreProgress}%` }}
+              />
+            </div>
+            <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
+              <span>Score PRT</span>
+              <span className="text-zinc-200">{scoreProgress || 0}/100</span>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function NDFCard({ loading, ndf, step, confProgress, active, onGoCalendar }) {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm text-zinc-400">NDF™</div>
+        <Tip
+          title="Next Dividend Forecast"
+          points={[
+            "Montant probable via croissance pondérée des dernières années",
+            "Fourchette basée sur la volatilité historique (capée)",
+            "Ex-date estimée par pattern de dates passées",
+            "Confiance = régularité + stabilité + tendance de croissance",
+          ]}
+        />
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+          <div className="h-4 bg-zinc-800 rounded animate-pulse" />
+        </div>
+      ) : (
+        <>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400">Montant probable</span>
+              <span className="font-semibold">
+                {step >= 1 ? `${(ndf?.probable ?? 0).toFixed(2)} MAD` : "..."}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400">Fourchette</span>
+              <span className="font-semibold">
+                {step >= 2
+                  ? `${(ndf?.min ?? 0).toFixed(2)} — ${(ndf?.max ?? 0).toFixed(2)} MAD`
+                  : "..."}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-zinc-400">Ex-date estimée</span>
+              <span className="font-semibold">{step >= 3 ? ndf?.exDate || "---" : "..."}</span>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <div className="h-2 w-full rounded-full bg-zinc-800 overflow-hidden relative">
+              {active && step < 4 && (
+                <motion.div
+                  className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-emerald-300/0 via-emerald-300/20 to-emerald-300/0"
+                  animate={{ x: ["-20%", "100%"] }}
+                  transition={{ duration: 1.0, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
+              <div
+                className="h-2 bg-teal-500/70 rounded-full transition-[width] duration-200"
+                style={{ width: `${confProgress}%` }}
+              />
+            </div>
+            <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
+              <span>Confiance</span>
+              <span className="text-zinc-200">{confProgress || 0}/100</span>
+            </div>
+          </div>
+
+          <div className="mt-3">
+            <button
+              onClick={onGoCalendar}
+              className="w-full rounded-lg border border-teal-500/30 text-teal-300 hover:bg-teal-500/10 px-3 py-2 text-sm"
+            >
+              Voir ce mois dans le calendrier
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function CDScoreMiniGauge({ value, progress }) {
+  const size = 80,
+    stroke = 7,
+    r = (size - stroke) / 2,
+    c = 2 * Math.PI * r;
+  const off = c * (1 - Math.min(100, progress) / 100);
+
+  return (
+    <div className="relative flex items-center justify-center">
+      <svg width={size} height={size}>
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="#27272a"
+          strokeWidth={stroke}
+          fill="none"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          stroke="#14b8a6"
+          strokeWidth={stroke}
+          fill="none"
+          strokeDasharray={c}
+          strokeDashoffset={off}
+          strokeLinecap="round"
+          style={{ transition: "stroke-dashoffset .45s ease" }}
+        />
+        <text
+          x="50%"
+          y="50%"
+          dominantBaseline="middle"
+          textAnchor="middle"
+          className="fill-zinc-100 font-semibold text-xl"
+        >
+          {Math.min(100, Math.round(progress || 0))}
+        </text>
+      </svg>
+    </div>
+  );
+}
+
+/* ================= Timeline ================= */
+function DatesTimeline({ items, fmtDate }) {
+  return (
+    <div className="space-y-4">
+      {/* Ex-dates row */}
+      <div>
+        <div className="text-xs text-zinc-400 mb-2">Ex-dates</div>
+        <div className="flex gap-2">
+          {items.map((item, i) => (
+            <div
+              key={`ex-${i}`}
+              className="flex-1 group relative"
+              title={`${item.year} — ${fmtDate(item.exDate)}`}
+            >
+              <div className="rounded-lg border border-zinc-700 bg-zinc-800/50 p-2 text-center hover:border-teal-500/40 transition-colors">
+                <div className="text-xs font-semibold text-zinc-200">{item.year}</div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  {item.exDate
+                    ? new Date(item.exDate).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "short",
+                      })
+                    : "---"}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Payment dates row */}
+      <div>
+        <div className="text-xs text-zinc-400 mb-2">Paiements</div>
+        <div className="flex gap-2">
+          {items.map((item, i) => (
+            <div
+              key={`pay-${i}`}
+              className="flex-1 group relative"
+              title={`${item.year} — ${fmtDate(item.pay)}`}
+            >
+              <div className="rounded-lg border border-zinc-700 bg-zinc-800/50 p-2 text-center hover:border-amber-500/40 transition-colors">
+                <div className="text-xs font-semibold text-zinc-200">{item.year}</div>
+                <div className="text-xs text-zinc-400 mt-1">
+                  {item.pay
+                    ? new Date(item.pay).toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "short",
+                      })
+                    : "---"}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ================= UI Components ================= */
+function StrategyCard({ title, points = [] }) {
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-4">
+      <div className="font-medium">{title}</div>
+      <ul className="mt-2 text-sm text-zinc-300 space-y-1">
+        {points.map((p, i) => (
+          <li key={i} className="flex items-start gap-2">
+            <span className="text-teal-300 mt-0.5">•</span>
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
