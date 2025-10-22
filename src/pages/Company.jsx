@@ -43,29 +43,41 @@ function ratio(b, a) {
 }
 
 function Tip({ title, points = [] }) {
-  const [open, setOpen] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  
   return (
-    <div className="relative">
+    <div className="relative w-5 h-5">
       <button
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
+        onClick={() => setFlipped(!flipped)}
         className="text-zinc-400 hover:text-zinc-200 w-5 h-5 rounded-full border border-zinc-700 flex items-center justify-center text-xs transition-colors duration-300"
         aria-label="Informations"
       >
         i
       </button>
-      {open && (
-        <div className="absolute right-0 top-6 z-50 w-72 rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-sm shadow-2xl">
-          <div className="font-medium text-zinc-100 mb-2">{title}</div>
-          <ul className="space-y-1 text-zinc-300 text-xs leading-relaxed">
-            {points.map((p, i) => (
-              <li key={i} className="flex gap-2">
-                <span className="text-teal-400 shrink-0">•</span>
-                <span>{p}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {flipped && (
+        <>
+          <div 
+            className="fixed inset-0 z-40 bg-black/20" 
+            onClick={() => setFlipped(false)}
+          />
+          <div className="absolute right-0 top-6 z-50 w-64 rounded-xl border border-zinc-800 bg-zinc-950 p-3 text-sm shadow-2xl">
+            <div className="font-medium text-zinc-100 mb-2 text-xs">{title}</div>
+            <ul className="space-y-1.5 text-zinc-300 text-[10px] leading-relaxed">
+              {points.map((p, i) => (
+                <li key={i} className="flex gap-1.5">
+                  <span className="text-teal-400 shrink-0">•</span>
+                  <span>{p}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={() => setFlipped(false)}
+              className="mt-2 text-[10px] text-zinc-500 hover:text-zinc-300"
+            >
+              Fermer
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
@@ -770,25 +782,23 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart, running })
               </svg>
             </div>
 
-            <div className="text-xs flex-1 space-y-1">
+            <div className="flex-1 space-y-1.5">
               {steps.map(({ label, vNow, vFull, color }, i) => (
-                <div key={i} className="flex items-center justify-between gap-2">
-                  <span className="text-zinc-400 text-[10px]">{label}</span>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-20 h-1 rounded-full bg-zinc-800 overflow-hidden">
-                      <div
-                        className="h-1 rounded-full"
-                        style={{
-                          width: `${(vNow / Math.max(1, vFull)) * 100}%`,
-                          background: color,
-                          transition: "width .3s ease-out",
-                        }}
-                      />
-                    </div>
-                    <span className="w-6 text-right text-zinc-300 text-[10px]">
-                      {Math.min(vNow, vFull)}
-                    </span>
+                <div key={i} className="flex items-center gap-2">
+                  <span className="text-zinc-400 text-[9px] w-16 shrink-0">{label}</span>
+                  <div className="flex-1 h-1 rounded-full bg-zinc-800 overflow-hidden">
+                    <div
+                      className="h-1 rounded-full"
+                      style={{
+                        width: `${(vNow / Math.max(1, vFull)) * 100}%`,
+                        background: color,
+                        transition: "width .3s ease-out",
+                      }}
+                    />
                   </div>
+                  <span className="w-5 text-right text-zinc-300 text-[9px] shrink-0">
+                    {Math.min(vNow, vFull)}
+                  </span>
                 </div>
               ))}
             </div>
@@ -1019,19 +1029,19 @@ function CDScoreMiniGauge({ value, progress }) {
 
 function DatesTimeline({ items, fmtDate }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div>
-        <div className="text-xs text-zinc-500 mb-1.5">Ex-dates</div>
-        <div className="flex gap-2">
+        <div className="text-[10px] text-zinc-500 mb-1">Ex-dates</div>
+        <div className="flex gap-1.5">
           {items.map((item, i) => (
             <div
               key={`ex-${i}`}
               className="flex-1 group relative"
               title={`${item.year} — ${fmtDate(item.exDate)}`}
             >
-              <div className="rounded-lg border border-zinc-700 bg-zinc-800/50 p-2 text-center hover:border-teal-500/40 transition-all duration-300">
-                <div className="text-xs font-semibold text-zinc-200">{item.year}</div>
-                <div className="text-xs text-zinc-400 mt-0.5">
+              <div className="rounded-md border border-zinc-700 bg-zinc-800/50 p-1.5 text-center hover:border-teal-500/40 transition-all duration-300">
+                <div className="text-[10px] font-semibold text-zinc-200">{item.year}</div>
+                <div className="text-[9px] text-zinc-400 mt-0.5">
                   {item.exDate
                     ? new Date(item.exDate).toLocaleDateString("fr-FR", {
                         day: "2-digit",
@@ -1046,17 +1056,17 @@ function DatesTimeline({ items, fmtDate }) {
       </div>
 
       <div>
-        <div className="text-xs text-zinc-500 mb-1.5">Paiements</div>
-        <div className="flex gap-2">
+        <div className="text-[10px] text-zinc-500 mb-1">Paiements</div>
+        <div className="flex gap-1.5">
           {items.map((item, i) => (
             <div
               key={`pay-${i}`}
               className="flex-1 group relative"
               title={`${item.year} — ${fmtDate(item.pay)}`}
             >
-              <div className="rounded-lg border border-zinc-700 bg-zinc-800/50 p-2 text-center hover:border-amber-500/40 transition-all duration-300">
-                <div className="text-xs font-semibold text-zinc-200">{item.year}</div>
-                <div className="text-xs text-zinc-400 mt-0.5">
+              <div className="rounded-md border border-zinc-700 bg-zinc-800/50 p-1.5 text-center hover:border-amber-500/40 transition-all duration-300">
+                <div className="text-[10px] font-semibold text-zinc-200">{item.year}</div>
+                <div className="text-[9px] text-zinc-400 mt-0.5">
                   {item.pay
                     ? new Date(item.pay).toLocaleDateString("fr-FR", {
                         day: "2-digit",
