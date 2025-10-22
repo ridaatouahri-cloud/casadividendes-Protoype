@@ -541,48 +541,46 @@ export default function Company() {
               </section>
 
               <section className="space-y-4">
-                <div className="grid lg:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-semibold">Historique des dividendes</h3>
-                      <div className="text-xs text-zinc-400 flex items-center gap-1.5">
-                        <Info className="w-3.5 h-3.5" /> CAGR: <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
-                      </div>
-                    </div>
-                    <div className="h-52">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={yearly}>
-                          <XAxis dataKey="year" stroke="#71717a" tick={{ fontSize: 11 }} />
-                          <YAxis stroke="#71717a" tick={{ fontSize: 11 }} />
-                          <RTooltip
-                            contentStyle={{
-                              background: "#0a0a0a",
-                              border: "1px solid #27272a",
-                              color: "#e4e4e7",
-                              fontSize: "12px",
-                              borderRadius: "8px"
-                            }}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="total"
-                            stroke="#14b8a6"
-                            strokeWidth={2}
-                            dot={{ r: 3 }}
-                            connectNulls={false}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div className="mt-2 text-xs text-zinc-500">
-                      Somme annuelle (2020-2025) en {company.currency}
+                <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold">Historique des dividendes</h3>
+                    <div className="text-xs text-zinc-400 flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5" /> CAGR: <span className="text-zinc-200">{cagr != null ? `${cagr}%` : "—"}</span>
                     </div>
                   </div>
+                  <div className="h-52">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={yearly}>
+                        <XAxis dataKey="year" stroke="#71717a" tick={{ fontSize: 11 }} />
+                        <YAxis stroke="#71717a" tick={{ fontSize: 11 }} />
+                        <RTooltip
+                          contentStyle={{
+                            background: "#0a0a0a",
+                            border: "1px solid #27272a",
+                            color: "#e4e4e7",
+                            fontSize: "12px",
+                            borderRadius: "8px"
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="total"
+                          stroke="#14b8a6"
+                          strokeWidth={2}
+                          dot={{ r: 3 }}
+                          connectNulls={false}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="mt-2 text-xs text-zinc-500">
+                    Somme annuelle (2020-2025) en {company.currency}
+                  </div>
+                </div>
 
-                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-                    <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
-                    <DatesTimeline items={last5Years} fmtDate={fmtDate} />
-                  </div>
+                <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                  <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
+                  <DatesTimeline items={last5Years} fmtDate={fmtDate} />
                 </div>
 
                 <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
