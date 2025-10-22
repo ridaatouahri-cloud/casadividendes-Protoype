@@ -638,7 +638,9 @@ export default function CompanyPage() {
                         <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
                         <XAxis dataKey="label" hide /><YAxis stroke="#a1a1aa" />
                         <Legend />
-                        <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                        <RTooltip
+  contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }}
+/>
                         <Bar dataKey="dividendsCum" name="Dividendes cumulés" fill="#eab308" />
                       </BarChart>
                     </ResponsiveContainer>
