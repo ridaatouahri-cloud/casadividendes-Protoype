@@ -614,9 +614,8 @@ export default function Company() {
                     />
                   </div>
                   <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
-                    <strong>Disclaimer :</strong> Ces informations sont fournies à titre
-                    indicatif et ne constituent pas un conseil financier. Faites vos propres
-                    recherches.
+                    <strong>Disclaimer :</strong> Les informations présentées sur cette page ont une vocation purement informative et ne doivent pas être interprétées comme un conseil en investissement ou une recommandation personnalisée.
+Nous vous invitons à effectuer vos propres vérifications ou à solliciter l’avis d’un conseiller financier qualifié avant toute décision d’investissement.
                   </div>
                 </div>
               </section>
