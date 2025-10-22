@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer,
@@ -8,20 +9,13 @@ import {
   ExternalLink, Calendar, Percent, Hash, Award
 } from "lucide-react";
 
+/** =========================
+ *  Constantes & helpers
+ *  ========================= */
 const DAY_MS = 86400000;
+const BASE = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.BASE_URL) || "";
 
-function FlipButton({ onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-5 h-5 rounded-full border border-zinc-700 bg-zinc-800/50 hover:border-teal-500/50 hover:bg-teal-500/10 flex items-center justify-center text-zinc-400 hover:text-teal-300 transition-all duration-300"
-      aria-label="Plus d'informations"
-    >
-      <span className="text-sm font-semibold">+</span>
-    </button>
-  );
-}
-
+/** Convertit ISO en day-of-year (1..366) */
 function toDayOfYear(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return null;
@@ -29,19 +23,16 @@ function toDayOfYear(iso) {
   return Math.floor((d - start) / DAY_MS);
 }
 
+/** Day-of-year -> Date (année donnée) */
 function dayOfYearToDate(day, year = new Date().getFullYear()) {
   const d = new Date(year, 0);
   d.setDate(day);
   return d;
 }
 
-function monthFromDayOfYear(day, year = new Date().getFullYear()) {
-  const d = dayOfYearToDate(day, year);
-  return d.getMonth() + 1;
-}
-
+/** Day-of-year -> libellé "début/mi/fin mois" (FR) */
 function dayToRoughDate(n, refYear = 2024) {
-  if (n == null) return "---";
+  if (n == null) return "—";
   const d = dayOfYearToDate(n, refYear);
   const m = d.toLocaleString("fr-FR", { month: "long" });
   const dd = d.getDate();
@@ -54,15 +45,272 @@ function ratio(b, a) {
   return (b - a) / a;
 }
 
-const mockDividends = [
-  { year: 2020, amount: 12.5, exDate: "2020-06-15", pay: "2020-06-30" },
-  { year: 2021, amount: 13.2, exDate: "2021-06-10", pay: "2021-06-25" },
-  { year: 2022, amount: 14.8, exDate: "2022-06-12", pay: "2022-06-28" },
-  { year: 2023, amount: 15.5, exDate: "2023-06-08", pay: "2023-06-23" },
-  { year: 2024, amount: 16.8, exDate: "2024-06-14", pay: "2024-06-29" },
-];
+/** Normalise chaîne (pour matching approx.) */
+function norm(s) {
+  return (s || "").toString().toLowerCase().trim();
+}
 
+/** Sélecteur date ISO courte */
+function fmtDateISO(iso) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return isNaN(d) ? "—" : d.toISOString().split("T")[0];
+}
+
+/** =========================
+ *  Hooks DATA (nouvelle couche)
+ *  ========================= */
+
+/**
+ * Lit la route pour extraire soit :ticker (prioritaire) soit :company (fallback via state/query)
+ * - On privilégie le paramètre d'URL "ticker" s'il existe.
+ * - Sinon on tente location.state?.company ou query ?company=
+ */
+function useCompanyFromRoute() {
+  const params = useParams();
+  const location = useLocation();
+
+  // URLSearchParams pour fallback ?ticker= / ?company=
+  const usp = new URLSearchParams(location.search || "");
+  const routeTicker = params?.ticker || usp.get("ticker") || "";
+  const stateCompany = location?.state?.company || usp.get("company") || "";
+
+  return {
+    ticker: routeTicker ? routeTicker.toUpperCase() : "",
+    company: stateCompany || "",
+  };
+}
+
+/**
+ * Charge et fusionne les dividendes 2020→2024 (+ 2025 si dispo) au format à plat.
+ * Filtre par ticker (insensible à la casse) OU par company exact si pas de ticker.
+ * Map -> { year, exDate, paymentDate, amount }
+ * Trie par year puis exDate croissant.
+ * Construit:
+ *  - yearlySeries2020to2025: [{year, total|null}]
+ *  - last5YearsDates: [{ year, exDate, pay }]
+ *  - latestExDate, latestPaymentDate
+ */
+function useDividendsData(targetTicker, fallbackCompanyExact) {
+  const [state, setState] = useState({
+    loading: true,
+    error: null,
+    raw: [],
+    yearlySeries2020to2025: [],
+    last5YearsDates: [],
+    latestExDate: null,
+    latestPaymentDate: null,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    const ac = new AbortController();
+
+    (async () => {
+      setState((s) => ({ ...s, loading: true, error: null }));
+
+      // Liste des années à tenter (2020→2025). 2025 est facultatif.
+      const years = [2020, 2021, 2022, 2023, 2024, 2025];
+
+      try {
+        // Fetch en parallèle — 404 toléré pour 2025
+        const results = await Promise.all(
+          years.map(async (y) => {
+            const url = `${BASE}data/dividends/${y}.json`;
+            try {
+              const res = await fetch(url, { signal: ac.signal });
+              if (!res.ok) {
+                // Si 2025 manque (404), on ignore ; sinon on lève pour autres erreurs
+                if (y === 2025 && res.status === 404) return [];
+                throw new Error(`HTTP ${res.status} @ ${url}`);
+              }
+              const arr = await res.json();
+              if (!Array.isArray(arr)) return [];
+              // Ajout du champ "year" s'il manque
+              return arr.map((r) => ({ year: r.year ?? y, ...r }));
+            } catch (e) {
+              if (y === 2025) return []; // tolérer l'absence 2025
+              throw e;
+            }
+          })
+        );
+
+        // Fusion brute
+        const flat = results.flat();
+
+        // Filtrage par ticker (prioritaire) sinon company exact
+        let filtered = flat;
+        const tgtTicker = norm(targetTicker);
+        const tgtCompany = norm(fallbackCompanyExact);
+
+        if (tgtTicker) {
+          filtered = flat.filter((r) => norm(r.ticker) === tgtTicker);
+        } else if (tgtCompany) {
+          // company "exact" : on normalise pour éviter les maj/min
+          filtered = flat.filter((r) => norm(r.company) === tgtCompany);
+        }
+
+        // Mapping -> {year, exDate, paymentDate, amount}
+        const mapped = filtered.map((r) => ({
+          year: Number(r.year),
+          exDate: r.exDate || r.exdate || r.detachmentDate || null,
+          paymentDate: r.paymentDate || r.pay || r.payment || null,
+          amount: Number(r.dividend ?? r.amount ?? 0),
+          _company: r.company || null, // pour fallback metadata
+          _ticker: r.ticker || null,
+        }));
+
+        // Tri par year puis exDate (croissant)
+        mapped.sort((a, b) => {
+          if (a.year !== b.year) return a.year - b.year;
+          const ad = a.exDate ? new Date(a.exDate).getTime() : 0;
+          const bd = b.exDate ? new Date(b.exDate).getTime() : 0;
+          return ad - bd;
+        });
+
+        // Série annuelle 2020→2025, somme par année (null si aucune donnée l'année)
+        const totalsByYear = new Map();
+        for (const d of mapped) {
+          const k = Number(d.year);
+          if (!totalsByYear.has(k)) totalsByYear.set(k, 0);
+          totalsByYear.set(k, totalsByYear.get(k) + (isFinite(d.amount) ? d.amount : 0));
+        }
+        const yearlySeries2020to2025 = [];
+        for (let y = 2020; y <= 2025; y++) {
+          const val = totalsByYear.has(y) ? Number(totalsByYear.get(y).toFixed(2)) : null;
+          yearlySeries2020to2025.push({ year: y, total: val });
+        }
+
+        // Détails (timeline) : extraire dernières années distinctes (max 5), avec exDate et paymentDate
+        const byYearMap = new Map();
+        for (const d of mapped) {
+          // on garde la dernière ligne de l'année (car tri croissant, on écrase)
+          byYearMap.set(d.year, d);
+        }
+        const yearsAvailable = Array.from(byYearMap.keys()).sort((a, b) => a - b);
+        const last5Years = yearsAvailable.slice(-5); // dernières 5 années
+        const last5YearsDates = last5Years.map((y) => {
+          const d = byYearMap.get(y);
+          return {
+            year: y,
+            exDate: d?.exDate || null,
+            pay: d?.paymentDate || null,
+          };
+        });
+
+        // Derniers exDate et paymentDate réels (année la plus récente disponible)
+        const latestYear = yearsAvailable.length ? yearsAvailable[yearsAvailable.length - 1] : null;
+        const latestExDate = latestYear ? byYearMap.get(latestYear)?.exDate || null : null;
+        const latestPaymentDate = latestYear ? byYearMap.get(latestYear)?.paymentDate || null : null;
+
+        if (!cancelled) {
+          setState({
+            loading: false,
+            error: null,
+            raw: mapped,
+            yearlySeries2020to2025,
+            last5YearsDates,
+            latestExDate,
+            latestPaymentDate,
+          });
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setState((s) => ({ ...s, loading: false, error: err?.message || "Erreur de chargement" }));
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      ac.abort();
+    };
+  }, [targetTicker, fallbackCompanyExact]);
+
+  return state;
+}
+
+/**
+ * Charge companies.json et renvoie les métadonnées de la société :
+ * { ticker, isin, name, sector, compartment, shares_outstanding }
+ * Matching:
+ *  1) par ticker exact (insensible à la casse)
+ *  2) fallback: par nom approx. (égalité stricte normalisée, sinon "includes")
+ */
+function useCompanyMeta(tickerMaybe, fallbackCompany) {
+  const [meta, setMeta] = useState({
+    loading: true,
+    error: null,
+    data: {
+      ticker: tickerMaybe || null,
+      isin: null,
+      name: fallbackCompany || null,
+      sector: null,
+      compartment: null,
+      shares_outstanding: null,
+    },
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    const ac = new AbortController();
+
+    (async () => {
+      setMeta((m) => ({ ...m, loading: true, error: null }));
+      try {
+        const url = `${BASE}data/listing/companies.json`;
+        const res = await fetch(url, { signal: ac.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status} @ ${url}`);
+        const arr = await res.json();
+        const list = Array.isArray(arr) ? arr : [];
+
+        const tnorm = norm(tickerMaybe);
+        const cnorm = norm(fallbackCompany);
+
+        let match = null;
+        if (tnorm) {
+          match = list.find((x) => norm(x.ticker) === tnorm) || null;
+        }
+        if (!match && cnorm) {
+          match =
+            list.find((x) => norm(x.name) === cnorm) ||
+            list.find((x) => norm(x.name).includes(cnorm)) ||
+            null;
+        }
+
+        const data = {
+          ticker: match?.ticker || (tickerMaybe || null),
+          isin: match?.isin || null,
+          name: match?.name || (fallbackCompany || null),
+          sector: match?.sector || null,
+          compartment: match?.compartment || null,
+          shares_outstanding: match?.shares_outstanding ?? null,
+        };
+
+        if (!cancelled) {
+          setMeta({ loading: false, error: null, data });
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setMeta((m) => ({ ...m, loading: false, error: e?.message || "Erreur meta" }));
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      ac.abort();
+    };
+  }, [tickerMaybe, fallbackCompany]);
+
+  return meta;
+}
+
+/** =========================
+ *  Compute KPIs (inchangé)
+ *  ========================= */
 function computeKpis(divs) {
+  // NOTE: logique intacte ; on alimente avec {year, amount, exDate, paymentDate}
   const byYear = {};
   for (const d of divs) {
     byYear[d.year] = (byYear[d.year] || 0) + Number(d.amount || 0);
@@ -146,7 +394,7 @@ function computeKpis(divs) {
   const prtDaysArr = last3
     .map((d) => {
       const a = d.exDate ? new Date(d.exDate) : null;
-      const b = d.pay ? new Date(d.pay) : null;
+      const b = d.paymentDate ? new Date(d.paymentDate) : null;
       return a && b ? Math.max(1, Math.round((b - a) / DAY_MS)) : 21;
     })
     .reverse();
@@ -206,34 +454,20 @@ function computeKpis(divs) {
   return { cdrsDetail, CDRS_total, prtAvg, prtScore, ndf };
 }
 
+/** =========================
+ *  Composant principal (UI inchangée)
+ *  ========================= */
 export default function Company() {
-  const company = {
-    ticker: "ATW",
-    name: "ATTIJARIWAFA BANK",
-    sector: "Banques",
-    isin: "MA0000011884",
-    price: 480,
-    currency: "MAD",
-    logo: "https://via.placeholder.com/48/14b8a6/ffffff?text=ATW",
-    dividendYield: 3.5,
-    payoutRatio: 45,
-    frequency: "Annuel"
-  };
+  const { ticker: routeTicker, company: routeCompany } = useCompanyFromRoute();
 
-  const loading = false;
-  const divs = mockDividends;
+  // Charge métadonnées
+  const meta = useCompanyMeta(routeTicker, routeCompany);
 
-  const yearly = useMemo(() => {
-    const map = new Map();
-    for (const d of divs) {
-      map.set(d.year, (map.get(d.year) || 0) + Number(d.amount || 0));
-    }
-    const result = [];
-    for (let y = 2020; y <= 2025; y++) {
-      result.push({ year: y, total: map.get(y) ? Number(map.get(y).toFixed(2)) : null });
-    }
-    return result;
-  }, [divs]);
+  // Charge dividendes (fusion 2020→2025)
+  const divsState = useDividendsData(routeTicker, routeCompany);
+
+  // Dérivés UI (inchangés)
+  const yearly = useMemo(() => divsState.yearlySeries2020to2025, [divsState.yearlySeries2020to2025]);
 
   const cagr = useMemo(() => {
     const valid = yearly.filter((y) => y.total && y.total > 0);
@@ -246,19 +480,9 @@ export default function Company() {
     return Number(((Math.pow(last.total / first.total, 1 / n) - 1) * 100).toFixed(1));
   }, [yearly]);
 
-  const last5Years = useMemo(() => {
-    const sorted = [...divs].sort((a, b) => b.year - a.year);
-    const years = [];
-    for (const d of sorted) {
-      if (!years.find((y) => y.year === d.year)) {
-        years.push(d);
-        if (years.length === 5) break;
-      }
-    }
-    return years.reverse();
-  }, [divs]);
+  const last5Years = useMemo(() => divsState.last5YearsDates, [divsState.last5YearsDates]);
 
-  const kpis = useMemo(() => computeKpis(divs), [divs]);
+  const kpis = useMemo(() => computeKpis(divsState.raw), [divsState.raw]);
 
   const [profile, setProfile] = useState("equilibre");
   const weights = {
@@ -268,14 +492,15 @@ export default function Company() {
   }[profile];
 
   const cdScore = Math.round(
-    kpis.CDRS_total * weights.a +
-      kpis.prtScore * weights.b +
-      (kpis.ndf?.confidence || 0) * weights.c
+    (kpis.CDRS_total || 0) * weights.a +
+    (kpis.prtScore || 0) * weights.b +
+    (kpis.ndf?.confidence || 0) * weights.c
   );
 
-  const reliabilityBadge = kpis.CDRS_total >= 80 ? "Excellente" : kpis.CDRS_total >= 65 ? "Solide" : "À surveiller";
-  const reliabilityColor = kpis.CDRS_total >= 80 ? "text-emerald-400" : kpis.CDRS_total >= 65 ? "text-teal-400" : "text-amber-400";
+  const reliabilityBadge = (kpis.CDRS_total ?? 0) >= 80 ? "Excellente" : (kpis.CDRS_total ?? 0) >= 65 ? "Solide" : "À surveiller";
+  const reliabilityColor = (kpis.CDRS_total ?? 0) >= 80 ? "text-emerald-400" : (kpis.CDRS_total ?? 0) >= 65 ? "text-teal-400" : "text-amber-400";
 
+  // Séquence animations (inchangée)
   const [phase, setPhase] = useState("idle");
   const [bannerMsg, setBannerMsg] = useState("");
   const [progReg, setProgReg] = useState(0);
@@ -305,7 +530,7 @@ export default function Company() {
   };
 
   const startSequence = () => {
-    if (loading || phase !== "idle") return;
+    if (divsState.loading || phase !== "idle") return;
     resetSequence();
     setPhase("cdrs");
   };
@@ -331,11 +556,11 @@ export default function Company() {
     setBannerMsg("C-DRS : Régularité → Croissance → Stabilité → Magnitude...");
     setCdrsRing(0);
     (async () => {
-      await animateTo(Math.round(kpis.cdrsDetail.regularite), 700, setProgReg);
-      await animateTo(Math.round(kpis.cdrsDetail.croissance), 800, setProgCroiss);
-      await animateTo(Math.round(kpis.cdrsDetail.stabilite), 700, setProgStab);
-      await animateTo(Math.round(kpis.cdrsDetail.magnitude), 600, setProgMag);
-      await animateTo(Math.max(1, kpis.CDRS_total), 800, setCdrsRing);
+      await animateTo(Math.round(kpis.cdrsDetail?.regularite || 0), 700, setProgReg);
+      await animateTo(Math.round(kpis.cdrsDetail?.croissance || 0), 800, setProgCroiss);
+      await animateTo(Math.round(kpis.cdrsDetail?.stabilite || 0), 700, setProgStab);
+      await animateTo(Math.round(kpis.cdrsDetail?.magnitude || 0), 600, setProgMag);
+      await animateTo(Math.max(1, kpis.CDRS_total || 0), 800, setCdrsRing);
       setTimeout(() => setPhase("prt"), 250);
     })();
   }, [phase, kpis]);
@@ -344,14 +569,14 @@ export default function Company() {
     if (phase !== "prt" || cdrsRing <= 0) return;
     setBannerMsg("PRT : calcul du temps moyen de recovery...");
     let day = 0;
-    const target = Math.max(1, Math.round(kpis.prtAvg));
+    const target = Math.max(1, Math.round(kpis.prtAvg || 0));
     const id = setInterval(() => {
       day++;
       setPrtCounter(day);
       if (day >= target) {
         clearInterval(id);
         setTimeout(async () => {
-          await animateTo(kpis.prtScore, 900, setPrtScoreView);
+          await animateTo(kpis.prtScore || 0, 900, setPrtScoreView);
           setPhase("ndf");
         }, 300);
       }
@@ -367,13 +592,11 @@ export default function Company() {
     const t2 = setTimeout(() => setNdfStep(3), 1700);
     const t3 = setTimeout(async () => {
       setNdfStep(4);
-      await animateTo(Math.round(kpis.ndf.confidence || 0), 900, setNdfConfView);
+      await animateTo(Math.round(kpis.ndf?.confidence || 0), 900, setNdfConfView);
       setPhase("final");
     }, 2500);
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
     };
   }, [phase, kpis]);
 
@@ -381,18 +604,28 @@ export default function Company() {
     if (phase !== "final") return;
     setBannerMsg("Calcul du score global (profil) ...");
     (async () => {
-      await animateTo(cdScore, 1000, setGlobalView);
+      await animateTo(cdScore || 0, 1000, setGlobalView);
       setTimeout(() => setBannerMsg(""), 800);
     })();
   }, [phase, cdScore]);
 
-  const fmtMAD = (v) =>
-    v == null ? "—" : `${Number(v).toFixed(2)} ${company.currency}`;
-  const fmtDate = (iso) => {
-    if (!iso) return "—";
-    const d = new Date(iso);
-    return isNaN(d) ? "—" : d.toISOString().split('T')[0];
+  const company = {
+    ticker: meta.data.ticker || (routeTicker || "—"),
+    name: meta.data.name || (routeCompany || "—"),
+    sector: meta.data.sector || "—",
+    isin: meta.data.isin || "—",
+    price: null, // placeholder (non fourni par les JSON)
+    currency: "MAD",
+    logo: "https://via.placeholder.com/48/14b8a6/ffffff?text=" + (meta.data.ticker || "CD"),
+    dividendYield: null, // placeholder
+    payoutRatio: null,   // placeholder
+    frequency: "Annuel"  // hypothèse par défaut
   };
+
+  const loadingAny = meta.loading || divsState.loading;
+  const hasError = meta.error || divsState.error;
+
+  const fmtMAD = (v) => (v == null ? "—" : `${Number(v).toFixed(2)} ${company.currency}`);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 text-zinc-100 p-4 sm:p-6 lg:p-8">
@@ -403,6 +636,7 @@ export default function Company() {
             <button
               className="p-2 rounded-lg bg-zinc-900/60 border border-zinc-800 hover:border-teal-500/40 transition-colors duration-300"
               aria-label="Retour"
+              onClick={() => window.history.back()}
             >
               <ArrowLeft className="w-4 h-4" />
             </button>
@@ -412,9 +646,9 @@ export default function Company() {
               className="w-10 h-10 rounded-lg border border-zinc-800 bg-zinc-900/70 object-contain"
             />
             <div className="flex-1">
-              <h1 className="text-xl font-semibold tracking-tight">{company.name}</h1>
+              <h1 className="text-xl font-semibold tracking-tight">{company.name || "—"}</h1>
               <div className="text-xs text-zinc-400">
-                {company.ticker} • {company.sector}
+                {(company.ticker || "—")} • {(company.sector || "—")}
               </div>
             </div>
             <div className="flex gap-2">
@@ -472,8 +706,8 @@ export default function Company() {
               </div>
 
               <div className="space-y-2 text-xs">
-                <InfoRow icon={<Hash className="w-3.5 h-3.5" />} label="Ticker" value={company.ticker} />
-                <InfoRow icon={<Award className="w-3.5 h-3.5" />} label="Secteur" value={company.sector} />
+                <InfoRow icon={<Hash className="w-3.5 h-3.5" />} label="Ticker" value={company.ticker || "—"} />
+                <InfoRow icon={<Award className="w-3.5 h-3.5" />} label="Secteur" value={company.sector || "—"} />
                 <InfoRow icon={<Hash className="w-3.5 h-3.5" />} label="ISIN" value={company.isin || "—"} />
                 
                 <div className="h-px bg-white/5 my-3"></div>
@@ -485,13 +719,13 @@ export default function Company() {
                 
                 <div className="h-px bg-white/5 my-3"></div>
                 
-                <InfoRow label="Ex-date" value={last5Years.length > 0 ? fmtDate(last5Years[last5Years.length - 1].exDate) : "—"} />
-                <InfoRow label="Paiement" value={last5Years.length > 0 ? fmtDate(last5Years[last5Years.length - 1].pay) : "—"} />
+                <InfoRow label="Ex-date" value={divsState.latestExDate ? fmtDateISO(divsState.latestExDate) : "—"} />
+                <InfoRow label="Paiement" value={divsState.latestPaymentDate ? fmtDateISO(divsState.latestPaymentDate) : "—"} />
                 
                 <div className="h-px bg-white/5 my-3"></div>
                 
-                <InfoRow label="Prochain div." value={kpis.ndf.probable ? fmtMAD(kpis.ndf.probable) : "—"} />
-                <InfoRow label="Date estimée" value={kpis.ndf.exDate || "—"} />
+                <InfoRow label="Prochain div." value={kpis.ndf?.probable ? fmtMAD(kpis.ndf.probable) : "—"} />
+                <InfoRow label="Date estimée" value={kpis.ndf?.exDate || "—"} />
                 
                 <div className="h-px bg-white/5 my-3"></div>
                 
@@ -506,40 +740,48 @@ export default function Company() {
                 <QuickLink icon={<Calendar className="w-3 h-3" />} label="Calendrier" />
                 <QuickLink icon={<TrendingUp className="w-3 h-3" />} label="DRIP" />
               </div>
+
+              {hasError && (
+                <div className="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/30 rounded-lg p-2">
+                  {meta.error || divsState.error}
+                </div>
+              )}
             </aside>
 
             <main className="flex-1 p-4 sm:p-6 space-y-4">
+              {/* Cartes KPI */}
               <section className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <CDRSCard
-                  loading={loading}
-                  detail={kpis.cdrsDetail}
+                  loading={loadingAny}
+                  detail={kpis.cdrsDetail || { regularite: 0, croissance: 0, stabilite: 0, magnitude: 0 }}
                   progress={{
-                    reg: progReg,
-                    croiss: progCroiss,
-                    stab: progStab,
-                    mag: progMag,
+                    reg: loadingAny ? 0 : undefined,
+                    croiss: loadingAny ? 0 : undefined,
+                    stab: loadingAny ? 0 : undefined,
+                    mag: loadingAny ? 0 : undefined,
                   }}
-                  ringProgress={cdrsRing}
+                  ringProgress={globalView > 0 ? globalView : 0}
                   onStart={startSequence}
                   running={phase !== "idle"}
                 />
                 <PRTCard
-                  loading={loading}
-                  prtAvg={Math.round(kpis.prtAvg)}
-                  score={kpis.prtScore}
+                  loading={loadingAny}
+                  prtAvg={Math.round(kpis.prtAvg || 0)}
+                  score={kpis.prtScore || 0}
                   daysProgress={prtCounter}
                   scoreProgress={prtScoreView}
-                  active={phase === "prt" || (phase !== "idle" && cdrsRing > 0)}
+                  active={phase === "prt" || (phase !== "idle" && (cdrsRing || 0) > 0)}
                 />
                 <NDFCard
-                  loading={loading}
-                  ndf={kpis.ndf}
+                  loading={loadingAny}
+                  ndf={kpis.ndf || { probable: 0, min: 0, max: 0, exDate: "—", confidence: 0 }}
                   step={ndfStep}
                   confProgress={ndfConfView}
                   active={phase !== "idle" && prtScoreView > 0}
                 />
               </section>
 
+              {/* Historique + Détails paiements */}
               <div className="grid lg:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                   <div className="flex items-center justify-between mb-3">
@@ -580,12 +822,12 @@ export default function Company() {
 
                 <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                   <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
-                  <DatesTimeline items={last5Years} fmtDate={fmtDate} />
+                  <DatesTimeline items={last5Years} fmtDate={(d) => fmtDateISO(d)} />
                 </div>
               </div>
 
+              {/* Stratégie recommandée */}
               <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-
                 <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                   <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
                   <div className="grid md:grid-cols-3 gap-3">
@@ -633,6 +875,10 @@ export default function Company() {
   );
 }
 
+/** =========================
+ *  Composants UI (inchangés)
+ *  ========================= */
+
 function InfoRow({ icon, label, value }) {
   return (
     <div className="flex items-center justify-between gap-2">
@@ -652,10 +898,10 @@ function QuickLink({ icon, label }) {
   );
 }
 
-function CDRSCard({ loading, detail, progress, ringProgress, onStart }) {
+function CDRSCard({ loading, detail, progress = {}, ringProgress = 0, onStart }) {
   const [flipped, setFlipped] = useState(false);
   const total = Math.round(
-    detail.regularite + detail.croissance + detail.stabilite + detail.magnitude
+    (detail.regularite || 0) + (detail.croissance || 0) + (detail.stabilite || 0) + (detail.magnitude || 0)
   );
   const size = 90;
   const stroke = 7;
@@ -664,10 +910,10 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart }) {
   const off = c * (1 - Math.min(100, ringProgress) / 100);
 
   const steps = [
-    { label: "Régularité", vNow: progress.reg, vFull: Math.round(detail.regularite), color: "#22d3ee" },
-    { label: "Croissance", vNow: progress.croiss, vFull: Math.round(detail.croissance), color: "#14b8a6" },
-    { label: "Stabilité", vNow: progress.stab, vFull: Math.round(detail.stabilite), color: "#f59e0b" },
-    { label: "Magnitude", vNow: progress.mag, vFull: Math.round(detail.magnitude), color: "#eab308" },
+    { label: "Régularité", vNow: progress.reg ?? 0, vFull: Math.round(detail.regularite || 0), color: "#22d3ee" },
+    { label: "Croissance", vNow: progress.croiss ?? 0, vFull: Math.round(detail.croissance || 0), color: "#14b8a6" },
+    { label: "Stabilité", vNow: progress.stab ?? 0, vFull: Math.round(detail.stabilite || 0), color: "#f59e0b" },
+    { label: "Magnitude", vNow: progress.mag ?? 0, vFull: Math.round(detail.magnitude || 0), color: "#eab308" },
   ];
 
   const infoPoints = [
@@ -737,7 +983,7 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart }) {
                         <div
                           className="h-1 rounded-full"
                           style={{
-                            width: `${(vNow / Math.max(1, vFull)) * 100}%`,
+                            width: `${(Math.min(vNow, vFull) / Math.max(1, vFull)) * 100}%`,
                             background: color,
                             transition: "width .3s ease-out",
                           }}
@@ -785,7 +1031,12 @@ function CDRSCard({ loading, detail, progress, ringProgress, onStart }) {
             </div>
             <div className="text-xs text-zinc-400 mb-3">Casa-Dividend Reliability Score</div>
             <ul className="space-y-2 text-[10px] text-zinc-300 leading-relaxed flex-1">
-              {infoPoints.map((p, i) => (
+              {[
+                "Régularité : paiement constant sur 5 ans",
+                "Croissance : augmentation progressive",
+                "Stabilité : faible volatilité des montants",
+                "Magnitude : niveau et tendance du dividende",
+              ].map((p, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-teal-400 shrink-0">•</span>
                   <span>{p}</span>
@@ -855,18 +1106,18 @@ function PRTCard({ loading, prtAvg, daysProgress, scoreProgress, active }) {
                   )}
                   <div
                     className={`h-2.5 rounded-full transition-[width] duration-200 ${barColor}`}
-                    style={{ width: `${Math.min(100, (daysProgress / Math.max(1, prtAvg)) * 100)}%` }}
+                    style={{ width: `${Math.min(100, (daysProgress / Math.max(1, prtAvg || 1)) * 100)}%` }}
                   />
                 </div>
                 <div className="mt-1.5 text-xs text-zinc-400 flex items-center justify-between">
                   <span>Recovery moyen</span>
-                  <span className="text-zinc-300">{Math.min(daysProgress, prtAvg)} / {prtAvg} jours</span>
+                  <span className="text-zinc-300">{Math.min(daysProgress || 0, prtAvg || 0)} / {prtAvg || 0} jours</span>
                 </div>
               </div>
 
               <div className="mt-2.5">
                 <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
-                  <div className={`h-1.5 transition-[width] duration-200 ${barColor}`} style={{ width: `${scoreProgress}%` }} />
+                  <div className={`h-1.5 transition-[width] duration-200 ${barColor}`} style={{ width: `${scoreProgress || 0}%` }} />
                 </div>
                 <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
                   <span>Score PRT</span>
@@ -964,7 +1215,7 @@ function NDFCard({ loading, ndf, step, confProgress, active }) {
                 </div>
                 <div>
                   <div className="text-zinc-500 text-[10px] mb-1">Ex-date estimée</div>
-                  <div className="font-medium text-zinc-200">{step >= 3 ? ndf?.exDate || "—" : "..."}</div>
+                  <div className="font-medium text-zinc-200">{step >= 3 ? (ndf?.exDate || "—") : "..."}</div>
                 </div>
               </div>
 
@@ -979,7 +1230,7 @@ function NDFCard({ loading, ndf, step, confProgress, active }) {
                   )}
                   <div
                     className="h-1.5 bg-teal-500/70 rounded-full transition-[width] duration-200"
-                    style={{ width: `${confProgress}%` }}
+                    style={{ width: `${confProgress || 0}%` }}
                   />
                 </div>
                 <div className="mt-1 text-xs text-zinc-400 flex items-center justify-between">
@@ -1016,7 +1267,12 @@ function NDFCard({ loading, ndf, step, confProgress, active }) {
             </div>
             <div className="text-xs text-zinc-400 mb-3">Next Dividend Forecast</div>
             <ul className="space-y-2 text-[10px] text-zinc-300 leading-relaxed flex-1">
-              {infoPoints.map((p, i) => (
+              {[
+                "Montant probable via croissance pondérée des dernières années",
+                "Fourchette basée sur la volatilité historique (capée)",
+                "Ex-date estimée par pattern de dates passées",
+                "Confiance = régularité + stabilité + tendance de croissance",
+              ].map((p, i) => (
                 <li key={i} className="flex gap-2">
                   <span className="text-teal-400 shrink-0">•</span>
                   <span>{p}</span>
@@ -1035,7 +1291,7 @@ function CDScoreMiniGauge({ value, progress }) {
   const stroke = 6;
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const off = c * (1 - Math.min(100, progress) / 100);
+  const off = c * (1 - Math.min(100, progress || 0) / 100);
 
   return (
     <div className="relative flex items-center justify-center">
@@ -1059,7 +1315,7 @@ function CDScoreMiniGauge({ value, progress }) {
   );
 }
 
-function DatesTimeline({ items, fmtDate }) {
+function DatesTimeline({ items = [], fmtDate }) {
   return (
     <div className="space-y-2.5">
       <div>
@@ -1110,5 +1366,17 @@ function StrategyCard({ title, points = [] }) {
         ))}
       </ul>
     </div>
+  );
+}
+
+function FlipButton({ onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-5 h-5 rounded-full border border-zinc-700 bg-zinc-800/50 hover:border-teal-500/50 hover:bg-teal-500/10 flex items-center justify-center text-zinc-400 hover:text-teal-300 transition-all duration-300"
+      aria-label="Plus d'informations"
+    >
+      <span className="text-sm font-semibold">+</span>
+    </button>
   );
 }
