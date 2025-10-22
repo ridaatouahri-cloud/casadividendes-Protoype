@@ -814,7 +814,7 @@ function PRTCard({ loading, prtAvg, daysProgress, scoreProgress, active }) {
   ];
 
   return (
-    <div className="relative h-full min-h-[280px]" style={{ perspective: "1000px" }}>
+    <div className="relative h-full" style={{ perspective: "1000px" }}>
       <div
         className="relative w-full h-full transition-transform duration-700 ease-in-out"
         style={{
@@ -921,7 +921,7 @@ function NDFCard({ loading, ndf, step, confProgress, active }) {
   ];
 
   return (
-    <div className="relative h-full min-h-[280px]" style={{ perspective: "1000px" }}>
+    <div className="relative h-full" style={{ perspective: "1000px" }}>
       <div
         className="relative w-full h-full transition-transform duration-700 ease-in-out"
         style={{
