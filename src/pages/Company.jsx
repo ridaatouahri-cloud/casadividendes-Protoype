@@ -540,7 +540,7 @@ export default function Company() {
                 />
               </section>
 
-              <section className="space-y-4">
+              <section className="grid lg:grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="text-sm font-semibold">Historique des dividendes</h3>
@@ -582,6 +582,9 @@ export default function Company() {
                   <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
                   <DatesTimeline items={last5Years} fmtDate={fmtDate} />
                 </div>
+              </section>
+
+              <section className="space-y-4">
 
                 <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                   <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
