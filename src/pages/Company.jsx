@@ -620,7 +620,6 @@ export default function Company() {
                     recherches.
                   </div>
                 </div>
-              </section>
             </main>
           </div>
 
