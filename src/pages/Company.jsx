@@ -541,8 +541,8 @@ export default function Company() {
               </section>
 
               <section className="space-y-4">
-                <div className="grid lg:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                <div className="flex flex-col-reverse lg:flex-row gap-4">
+                  <div className="flex-1 lg:w-[60%] p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-semibold">Historique des dividendes</h3>
                       <div className="text-xs text-zinc-400 flex items-center gap-1.5">
@@ -579,7 +579,7 @@ export default function Company() {
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                  <div className="flex-1 lg:w-[40%] p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 lg:sticky lg:top-6 lg:self-start">
                     <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
                     <DatesTimeline items={last5Years} fmtDate={fmtDate} />
                   </div>
