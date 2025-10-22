@@ -54,13 +54,129 @@ function ratio(b, a) {
   return (b - a) / a;
 }
 
-const mockDividends = [
-  { year: 2020, amount: 12.5, exDate: "2020-06-15", pay: "2020-06-30" },
-  { year: 2021, amount: 13.2, exDate: "2021-06-10", pay: "2021-06-25" },
-  { year: 2022, amount: 14.8, exDate: "2022-06-12", pay: "2022-06-28" },
-  { year: 2023, amount: 15.5, exDate: "2023-06-08", pay: "2023-06-23" },
-  { year: 2024, amount: 16.8, exDate: "2024-06-14", pay: "2024-06-29" },
-];
+function useCompanyFromRoute() {
+  const [companyData, setCompanyData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchCompanyData = async () => {
+      try {
+        const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
+        const ticker = (params.get("ticker") || "ATW").toUpperCase();
+        
+        const response = await fetch("/data/listing/companies.json");
+        const companies = await response.json();
+        const company = companies.find(c => c.ticker.toUpperCase() === ticker);
+        
+        if (company) {
+          setCompanyData({
+            ticker: company.ticker,
+            name: company.name,
+            sector: company.sector,
+            isin: company.isin,
+            shares_outstanding: company.shares_outstanding,
+            compartment: company.compartment,
+            price: 480,
+            currency: "MAD",
+            logo: `/logos/${company.ticker}.svg`,
+            dividendYield: 3.5,
+            payoutRatio: 45,
+            frequency: "Annuel"
+          });
+        } else {
+          setCompanyData({
+            ticker: ticker,
+            name: ticker,
+            sector: "—",
+            isin: "—",
+            price: 480,
+            currency: "MAD",
+            logo: `/logos/${ticker}.svg`,
+            dividendYield: null,
+            payoutRatio: null,
+            frequency: "—"
+          });
+        }
+      } catch (error) {
+        console.error("Error loading company data:", error);
+        const params = new URLSearchParams(window.location.hash.split("?")[1] || "");
+        const ticker = (params.get("ticker") || "ATW").toUpperCase();
+        setCompanyData({
+          ticker: ticker,
+          name: ticker,
+          sector: "—",
+          isin: "—",
+          price: 480,
+          currency: "MAD",
+          logo: `/logos/${ticker}.svg`,
+          dividendYield: null,
+          payoutRatio: null,
+          frequency: "—"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchCompanyData();
+  }, []);
+  
+  return { companyData, loading: loading };
+}
+
+function useDividendsData(ticker) {
+  const [loading, setLoading] = useState(true);
+  const [divs, setDivs] = useState([]);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const YEARS = [2020, 2021, 2022, 2023, 2024];
+        const all = [];
+
+        for (const y of YEARS) {
+          try {
+            const res = await fetch(`/data/dividends/${y}.json`);
+            if (!res.ok) continue;
+            const arr = await res.json();
+
+            const matching = arr.filter(
+              (r) =>
+                String(r.ticker).toUpperCase() === ticker.toUpperCase()
+            );
+
+            for (const row of matching) {
+              all.push({
+                year: row.year || y,
+                amount: Number(row.dividend || 0),
+                exDate: row.exDate || null,
+                pay: row.paymentDate || null,
+                type: row.type || "Ordinaire"
+              });
+            }
+          } catch (e) {
+            console.warn(`Error loading ${y}:`, e);
+          }
+        }
+
+        all.sort((a, b) => a.year - b.year || (new Date(a.exDate) - new Date(b.exDate)));
+        if (alive) setDivs(all);
+      } catch (e) {
+        console.error("Dividends load error", e);
+        if (alive) setDivs([]);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [ticker]);
+
+  return { loading, divs };
+}
 
 function computeKpis(divs) {
   const byYear = {};
@@ -207,21 +323,21 @@ function computeKpis(divs) {
 }
 
 export default function Company() {
-  const company = {
+  const { companyData, loading: companyLoading } = useCompanyFromRoute();
+  const company = companyData || {
     ticker: "ATW",
-    name: "ATTIJARIWAFA BANK",
-    sector: "Banques",
-    isin: "MA0000011884",
+    name: "Loading...",
+    sector: "—",
+    isin: "—",
     price: 480,
     currency: "MAD",
-    logo: "https://via.placeholder.com/48/14b8a6/ffffff?text=ATW",
-    dividendYield: 3.5,
-    payoutRatio: 45,
-    frequency: "Annuel"
+    logo: "/logos/ATW.svg",
+    dividendYield: null,
+    payoutRatio: null,
+    frequency: "—"
   };
 
-  const loading = false;
-  const divs = mockDividends;
+  const { loading, divs } = useDividendsData(company.ticker);
 
   const yearly = useMemo(() => {
     const map = new Map();
@@ -586,43 +702,43 @@ export default function Company() {
 
               <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
 
-{/* Stratégie recommandée */}
-<section className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-  <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
-  <div className="grid md:grid-cols-3 gap-3">
-    <StrategyCard
-      title="Profil"
-      points={[
-        "Entreprise régulière sur le dividende",
-        "C-DRS élevé → constance attractive",
-        "NDF solide → bonne prévisibilité",
-      ]}
-    />
-    <StrategyCard
-      title="Entrée idéale"
-      points={[
-        "Sur repli vers PRT modéré/bas",
-        "Confirmation par volume & news flow",
-        "Fenêtre avant ex-date pour capter le coupon",
-      ]}
-    />
-    <StrategyCard
-      title="Gestion du risque"
-      points={[
-        "Position taille < 5% du portefeuille",
-        "Surveillance du payout et cash-flow",
-        "Diversification intra-secteur",
-      ]}
-    />
-  </div>
-
-  <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
-    <strong>Disclaimer :</strong> Ces informations sont fournies à titre
-    indicatif et ne constituent pas un conseil financier. Faites vos propres
-    recherches.
-  </div>
-</section>
-
+                <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+                  <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
+                  <div className="grid md:grid-cols-3 gap-3">
+                    <StrategyCard
+                      title="Profil"
+                      points={[
+                        "Entreprise régulière sur le dividende",
+                        "C-DRS élevé → constance attractive",
+                        "NDF solide → bonne prévisibilité",
+                      ]}
+                    />
+                    <StrategyCard
+                      title="Entrée idéale"
+                      points={[
+                        "Sur repli vers PRT modéré/bas",
+                        "Confirmation par volume & news flow",
+                        "Fenêtre avant ex-date pour capter le coupon",
+                      ]}
+                    />
+                    <StrategyCard
+                      title="Gestion du risque"
+                      points={[
+                        "Position taille < 5% du portefeuille",
+                        "Surveillance du payout et cash-flow",
+                        "Diversification intra-secteur",
+                      ]}
+                    />
+                  </div>
+                  <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
+                    <strong>Disclaimer :</strong> Ces informations sont fournies à titre
+                    indicatif et ne constituent pas un conseil financier. Faites vos propres
+                    recherches.
+                  </div>
+                </div>
+              </section>
+            </main>
+          </div>
 
           <footer className="text-xs text-zinc-500 px-4 sm:px-6 py-4 border-t border-white/5">
             Données CasaDividendes — à titre informatif. © {new Date().getFullYear()}
