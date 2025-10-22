@@ -586,7 +586,7 @@ export default function Company() {
 
               <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
 
-          {/* Stratégie recommandée */}
+{/* Stratégie recommandée */}
 <section className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
   <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
   <div className="grid md:grid-cols-3 gap-3">
