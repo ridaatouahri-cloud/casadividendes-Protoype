@@ -581,7 +581,6 @@ export default function Company() {
 
                   <section className="space-y-4 relative z-0">
   <div className="grid gap-4 lg:grid-cols-12">
-    {/* Détails paiements (right on desktop, first on mobile) */}
     <div className="order-1 lg:order-2 lg:col-span-5">
       <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50 sticky top-6">
         <h3 className="text-sm font-semibold mb-3">Détails paiements</h3>
