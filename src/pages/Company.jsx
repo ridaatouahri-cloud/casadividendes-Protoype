@@ -586,42 +586,43 @@ export default function Company() {
 
               <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
 
-                <div className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
-                  <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
-                  <div className="grid md:grid-cols-3 gap-3">
-                    <StrategyCard
-                      title="Profil"
-                      points={[
-                        "Entreprise régulière sur le dividende",
-                        "C-DRS élevé → constance attractive",
-                        "NDF solide → bonne prévisibilité",
-                      ]}
-                    />
-                    <StrategyCard
-                      title="Entrée idéale"
-                      points={[
-                        "Sur repli vers PRT modéré/bas",
-                        "Confirmation par volume & news flow",
-                        "Fenêtre avant ex-date pour capter le coupon",
-                      ]}
-                    />
-                    <StrategyCard
-                      title="Gestion du risque"
-                      points={[
-                        "Position taille < 5% du portefeuille",
-                        "Surveillance du payout et cash-flow",
-                        "Diversification intra-secteur",
-                      ]}
-                    />
-                  </div>
-                  <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
-                    <strong>Disclaimer :</strong> Ces informations sont fournies à titre
-                    indicatif et ne constituent pas un conseil financier. Faites vos propres
-                    recherches.
-                  </div>
-                </div>
-            </main>
-          </div>
+          {/* Stratégie recommandée */}
+<section className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
+  <h3 className="text-sm font-semibold mb-3">Stratégie recommandée</h3>
+  <div className="grid md:grid-cols-3 gap-3">
+    <StrategyCard
+      title="Profil"
+      points={[
+        "Entreprise régulière sur le dividende",
+        "C-DRS élevé → constance attractive",
+        "NDF solide → bonne prévisibilité",
+      ]}
+    />
+    <StrategyCard
+      title="Entrée idéale"
+      points={[
+        "Sur repli vers PRT modéré/bas",
+        "Confirmation par volume & news flow",
+        "Fenêtre avant ex-date pour capter le coupon",
+      ]}
+    />
+    <StrategyCard
+      title="Gestion du risque"
+      points={[
+        "Position taille < 5% du portefeuille",
+        "Surveillance du payout et cash-flow",
+        "Diversification intra-secteur",
+      ]}
+    />
+  </div>
+
+  <div className="mt-3 p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 text-xs text-zinc-300">
+    <strong>Disclaimer :</strong> Ces informations sont fournies à titre
+    indicatif et ne constituent pas un conseil financier. Faites vos propres
+    recherches.
+  </div>
+</section>
+
 
           <footer className="text-xs text-zinc-500 px-4 sm:px-6 py-4 border-t border-white/5">
             Données CasaDividendes — à titre informatif. © {new Date().getFullYear()}
