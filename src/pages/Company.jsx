@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip as RTooltip, ResponsiveContainer,
