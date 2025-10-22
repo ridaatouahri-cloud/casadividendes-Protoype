@@ -469,7 +469,9 @@ export default function CompanyPage() {
                 <LineChart data={yearly}>
                   <XAxis dataKey="year" stroke="#a1a1aa" />
                   <YAxis stroke="#a1a1aa" />
-                  <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid "#27272a", color: "#e4e4e7" }} />
+                 <RTooltip
+  contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }}
+/>
                   <Line type="monotone" dataKey="total" stroke="#14b8a6" strokeWidth={2} dot />
                 </LineChart>
               </ResponsiveContainer>
