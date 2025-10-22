@@ -625,7 +625,9 @@ export default function CompanyPage() {
                         </defs>
                         <CartesianGrid stroke="#27272a" strokeDasharray="3 3" />
                         <XAxis dataKey="label" hide /><YAxis stroke="#a1a1aa" />
-                        <RTooltip contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }} />
+                        <RTooltip
+  contentStyle={{ background: "#0a0a0a", border: "1px solid #27272a", color: "#e4e4e7" }}
+/>
                         <Area type="monotone" dataKey="portfolioValue" stroke="#14b8a6" fill="url(#g1)" strokeWidth={2}/>
                       </AreaChart>
                     </ResponsiveContainer>
