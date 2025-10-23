@@ -74,12 +74,6 @@ module.exports = {
     },
   },
 
-  plugins: [
-    require("@tailwindcss/typography"),
-    require("@tailwindcss/forms"),
-    require("@tailwindcss/line-clamp"),
-  ],
-
   // 💡 Optional base styles you can auto-import into every project
   safelist: [
     "bg-ink-950",
