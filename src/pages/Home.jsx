@@ -1,6 +1,4 @@
 import React, { useEffect, useRef } from "react";
-import { Helmet } from "react-helmet-async";
-import { StatCard } from "../components/StatCard";
 
 function useScrollAnimation() {
   const ref = useRef(null);
@@ -20,7 +18,7 @@ function useScrollAnimation() {
       },
       {
         threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+        rootMargin: '0px 0px -100px 0px'
       }
     );
 
@@ -34,157 +32,129 @@ function useScrollAnimation() {
   return ref;
 }
 
-function HeroHome({ goCalendar, goPremium }) {
+function HeroSection() {
   return (
-    <section className="hero-gradient relative overflow-hidden min-h-[90vh] flex items-center">
-      <div className="absolute inset-0 opacity-30">
-        <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 1440 800" xmlns="http://www.w3.org/2000/svg">
-          <path fill="rgba(20, 184, 166, 0.1)" d="M0,320L60,330C120,340,240,360,360,345C480,330,600,280,720,266.7C840,253,960,277,1080,288C1200,299,1320,297,1380,296L1440,295L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
-          <path fill="rgba(168, 85, 247, 0.05)" d="M0,480L60,485.3C120,491,240,501,360,480C480,459,600,405,720,394.7C840,384,960,416,1080,437.3C1200,459,1320,469,1380,474.7L1440,480L1440,800L1380,800C1320,800,1200,800,1080,800C960,800,840,800,720,800C600,800,480,800,360,800C240,800,120,800,60,800L0,800Z"></path>
-        </svg>
+    <section className="relative overflow-hidden bg-gradient-to-br from-black via-zinc-950 to-black min-h-screen flex items-center">
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-amber-500/30 to-orange-600/30 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-br from-teal-500/20 to-emerald-600/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
       </div>
-      <div className="w-full px-6 py-20 md:py-16 grid md:grid-cols-2 gap-10 md:gap-16 items-center relative z-10">
-        <div className="animate-fade-in-up order-1">
-          <h1 className="text-5xl md:text-6xl lg:text-[5.5rem] font-semibold leading-[1.1] tracking-[-0.02em]" style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}>
-            <span className="text-white">Les Dividendes </span>
-            <br />
-            <span className="text-white">Marocains </span>
-            <span className="hero-title-gradient-alt">Simplifiés.</span>
-          </h1>
-          <p className="text-[#A1A1AA] mt-6 text-[19.8px] max-w-[60%] leading-[1.6] font-normal opacity-0 animate-fade-in-up delay-200" style={{ fontFamily: 'Inter, sans-serif' }}>
-            La première plateforme marocaine dédiée aux dividendes de la bourse de Casablanca :
-            Maximisez votre rentabilité, suivez chaque dividende, anticipez les paiements et optimisez vos décisions avec nos outils d'analyse.
-          </p>
-          <div className="flex flex-wrap gap-3 opacity-0 animate-fade-in-up delay-300 mt-10">
-            <button
-              onClick={goCalendar}
-              className="px-4 py-2 rounded-xl bg-teal-400 text-black font-Normal transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 shadow-lg shadow-teal-500/30 hover:brightness-[1.02] hover:shadow-[0_0_20px_rgba(0,211,167,0.3)] active:scale-[0.98]"
-              aria-label="Voir le calendrier des dividendes"
-            >
-              Voir le calendrier
-            </button>
-            <button
-              onClick={goPremium}
-              className="px-4 py-2 rounded-xl bg-transparent border border-[rgba(255,255,255,0.08)] text-white font-Normal transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#00D3A7] focus:ring-offset-2 focus:ring-offset-zinc-950 hover:bg-[#161A1E] active:scale-[0.98]"
-              aria-label="Découvrir l'offre Premium"
-            >
-              Découvrir Premium
-            </button>
+
+      <div className="absolute inset-0 opacity-5" style={{
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
+        backgroundSize: '50px 50px'
+      }} />
+
+      <div className="container mx-auto px-6 py-20 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16 opacity-0 animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 mb-8">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+              <span className="text-amber-300 text-sm font-medium">Plateforme numero 1 au Maroc</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight mb-6">
+              <span className="text-white">La premiere plateforme</span>
+              <br />
+              <span className="text-white">dediee aux </span>
+              <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent">dividendes</span>
+              <br />
+              <span className="text-white">de la Bourse de </span>
+              <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">Casablanca</span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-zinc-400 max-w-3xl mx-auto mb-10 leading-relaxed">
+              Analysez, suivez et optimisez vos revenus boursiers grace a nos outils exclusifs CasaDividendes
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <button
+                onClick={() => window.location.hash = "#/calendar"}
+                className="group relative px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/50"
+              >
+                <span className="relative z-10">Decouvrir la plateforme</span>
+              </button>
+              
+              <button
+                onClick={() => window.location.hash = "#/premium"}
+                className="px-8 py-4 rounded-2xl bg-transparent border-2 border-zinc-700 text-white font-semibold text-lg transition-all duration-300 hover:border-amber-500/50 hover:bg-amber-500/5"
+              >
+                Essai gratuit - sans carte bancaire
+              </button>
+            </div>
+
+            <p className="text-zinc-500 text-sm mt-6">
+              Rejoignez plus de 2 000 investisseurs marocains
+            </p>
           </div>
-          <p className="text-zinc-400 text-xs mt-3 opacity-0 animate-fade-in-up delay-400">
-            Essai gratuit, sans carte de crédit.
-          </p>
-        </div>
-        <div className="relative opacity-0 animate-fade-in-up delay-500 order-2 mt-10 md:mt-0 group" aria-hidden="true">
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-black/20 rounded-3xl z-10 pointer-events-none" />
-          <div className="relative w-full aspect-[16/10] rounded-3xl overflow-hidden transition-transform duration-500 hover:scale-[1.02] shadow-[0_20px_60px_rgba(15,118,110,0.25)]">
-            {/* Background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#0F172A] via-[#1E293B] to-[#0F172A]" />
 
-            {/* Gradient glow effects */}
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-[#10B981] opacity-20 rounded-full blur-[100px] group-hover:opacity-25 transition-opacity duration-500" />
-            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-[#F97316] opacity-15 rounded-full blur-[100px] group-hover:opacity-20 transition-opacity duration-500" />
-            <div className="absolute top-1/2 right-1/3 w-48 h-48 bg-[#7E22CE] opacity-10 rounded-full blur-[80px]" />
-
-            {/* Outer glow effect */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-[#10B981]/15 via-[#F97316]/10 to-transparent rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            {/* Main dashboard card */}
-            <div className="absolute top-[15%] left-[8%] w-[45%] h-[70%] bg-gradient-to-br from-zinc-900/90 to-zinc-950/90 backdrop-blur-xl rounded-2xl border border-zinc-800/50 shadow-2xl p-6">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-zinc-400 text-xs font-medium">Portefeuille</div>
-                <div className="w-16 h-6 bg-gradient-to-r from-[#10B981] to-[#14B8A6] rounded-full opacity-60" />
+          <div className="relative opacity-0 animate-fade-in-up mt-20" style={{ animationDelay: '0.3s' }}>
+            <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-transparent to-teal-500/20 blur-3xl" />
+            <div className="relative rounded-3xl overflow-hidden border border-zinc-800/50 shadow-2xl backdrop-blur-xl bg-gradient-to-br from-zinc-900/50 to-zinc-950/50">
+              <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-zinc-800/50 to-transparent flex items-center px-6 gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500/80" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
+                <div className="w-3 h-3 rounded-full bg-green-500/80" />
               </div>
-
-              {/* Revenue stat */}
-              <div className="mb-6">
-                <div className="text-2xl font-bold text-white mb-1">124,850 MAD</div>
-                <div className="flex items-center gap-2">
-                  <div className="text-[#10B981] text-sm font-medium">+12.4%</div>
-                  <div className="text-xs text-zinc-500">vs mois dernier</div>
-                </div>
-              </div>
-
-              {/* Chart bars */}
-              <div className="flex items-end gap-2 h-24 mb-4">
-                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '45%'}} />
-                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '65%'}} />
-                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '55%'}} />
-                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '80%'}} />
-                <div className="flex-1 bg-gradient-to-t from-[#10B981] to-[#10B981]/40 rounded-t" style={{height: '70%'}} />
-                <div className="flex-1 bg-gradient-to-t from-[#F97316] to-[#F97316]/40 rounded-t" style={{height: '95%'}} />
-              </div>
-
-              {/* Stock items */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between py-2 border-t border-zinc-800/50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-[#10B981]/20 flex items-center justify-center text-[10px] text-[#10B981]">IAM</div>
-                    <div className="text-xs text-zinc-400">Maroc Telecom</div>
+              
+              <div className="p-8 pt-16">
+                <div className="grid md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-2xl p-6 border border-zinc-700/50">
+                    <div className="text-zinc-400 text-sm mb-2">Revenus Annuels</div>
+                    <div className="text-3xl font-bold text-white mb-1">247,850 MAD</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-emerald-400 text-sm">+24.5%</div>
+                      <div className="text-zinc-500 text-xs">vs. annee precedente</div>
+                    </div>
                   </div>
-                  <div className="text-xs text-white font-medium">5.2%</div>
-                </div>
-                <div className="flex items-center justify-between py-2 border-t border-zinc-800/50">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-[#F97316]/20 flex items-center justify-center text-[10px] text-[#F97316]">BCP</div>
-                    <div className="text-xs text-zinc-400">Banque Populaire</div>
+                  
+                  <div className="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-2xl p-6 border border-zinc-700/50">
+                    <div className="text-zinc-400 text-sm mb-2">Rendement Moyen</div>
+                    <div className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent mb-1">6.8%</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-amber-400 text-sm">C-DRS Score</div>
+                      <div className="text-zinc-500 text-xs">Premium</div>
+                    </div>
                   </div>
-                  <div className="text-xs text-white font-medium">4.8%</div>
+                  
+                  <div className="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-2xl p-6 border border-zinc-700/50">
+                    <div className="text-zinc-400 text-sm mb-2">Prochains Versements</div>
+                    <div className="text-3xl font-bold text-white mb-1">18,450 MAD</div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-teal-400 text-sm">Dans 8 jours</div>
+                      <div className="text-zinc-500 text-xs">3 societes</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-zinc-800/30 to-zinc-900/30 rounded-2xl p-6 border border-zinc-700/30">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="text-white font-semibold">Portefeuille</div>
+                    <div className="text-zinc-400 text-sm">15 positions actives</div>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      { ticker: 'IAM', name: 'Maroc Telecom', yield: '5.2%', color: 'emerald' },
+                      { ticker: 'BCP', name: 'Banque Populaire', yield: '4.8%', color: 'amber' },
+                      { ticker: 'ATW', name: 'Attijariwafa Bank', yield: '4.3%', color: 'orange' }
+                    ].map((stock) => (
+                      <div key={stock.ticker} className="flex items-center justify-between py-3 border-t border-zinc-800/50">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl bg-${stock.color}-500/10 border border-${stock.color}-500/20 flex items-center justify-center text-${stock.color}-400 font-bold text-sm`}>
+                            {stock.ticker}
+                          </div>
+                          <div>
+                            <div className="text-white text-sm font-medium">{stock.name}</div>
+                            <div className="text-zinc-500 text-xs">Dividende regulier</div>
+                          </div>
+                        </div>
+                        <div className={`text-${stock.color}-400 font-semibold`}>{stock.yield}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-
-            {/* Floating curved card */}
-            <div className="absolute top-[20%] right-[5%] w-[42%] h-[60%] bg-gradient-to-br from-zinc-800/90 to-zinc-900/90 backdrop-blur-xl rounded-3xl border border-zinc-700/50 shadow-2xl p-5 transform rotate-2">
-              <div className="mb-4">
-                <div className="text-zinc-400 text-xs mb-3">Prochains dividendes</div>
-                <div className="flex items-baseline gap-2">
-                  <div className="text-3xl font-bold text-white">8,450</div>
-                  <div className="text-sm text-zinc-500">MAD</div>
-                </div>
-              </div>
-
-              {/* Mini chart */}
-              <div className="relative h-32 mb-4">
-                <svg className="w-full h-full" viewBox="0 0 200 80" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#10B981" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#10B981" stopOpacity="0.05" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M 0 60 Q 30 40, 50 45 T 100 30 T 150 20 T 200 15"
-                    fill="url(#chartGradient)"
-                    stroke="#10B981"
-                    strokeWidth="2"
-                  />
-                  <path
-                    d="M 0 60 Q 30 40, 50 45 T 100 30 T 150 20 T 200 15 L 200 80 L 0 80 Z"
-                    fill="url(#chartGradient)"
-                  />
-                </svg>
-                <div className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[#10B981] shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-              </div>
-
-              {/* Stats grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-zinc-900/50 rounded-xl p-3 border border-zinc-800/50">
-                  <div className="text-[10px] text-zinc-500 mb-1">Rendement</div>
-                  <div className="text-sm font-bold text-[#10B981]">+18.2%</div>
-                </div>
-                <div className="bg-zinc-900/50 rounded-xl p-3 border border-zinc-800/50">
-                  <div className="text-[10px] text-zinc-500 mb-1">Positions</div>
-                  <div className="text-sm font-bold text-white">12</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Glassmorphism overlay elements */}
-            <div className="absolute bottom-[10%] left-[10%] w-32 h-20 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-lg" />
-            <div className="absolute top-[10%] right-[45%] w-24 h-16 bg-white/5 backdrop-blur-md rounded-xl border border-white/10 shadow-lg" />
           </div>
         </div>
       </div>
@@ -192,32 +162,68 @@ function HeroHome({ goCalendar, goPremium }) {
   );
 }
 
-function StatsSection() {
-  const stats = [
-    { value: "12 000+", label: "Dividendes suivis", icon: "📊" },
-    { value: "80+", label: "Sociétés cotées", icon: "🏢" },
-    { value: "450+", label: "Alertes activées", icon: "🔔" }
+function FeaturesSection() {
+  const sectionRef = useScrollAnimation();
+  
+  const features = [
+    {
+      icon: '📊',
+      title: 'Calendrier des Dividendes',
+      description: 'Toutes les dates cles de la BVC : ex-dividende, detachement, et paiement. Mises a jour en temps reel et synchronisees avec vos alertes.'
+    },
+    {
+      icon: '💎',
+      title: 'Scores et Indicateurs',
+      description: 'C-DRS, PRT, NDF : vos KPIs exclusifs pour identifier les meilleures opportunites de dividendes.'
+    },
+    {
+      icon: '📈',
+      title: 'Analyse Historique',
+      description: 'Visualisez la croissance et la regularite des dividendes sur 5 ans. Graphiques interactifs et projections avancees.'
+    },
+    {
+      icon: '🧭',
+      title: 'Strategie Personnalisee',
+      description: 'Recommandations adaptees a votre profil : rendement, croissance ou equilibre. Pilotez vos revenus passifs.'
+    }
   ];
 
   return (
-    <section className="bg-[#F8FAFC] py-20" aria-labelledby="stats-heading">
-      <div className="max-w-5xl mx-auto px-6 text-center">
-        <h2 id="stats-heading" className="text-2xl md:text-3xl font-semibold text-[#0F172A] mb-12" style={{ fontFamily: 'Inter, sans-serif' }}>
-          Déjà plus de 2 000 investisseurs marocains utilisent CasaDividendes
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
-          {stats.map((stat, idx) => (
+    <section ref={sectionRef} className="py-32 px-6 bg-gradient-to-b from-zinc-950 to-black relative overflow-hidden opacity-0">
+      <div className="absolute inset-0 opacity-5" style={{
+        backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)',
+        backgroundSize: '40px 40px'
+      }} />
+      
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Une plateforme pensee pour <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">excellence</span>
+          </h2>
+          <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+            Des outils professionnels pour maitriser vos investissements en dividendes
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {features.map((feature, idx) => (
             <div
-              key={stat.label}
-              className="flex flex-col items-center opacity-0 animate-fade-in-up"
-              style={{ animationDelay: `${0.2 + idx * 0.15}s` }}
+              key={feature.title}
+              className="group relative bg-gradient-to-br from-zinc-900/50 to-zinc-950/50 rounded-3xl p-8 border border-zinc-800/50 hover:border-amber-500/30 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-amber-500/10 opacity-0 animate-fade-in-up"
+              style={{ animationDelay: `${idx * 0.1}s` }}
             >
-              <div className="text-4xl mb-3 opacity-60">{stat.icon}</div>
-              <div className="text-3xl md:text-4xl font-bold text-[#0F172A] mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {stat.value}
-              </div>
-              <div className="text-base text-[#64748B] font-normal" style={{ fontFamily: 'Inter, sans-serif' }}>
-                {stat.label}
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
+              
+              <div className="relative z-10">
+                <div className="text-6xl mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                  {feature.icon}
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors duration-300">
+                  {feature.title}
+                </h3>
+                <p className="text-zinc-400 leading-relaxed">
+                  {feature.description}
+                </p>
               </div>
             </div>
           ))}
@@ -227,286 +233,427 @@ function StatsSection() {
   );
 }
 
-function Values() {
-  const items = [
-    { t: "Calendrier intelligent", d: "Accédez à tous les dividendes de la Bourse de Casa, organisés par date. Filtrez, exportez et planifiez vos investissements en quelques clics.", icon: "📅", bg: "#0f0f0f" },
-    { t: "Alertes personnalisées", d: "Ne manquez plus aucune date importante. Alertes automatiques avant chaque ex-dividende et paiement, personnalisables selon vos préférences.", icon: "🔔", bg: "#171717" },
-    { t: "Outils d'analyse et pilotage", d: "Scores de sécurité, simulateurs, projections DRIP et suivi de performance. Tous les outils pour analyser, décider et piloter vos revenus passifs.", icon: "📈", bg: "#0f0f0f" },
-    { t: "Pédagogie investisseur", d: "Guides pratiques, analyses sectorielles et décryptages fiscaux. Apprenez les fondamentaux et affinez votre stratégie avec du contenu accessible.", icon: "🎓", bg: "#171717" },
-  ];
-  return (
-    <section className="px-6 py-12" aria-labelledby="values-heading">
-      <h2 id="values-heading" className="sr-only">Nos valeurs</h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {items.map((it, idx) => (
-          <div
-            key={it.t}
-            className="rounded-2xl border border-zinc-800 p-6 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-lg hover:shadow-teal-500/20 hover:border-teal-500/30 opacity-0 animate-fade-in-up cursor-pointer group"
-            style={{
-              backgroundColor: it.bg,
-              animationDelay: `${0.6 + idx * 0.15}s`
-            }}
-          >
-            <div className="text-4xl transition-transform duration-300 group-hover:scale-110" aria-hidden="true">{it.icon}</div>
-            <h3 className="text-white font-semibold mt-3 transition-colors duration-300 group-hover:text-teal-400">{it.t}</h3>
-            <p className="text-zinc-400 mt-2 text-sm">{it.d}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function PalmaresPreview({ goRankings }) {
+function DashboardShowcase() {
   const sectionRef = useScrollAnimation();
-  const rows = [
-    { r: 1, t: "IAM", n: "Maroc Telecom", y: "5.2%", pay: "28/06" },
-    { r: 2, t: "BCP", n: "Banque Populaire", y: "4.8%", pay: "21/06" },
-    { r: 3, t: "ATW", n: "Attijariwafa Bank", y: "4.3%", pay: "05/07" },
-  ];
-  return (
-    <section ref={sectionRef} className="px-6 pb-12 opacity-0" aria-labelledby="palmares-heading">
-      <div className="flex items-center justify-between mb-4">
-        <h2 id="palmares-heading" className="text-white text-xl font-semibold">Aperçu Palmarès</h2>
-        <button
-          onClick={goRankings}
-          className="text-teal-400 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 rounded px-2"
-          aria-label="Voir le palmarès complet des dividendes"
-        >
-          Voir le palmarès complet
-        </button>
-      </div>
-      <div className="overflow-x-auto rounded-2xl border border-zinc-800">
-        <table className="min-w-full text-sm">
-          <thead className="bg-zinc-900 text-zinc-300">
-            <tr>
-              <th scope="col" className="text-left p-3">Rang</th>
-              <th scope="col" className="text-left p-3">Ticker</th>
-              <th scope="col" className="text-left p-3">Société</th>
-              <th scope="col" className="text-left p-3">Rendement</th>
-              <th scope="col" className="text-left p-3">Paiement</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((d) => (
-              <tr key={d.r} className="border-t border-zinc-800">
-                <td className="p-3 text-zinc-300">{d.r}</td>
-                <td className="p-3 text-white">{d.t}</td>
-                <td className="p-3 text-zinc-200">{d.n}</td>
-                <td className="p-3 text-teal-400 font-medium">{d.y}</td>
-                <td className="p-3 text-zinc-300">{d.pay}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  );
-}
-
-function Newsletter() {
-  const sectionRef = useScrollAnimation();
-  const [formData, setFormData] = React.useState({ email: "", hp: "" });
-  const [status, setStatus] = React.useState("idle");
-  const [message, setMessage] = React.useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.email.trim()) {
-      setStatus("error");
-      setMessage("Veuillez entrer une adresse email valide.");
-      return;
-    }
-
-    setStatus("loading");
-    setMessage("");
-
-    try {
-      const response = await fetch("/api/newsletter.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: formData.email, hp: formData.hp }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setStatus("success");
-        setMessage(data.message);
-        setFormData({ email: "", hp: "" });
-      } else {
-        setStatus("error");
-        setMessage(data.error || "Une erreur est survenue");
-      }
-    } catch (error) {
-      setStatus("error");
-      setMessage("Impossible de se connecter au serveur. Veuillez réessayer.");
-    }
-  };
 
   return (
-    <section ref={sectionRef} className="px-6 py-10 opacity-0" aria-labelledby="newsletter-heading">
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 flex flex-col md:flex-row items-center gap-4 justify-between">
-        <div>
-          <h2 id="newsletter-heading" className="text-white font-semibold">Restez informé(e)</h2>
-          <p className="text-zinc-400 text-sm">Prochains dividendes, tendances & mises à jour.</p>
+    <section ref={sectionRef} className="py-32 px-6 bg-black relative overflow-hidden opacity-0">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-amber-500/10 to-teal-500/10 rounded-full blur-[150px]" />
+      </div>
+
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Un <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">cockpit clair</span> pour piloter
+            <br />
+            vos revenus passifs
+          </h2>
+          <p className="text-xl text-zinc-400 max-w-2xl mx-auto">
+            Interface intuitive, donnees en temps reel, analyses approfondies
+          </p>
         </div>
-        <div className="w-full md:w-auto">
-          <form onSubmit={handleSubmit} className="flex w-full md:w-auto gap-2">
-            <label htmlFor="newsletter-email" className="sr-only">Adresse email</label>
-            <input
-              id="newsletter-email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              disabled={status === "loading"}
-              className="flex-1 md:w-80 px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
-              placeholder="Entrez votre email"
-              required
-              aria-required="true"
-              aria-describedby="newsletter-status"
+
+        <div className="relative">
+          <div className="absolute -inset-4 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-teal-500/20 rounded-3xl blur-2xl opacity-50" />
+          
+          <div className="relative bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 rounded-3xl border border-zinc-800/50 p-8 backdrop-blur-xl">
+            <img 
+              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop" 
+              alt="Dashboard CasaDividendes"
+              className="w-full rounded-2xl shadow-2xl"
             />
-            <input
-              type="text"
-              name="hp"
-              value={formData.hp}
-              onChange={(e) => setFormData({ ...formData, hp: e.target.value })}
-              autoComplete="off"
-              tabIndex="-1"
-              aria-hidden="true"
-              style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px' }}
-            />
-            <button
-              type="submit"
-              disabled={status === "loading"}
-              className="px-4 py-2 rounded-lg bg-teal-400 text-black font-semibold hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-teal-400 focus:ring-offset-2 focus:ring-offset-zinc-950 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="S'inscrire à la newsletter"
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 mt-12">
+          {[
+            { label: 'Temps reel', value: 'Donnees actualisees' },
+            { label: 'Multi-device', value: 'Web & Mobile' },
+            { label: 'Securise', value: 'Cryptage total' }
+          ].map((item, idx) => (
+            <div 
+              key={item.label}
+              className="text-center p-6 rounded-2xl bg-zinc-900/50 border border-zinc-800/50 opacity-0 animate-fade-in-up"
+              style={{ animationDelay: `${0.6 + idx * 0.1}s` }}
             >
-              {status === "loading" ? "..." : "Je m'inscris"}
-            </button>
-          </form>
-          {message && (
-            <div
-              id="newsletter-status"
-              role="status"
-              aria-live="polite"
-              className={`mt-2 text-sm ${status === "success" ? "text-teal-400" : "text-orange-400"}`}
-            >
-              {message}
+              <div className="text-amber-400 font-semibold mb-1">{item.label}</div>
+              <div className="text-zinc-400 text-sm">{item.value}</div>
             </div>
-          )}
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-function ContactSupport() {
+function TestimonialsSection() {
   const sectionRef = useScrollAnimation();
+
+  const testimonials = [
+    {
+      name: 'Youssef A.',
+      role: 'Investisseur depuis 2016',
+      avatar: '👨‍💼',
+      text: 'CasaDividendes m\'a permis de comprendre mes dividendes et d\'optimiser mes placements. Les scores C-DRS sont un vrai game-changer.'
+    },
+    {
+      name: 'Amina K.',
+      role: 'Portefeuille diversifie',
+      avatar: '👩‍💻',
+      text: 'Grace aux alertes personnalisees, je ne manque plus aucune date importante. L\'interface est claire et professionnelle.'
+    },
+    {
+      name: 'Mehdi R.',
+      role: 'Trader actif',
+      avatar: '👨‍💼',
+      text: 'Les analyses historiques sur 5 ans m\'aident a prendre des decisions eclairees. C\'est l\'outil qu\'il manquait au Maroc.'
+    }
+  ];
+
   return (
-    <section ref={sectionRef} className="px-6 py-10 opacity-0" aria-labelledby="contact-heading">
-      <div className="rounded-2xl glassmorphism p-8 shadow-2xl">
-        <h2 id="contact-heading" className="text-white text-xl font-semibold mb-6">📞 Contact & Support</h2>
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-white font-medium mb-3">Email</h3>
-            <ul className="space-y-2 text-zinc-300 text-sm">
-              <li>
-                <span className="text-zinc-400">Support :</span>{" "}
-                <a href="mailto:support@casadividendes.ma" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
-                  support@casadividendes.ma
-                </a>
-              </li>
-              <li>
-                <span className="text-zinc-400">Commercial :</span>{" "}
-                <a href="mailto:contact@casadividendes.ma" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
-                  contact@casadividendes.ma
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="text-white font-medium mb-3">Réseaux sociaux</h3>
-            <ul className="space-y-2 text-zinc-300 text-sm">
-              <li className="flex items-center gap-2">
-                <span className="text-zinc-400">🐦 Twitter/X :</span>
-                <a href="https://twitter.com/CasaDividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
-                  @CasaDividendes
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-zinc-400">💼 LinkedIn :</span>
-                <a href="https://linkedin.com/company/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
-                  CasaDividendes
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-zinc-400">📘 Facebook :</span>
-                <a href="https://facebook.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
-                  CasaDividendes
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="text-zinc-400">📸 Instagram :</span>
-                <a href="https://instagram.com/casadividendes" target="_blank" rel="noopener noreferrer" className="text-teal-400 hover:text-teal-300 transition-colors duration-300 hover:underline focus:outline-none focus:ring-2 focus:ring-teal-400 rounded">
-                  @casadividendes
-                </a>
-              </li>
-            </ul>
-          </div>
+    <section ref={sectionRef} className="py-32 px-6 bg-gradient-to-b from-black to-zinc-950 relative overflow-hidden opacity-0">
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            Ils nous font <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">confiance</span>
+          </h2>
+          <p className="text-xl text-zinc-400">
+            Rejoignez une communaute d'investisseurs avertis
+          </p>
         </div>
-        <div className="mt-6 pt-6 border-t border-zinc-700/50">
-          <a
-            href="mailto:support@casadividendes.ma"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-400 font-medium hover:bg-teal-500/20 hover:border-teal-500/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-teal-400"
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {testimonials.map((testimonial, idx) => (
+            <div
+              key={testimonial.name}
+              className="bg-gradient-to-br from-zinc-900/50 to-zinc-950/50 rounded-3xl p-8 border border-zinc-800/50 hover:border-amber-500/30 transition-all duration-300 opacity-0 animate-fade-in-up"
+              style={{ animationDelay: `${idx * 0.15}s` }}
+            >
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center text-3xl border border-amber-500/30">
+                  {testimonial.avatar}
+                </div>
+                <div>
+                  <div className="text-white font-semibold">{testimonial.name}</div>
+                  <div className="text-zinc-500 text-sm">{testimonial.role}</div>
+                </div>
+              </div>
+              <p className="text-zinc-300 leading-relaxed italic">
+                {testimonial.text}
+              </p>
+              <div className="flex gap-1 mt-4">
+                {[...Array(5)].map((_, i) => (
+                  <span key={i} className="text-amber-400">★</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BlogSection() {
+  const sectionRef = useScrollAnimation();
+
+  const articles = [
+    {
+      title: 'C\'est quoi un dividende ?',
+      excerpt: 'Comprendre les bases des dividendes et leur importance dans une strategie d\'investissement.',
+      category: 'Debutant',
+      readTime: '5 min'
+    },
+    {
+      title: 'Les 5 actions les plus regulieres du Maroc',
+      excerpt: 'Analyse des societes marocaines avec les historiques de dividendes les plus constants.',
+      category: 'Analyse',
+      readTime: '8 min'
+    },
+    {
+      title: 'Optimiser sa fiscalite sur les dividendes',
+      excerpt: 'Guide complet sur la taxation des dividendes au Maroc et strategies d\'optimisation legales.',
+      category: 'Fiscalite',
+      readTime: '12 min'
+    }
+  ];
+
+  return (
+    <section ref={sectionRef} className="py-32 px-6 bg-zinc-950 relative overflow-hidden opacity-0">
+      <div className="container mx-auto max-w-6xl relative z-10">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">Apprenez</span> et progressez
+          </h2>
+          <p className="text-xl text-zinc-400 mb-8">
+            Ressources educatives pour devenir un investisseur averti
+          </p>
+          <button
+            onClick={() => window.location.hash = "#/blog"}
+            className="px-6 py-3 rounded-xl bg-transparent border border-amber-500/30 text-amber-400 font-medium hover:bg-amber-500/10 transition-all duration-300"
           >
-            <span>✉️</span>
-            Envoyer un message
-          </a>
+            Acceder au Blog educatif
+          </button>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {articles.map((article, idx) => (
+            <div
+              key={article.title}
+              className="group bg-gradient-to-br from-zinc-900/50 to-zinc-950/50 rounded-3xl overflow-hidden border border-zinc-800/50 hover:border-amber-500/30 transition-all duration-300 cursor-pointer opacity-0 animate-fade-in-up"
+              style={{ animationDelay: `${idx * 0.1}s` }}
+            >
+              <div className="h-48 bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center text-6xl">
+                📚
+              </div>
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-medium border border-amber-500/20">
+                    {article.category}
+                  </span>
+                  <span className="text-zinc-500 text-xs">{article.readTime}</span>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-amber-400 transition-colors duration-300">
+                  {article.title}
+                </h3>
+                <p className="text-zinc-400 text-sm leading-relaxed">
+                  {article.excerpt}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-function PremiumBand({ goPremium }) {
+function CTASection() {
   const sectionRef = useScrollAnimation();
+
   return (
-    <section ref={sectionRef} className="border-t border-zinc-800 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 opacity-0" aria-labelledby="premium-band-heading">
-      <div className="px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <h2 id="premium-band-heading" className="text-white text-lg font-semibold">
-          Passez au Premium : alertes J-3, scores de sécurité, comparateurs.
-        </h2>
-        <button
-          onClick={goPremium}
-          className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold hover:brightness-110 transition-all focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950 whitespace-nowrap"
-          aria-label="Essayer l'offre Premium"
-        >
-          Essayer Premium
-        </button>
+    <section ref={sectionRef} className="py-32 px-6 bg-gradient-to-br from-black via-zinc-950 to-black relative overflow-hidden opacity-0">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-full blur-[200px]" />
+      </div>
+
+      <div className="container mx-auto max-w-4xl relative z-10 text-center">
+        <div className="bg-gradient-to-br from-zinc-900/80 to-zinc-950/80 rounded-3xl p-12 md:p-20 border border-zinc-800/50 backdrop-blur-xl">
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6">
+            Rejoignez la communaute
+            <br />
+            <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-300 bg-clip-text text-transparent">
+              CasaDividendes
+            </span>
+          </h2>
+          <p className="text-xl text-zinc-400 mb-10 max-w-2xl mx-auto">
+            Maitrisez vos revenus boursiers et prenez des decisions eclairees avec les meilleurs outils d'analyse du marche marocain
+          </p>
+          
+          <button
+            onClick={() => window.location.hash = "#/signup"}
+            className="group relative px-10 py-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/50 mb-4"
+          >
+            <span className="relative z-10">Creer mon compte gratuitement</span>
+          </button>
+          
+          <p className="text-zinc-500 text-sm">
+            Essai gratuit 14 jours • Sans carte bancaire • Resiliation a tout moment
+          </p>
+
+          <div className="grid grid-cols-3 gap-8 mt-16 pt-16 border-t border-zinc-800/50">
+            <div>
+              <div className="text-3xl font-bold text-white mb-2">2 000+</div>
+              <div className="text-zinc-400 text-sm">Investisseurs actifs</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white mb-2">80+</div>
+              <div className="text-zinc-400 text-sm">Societes suivies</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-white mb-2">12K+</div>
+              <div className="text-zinc-400 text-sm">Dividendes analyses</div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="bg-black border-t border-zinc-900 py-12 px-6">
+      <div className="container mx-auto max-w-6xl">
+        <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div>
+            <div className="text-2xl font-bold bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent mb-4">
+              CasaDividendes
+            </div>
+            <p className="text-zinc-500 text-sm leading-relaxed">
+              La plateforme de reference pour les dividendes de la Bourse de Casablanca
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-white font-semibold mb-4">Navigation</h3>
+            <ul className="space-y-2 text-zinc-400 text-sm">
+              <li><a href="#/" className="hover:text-amber-400 transition-colors">Accueil</a></li>
+              <li><a href="#/calendar" className="hover:text-amber-400 transition-colors">Calendrier</a></li>
+              <li><a href="#/rankings" className="hover:text-amber-400 transition-colors">Palmares</a></li>
+              <li><a href="#/blog" className="hover:text-amber-400 transition-colors">Blog</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-white font-semibold mb-4">Entreprise</h3>
+            <ul className="space-y-2 text-zinc-400 text-sm">
+              <li><a href="#/about" className="hover:text-amber-400 transition-colors">A propos</a></li>
+              <li><a href="#/contact" className="hover:text-amber-400 transition-colors">Contact</a></li>
+              <li><a href="#/premium" className="hover:text-amber-400 transition-colors">Premium</a></li>
+              <li><a href="#/faq" className="hover:text-amber-400 transition-colors">FAQ</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-white font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2 text-zinc-400 text-sm">
+              <li><a href="#/legal" className="hover:text-amber-400 transition-colors">Mentions legales</a></li>
+              <li><a href="#/privacy" className="hover:text-amber-400 transition-colors">Confidentialite</a></li>
+              <li><a href="#/terms" className="hover:text-amber-400 transition-colors">CGU</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="pt-8 border-t border-zinc-900">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-zinc-500 text-sm text-center md:text-left">
+              <p className="mb-2">
+                Disclaimer: CasaDividendes est un outil d'analyse et d'information. Il ne constitue pas un conseil financier, fiscal ou juridique.
+              </p>
+              <p>
+                Copyright {new Date().getFullYear()} CasaDividendes - Tous droits reserves
+              </p>
+            </div>
+
+            <div className="flex gap-4">
+              <a 
+                href="https://twitter.com/CasaDividendes" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-amber-400 hover:border-amber-500/30 transition-all duration-300"
+                aria-label="Twitter"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              </a>
+              <a 
+                href="https://linkedin.com/company/casadividendes" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-amber-400 hover:border-amber-500/30 transition-all duration-300"
+                aria-label="LinkedIn"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+              <a 
+                href="https://facebook.com/casadividendes" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-amber-400 hover:border-amber-500/30 transition-all duration-300"
+                aria-label="Facebook"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a 
+                href="https://instagram.com/casadividendes" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-amber-400 hover:border-amber-500/30 transition-all duration-300"
+                aria-label="Instagram"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }
 
 export default function Home() {
+  useEffect(() => {
+    document.title = "CasaDividendes - Plateforme Premium de Dividendes | Bourse de Casablanca";
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'La plateforme de reference pour analyser, suivre et optimiser vos dividendes sur la Bourse de Casablanca. Calendrier intelligent, scores exclusifs, analyses historiques.');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'description';
+      meta.content = 'La plateforme de reference pour analyser, suivre et optimiser vos dividendes sur la Bourse de Casablanca. Calendrier intelligent, scores exclusifs, analyses historiques.';
+      document.head.appendChild(meta);
+    }
+  }, []);
+
   return (
     <>
-      <Helmet>
-        <title>CasaDividendes - Calendrier des Dividendes de la Bourse de Casablanca</title>
-        <meta name="description" content="La première plateforme dédiée aux dividendes de la Bourse de Casablanca. Calendrier des ex-dates, palmarès des rendements, fiches sociétés et outils d'analyse pour investir sereinement au Maroc." />
-      </Helmet>
+      <style>{`
+        @keyframes fade-in-up {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
 
-      <HeroHome goCalendar={() => window.location.hash = "#/calendar"} goPremium={() => window.location.hash = "#/premium"} />
-      <StatsSection />
-      <Values />
-      <PalmaresPreview goRankings={() => window.location.hash = "#/rankings"} />
-      <Newsletter />
-      <ContactSupport />
-      <PremiumBand goPremium={() => window.location.hash = "#/premium"} />
+        .animate-fade-in-up {
+          animation: fade-in-up 0.8s ease-out forwards;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        ::-webkit-scrollbar {
+          width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: #27272a;
+          border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: #3f3f46;
+        }
+      `}</style>
+
+      <div className="bg-black min-h-screen">
+        <HeroSection />
+        <FeaturesSection />
+        <DashboardShowcase />
+        <TestimonialsSection />
+        <BlogSection />
+        <CTASection />
+        <Footer />
+      </div>
     </>
   );
 }
