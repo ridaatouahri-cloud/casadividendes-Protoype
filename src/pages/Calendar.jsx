@@ -1,12 +1,13 @@
+// src/pages/Calendar.jsx — CasaDividendes (Premium aligned)
+// Dépendances attendues : Tailwind + index.css premium, react-helmet-async déjà configuré
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 
 const AVAILABLE_YEARS = [2020, 2021, 2022, 2023, 2024];
 
 /* =========================================================================
-   SIDEBAR NEWS (desktop >= xl)
+   SIDEBAR NEWS (desktop >= xl) — skin premium
    ========================================================================= */
-/* ======= REPLACE L5–L85 START ======= */
 function timeAgo(dateStr) {
   const d = new Date(dateStr);
   if (isNaN(d)) return dateStr;
@@ -42,24 +43,22 @@ function NewsCard({ item, saved, pinned, read, onToggleSave, onTogglePin, onOpen
   const tag = detectTag(item.title);
   return (
     <article
-      className={`relative p-4 border border-zinc-800 rounded-xl transition-all group ${
-        read ? "opacity-70" : ""
-      } hover:bg-zinc-800/40 hover:border-teal-500/40 hover:shadow-lg hover:shadow-teal-500/10
-         ring-0 hover:ring-1 hover:ring-teal-500/30 hover:scale-[1.01]`}
+      className={`relative p-4 rounded-xl border border-white/10 bg-white/[0.02] transition-all group
+        ${read ? "opacity-70" : ""} hover:border-brand-teal/30 hover:shadow-glow`}
     >
       {/* Actions rapides */}
       <div className="absolute right-3 top-3 flex items-center gap-2">
         <button
           onClick={(e) => { e.preventDefault(); onTogglePin(item); }}
           className={`text-xs px-2 py-1 rounded-md border transition
-            ${pinned ? "border-yellow-400 text-yellow-300 bg-yellow-400/10" : "border-zinc-700 text-zinc-400 hover:text-yellow-300"}`}
+            ${pinned ? "border-amber-400 text-amber-300 bg-amber-400/10" : "border-white/10 text-zinc-400 hover:text-amber-300"}`}
           title={pinned ? "Unpin" : "Pin"}
         >
           📌
         </button>
         <button
           onClick={(e) => { e.preventDefault(); onToggleSave(item); }}
-          className="text-xs px-2 py-1 rounded-md border border-zinc-700 text-zinc-400 hover:text-yellow-300 transition"
+          className="text-xs px-2 py-1 rounded-md border border-white/10 text-zinc-400 hover:text-amber-300 transition"
           title={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
         >
           {saved ? "★" : "☆"}
@@ -75,7 +74,7 @@ function NewsCard({ item, saved, pinned, read, onToggleSave, onTogglePin, onOpen
         {tag && (
           <>
             <span>•</span>
-            <span className="px-2 py-0.5 rounded-full border border-zinc-700 text-zinc-300">{tag}</span>
+            <span className="px-2 py-0.5 rounded-full border border-white/10 text-zinc-300">{tag}</span>
           </>
         )}
       </div>
@@ -85,29 +84,29 @@ function NewsCard({ item, saved, pinned, read, onToggleSave, onTogglePin, onOpen
         href={item.url}
         target="_blank"
         rel="noopener"
-        onClick={(e) => { onOpen(item); }}
+        onClick={() => onOpen(item)}
         className="block"
       >
-        <h3 className="text-zinc-100 font-medium group-hover:text-teal-400 transition line-clamp-2">
+        <h3 className="text-zinc-100 font-medium group-hover:text-brand-teal transition line-clamp-2">
           {item.title}
         </h3>
         {item.image && (
           <img
             src={item.image}
             alt=""
-            className="mt-3 rounded-lg border border-zinc-800 w-full max-h-36 object-cover"
+            className="mt-3 rounded-lg border border-white/10 w-full max-h-36 object-cover"
             loading="lazy"
           />
         )}
         <p className="text-sm text-zinc-400 mt-2 line-clamp-3">{item.excerpt}</p>
-        <span className="text-[#EAB308] text-sm mt-2 inline-block">Read More →</span>
+        <span className="text-brand-amber text-sm mt-2 inline-block">Read More →</span>
       </a>
     </article>
   );
 }
 
 function NewsSidebar() {
-  // Données statiques pour le front uniquement (remplace si besoin)
+  // Données statiques pour le front (à remplacer si besoin)
   const [news] = React.useState([
     {
       source: "Bloomberg",
@@ -172,55 +171,50 @@ function NewsSidebar() {
   });
 
   return (
-   <aside className="hidden xl:block w-[320px] sticky top-10 self-start h-fit">
-  <div
-    className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-5 backdrop-blur
-               max-h-[calc(100vh-4rem)] sidebar-maxh flex flex-col min-h-0"
-  >
-    {/* Header (fixe) */}
-    <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
-      📰 <span>Financial News Feed</span>
-    </h2>
+    <aside className="hidden xl:block w-[320px] sticky top-10 self-start h-fit">
+      <div className="card-premium p-5 sidebar-maxh flex flex-col min-h-0">
+        {/* Header (fixe) */}
+        <h2 className="flex items-center gap-2 text-lg font-semibold mb-4">
+          📰 <span>Financial News Feed</span>
+        </h2>
 
-    {/* Liste d’articles (seule zone scrollable) */}
-    <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain pr-1 space-y-5 min-h-0">
-      {items.map((item) => (
-        <NewsCard
-          key={item.url}
-          item={{ ...item, favicon: getFavicon(item.url) }}
-          saved={saved.has(item.url)}
-          pinned={pinned.has(item.url)}
-          read={read.has(item.url)}
-          onToggleSave={onToggleSave}
-          onTogglePin={onTogglePin}
-          onOpen={onOpen}
-        />
-      ))}
-    </div>
+        {/* Liste d’articles (seule zone scrollable) */}
+        <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain pr-1 space-y-5 min-h-0">
+          {items.map((item) => (
+            <NewsCard
+              key={item.url}
+              item={{ ...item, favicon: getFavicon(item.url) }}
+              saved={saved.has(item.url)}
+              pinned={pinned.has(item.url)}
+              read={read.has(item.url)}
+              onToggleSave={onToggleSave}
+              onTogglePin={onTogglePin}
+              onOpen={onOpen}
+            />
+          ))}
+        </div>
 
-    {/* Newsletter (fixe en bas) */}
-    <div className="border-t border-zinc-800 pt-4 mt-4">
-      <h3 className="text-md font-semibold mb-2">📬 Newsletter</h3>
-      <p className="text-sm text-zinc-400 mb-3">
-        Recevez chaque semaine les dernières actualités et analyses.
-      </p>
-      <div className="flex gap-2">
-        <input
-          type="email"
-          placeholder="Votre email"
-          className="w-full bg-zinc-950 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:border-teal-500 outline-none"
-        />
-        <button className="px-3 py-2 bg-teal-500/20 hover:bg-teal-500/40 text-teal-300 text-sm rounded-lg">
-          S&apos;abonner
-        </button>
+        {/* Newsletter (fixe en bas) */}
+        <div className="divider-soft mt-4 pt-4">
+          <h3 className="text-md font-semibold mb-2">📬 Newsletter</h3>
+          <p className="text-sm text-zinc-400 mb-3">
+            Recevez chaque semaine les dernières actualités et analyses.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              placeholder="Votre email"
+              className="w-full bg-ink-950 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-brand-teal outline-none"
+            />
+            <button className="btn-ghost text-brand-teal border-brand-teal/40 hover:bg-brand-teal/10">
+              S&apos;abonner
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</aside>
+    </aside>
   );
 }
-/* ======= REPLACE L5–L85 END ======= */
-
 
 /* =========================================================================
    PAGE CALENDRIER (version VF conservée + wrapper full-width + sidebar)
@@ -253,30 +247,15 @@ export default function Calendar() {
         if (filters.year === "tous") {
           const promises = AVAILABLE_YEARS.map(year =>
             fetch(`/data/dividends/${year}.json`)
-              .then(res => {
-                if (!res.ok) {
-                  console.warn(`Fichier ${year}.json introuvable`);
-                  return [];
-                }
-                return res.json();
-              })
-              .catch(err => {
-                console.warn(`Erreur lors du chargement de ${year}.json:`, err);
-                return [];
-              })
+              .then(res => (res.ok ? res.json() : []))
+              .catch(() => [])
           );
-
           const results = await Promise.all(promises);
           allDividends = results.flat();
         } else {
           const year = filters.year;
           const response = await fetch(`/data/dividends/${year}.json`);
-          if (response.ok) {
-            allDividends = await response.json();
-          } else {
-            console.warn(`Aucune donnée pour l'année ${year}`);
-            allDividends = [];
-          }
+          allDividends = response.ok ? await response.json() : [];
         }
 
         setDividends(allDividends);
@@ -291,19 +270,13 @@ export default function Calendar() {
     loadDividends();
   }, [filters.year]);
 
-  // Préchargement des années adjacentes pour une navigation plus rapide
+  // Préchargement des années adjacentes
   useEffect(() => {
     if (filters.year !== "tous") {
       const currentYear = parseInt(filters.year);
-      const adjacentYears = [
-        currentYear - 1,
-        currentYear + 1
-      ].filter(year => AVAILABLE_YEARS.includes(year));
-
+      const adjacentYears = [currentYear - 1, currentYear + 1].filter(y => AVAILABLE_YEARS.includes(y));
       adjacentYears.forEach(year => {
-        fetch(`/data/dividends/${year}.json`)
-          .then(res => res.ok ? res.json() : null)
-          .catch(() => null);
+        fetch(`/data/dividends/${year}.json`).catch(() => null);
       });
     }
   }, [filters.year]);
@@ -330,21 +303,18 @@ export default function Calendar() {
     setCurrentPage(1);
   }, [dividends, filters]);
 
-  // Auto-scroll vers le mois du premier dividende filtré (vue calendrier uniquement)
+  // Auto-scroll vers le mois ciblé (vue calendrier)
   useEffect(() => {
     if (view !== "calendar" || filteredData.length === 0 || loading) return;
-
     const firstDividend = filteredData[0];
     if (!firstDividend || !firstDividend.exDate) return;
 
     const targetDate = new Date(firstDividend.exDate);
     if (isNaN(targetDate.getTime())) return;
 
-    // Mettre à jour le mois affiché dans le calendrier
     const targetMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
     setCurrentMonth(targetMonth);
 
-    // Scroll fluide vers le calendrier après un court délai pour laisser le render se faire
     setTimeout(() => {
       const calendarElement = document.querySelector('[data-calendar-view]');
       if (calendarElement) {
@@ -353,7 +323,7 @@ export default function Calendar() {
     }, 150);
   }, [filteredData, view, loading]);
 
-  // Search functionality
+  // Recherche
   useEffect(() => {
     if (searchQuery.length === 0) {
       setSearchResults([]);
@@ -380,8 +350,8 @@ export default function Calendar() {
     const filtered = companies.filter(
       (company) =>
         company.ticker.toLowerCase().includes(query) ||
-        company.name.toLowerCase().includes(query) ||
-        company.sector.toLowerCase().includes(query)
+        (company.name || "").toLowerCase().includes(query) ||
+        (company.sector || "").toLowerCase().includes(query)
     );
 
     setSearchResults(filtered);
@@ -399,7 +369,7 @@ export default function Calendar() {
   const endIndex = startIndex + itemsPerPage;
   const currentData = filteredData.slice(startIndex, endIndex);
 
-  // Timeline - Distribution par mois/trimestre
+  // Timeline - Distribution
   const getMonthlyDistribution = () => {
     const months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
     const distribution = new Array(12).fill(0);
@@ -416,18 +386,8 @@ export default function Calendar() {
     return months.map((name, index) => ({
       name,
       fullName: [
-        "Janvier",
-        "Février",
-        "Mars",
-        "Avril",
-        "Mai",
-        "Juin",
-        "Juillet",
-        "Août",
-        "Septembre",
-        "Octobre",
-        "Novembre",
-        "Décembre",
+        "Janvier","Février","Mars","Avril","Mai","Juin",
+        "Juillet","Août","Septembre","Octobre","Novembre","Décembre",
       ][index],
       count: distribution[index],
       height: (distribution[index] / maxCount) * 100,
@@ -460,7 +420,7 @@ export default function Calendar() {
   const monthlyData = getMonthlyDistribution();
   const quarterlyData = getQuarterlyDistribution();
 
-  // Countdown - Prochains événements
+  // Prochains événements
   const getUpcomingEvents = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -501,9 +461,8 @@ export default function Calendar() {
     return upcoming;
   }, [filteredData]);
 
-  // Stats calculations
+  // Stats
   const upcomingEventsCount = getUpcomingEvents.length;
-
   const mostActiveMonth = monthlyData.reduce((max, curr) => (curr.count > max.count ? curr : max), monthlyData[0]);
 
   const avgDelay =
@@ -553,9 +512,7 @@ export default function Calendar() {
     return `${day}/${month}/${year}`;
   };
 
-  const formatAmount = (amount) => {
-    return `${Number(amount).toFixed(2)} MAD`;
-  };
+  const formatAmount = (amount) => `${Number(amount).toFixed(2)} MAD`;
 
   const handleSelectCompany = (ticker) => {
     window.location.hash = `#/company/${ticker}`;
@@ -565,7 +522,7 @@ export default function Calendar() {
     setFavorites((prev) => (prev.includes(ticker) ? prev.filter((t) => t !== ticker) : [...prev, ticker]));
   };
 
-  // Calendar functions
+  // Calendar helpers
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -573,7 +530,6 @@ export default function Calendar() {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-
     return { daysInMonth, startingDayOfWeek, year, month };
   };
 
@@ -582,7 +538,6 @@ export default function Calendar() {
       const exDate = new Date(d.exDate);
       const payDate = new Date(d.paymentDate);
       const checkDate = new Date(year, month, day);
-
       return exDate.toDateString() === checkDate.toDateString() || payDate.toDateString() === checkDate.toDateString();
     });
   };
@@ -595,16 +550,7 @@ export default function Calendar() {
     setCurrentMonth(new Date());
   };
 
-  const LoadingSkeleton = () => (
-    <div className="mt-6 space-y-3" role="status" aria-live="polite" aria-label="Chargement des données">
-      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-        <div key={i} className="h-16 bg-zinc-900/50 rounded-lg relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/30 to-transparent animate-shimmer"></div>
-        </div>
-      ))}
-    </div>
-  );
-
+  // Render calendar grid
   const renderCalendar = () => {
     const { daysInMonth, startingDayOfWeek, year, month } = getDaysInMonth(currentMonth);
     const today = new Date();
@@ -624,13 +570,13 @@ export default function Calendar() {
       );
     });
 
-    // Empty cells before month starts (Mon-based grid)
+    // Empty cells (Mon-based)
     const adjustedStartDay = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1;
     for (let i = 0; i < adjustedStartDay; i++) {
       days.push(<div key={`empty-${i}`} className="p-2 min-h-[100px] opacity-30"></div>);
     }
 
-    // Days of the month
+    // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
       const dayDividends = getDividendsForDay(day, month, year);
       const isTodayDate = isToday(day);
@@ -638,13 +584,13 @@ export default function Calendar() {
       days.push(
         <div
           key={`day-${day}`}
-          className={`p-2 min-h-[100px] border border-zinc-800 rounded-lg bg-zinc-900/30 hover:bg-zinc-900/50 hover:border-teal-500/50 transition-all cursor-pointer ${
-            isTodayDate ? "ring-2 ring-teal-500" : ""
+          className={`p-2 min-h-[100px] border border-white/10 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] hover:border-brand-teal/40 transition-all cursor-pointer ${
+            isTodayDate ? "ring-2 ring-brand-teal/60" : ""
           }`}
         >
-          <div className={`font-semibold mb-2 text-sm ${isTodayDate ? "text-teal-400" : "text-zinc-400"}`}>
+          <div className={`font-semibold mb-2 text-sm ${isTodayDate ? "text-brand-teal" : "text-zinc-400"}`}>
             {isTodayDate ? (
-              <span className="bg-teal-500 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
+              <span className="bg-brand-teal text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
                 {day}
               </span>
             ) : (
@@ -660,11 +606,11 @@ export default function Calendar() {
               return (
                 <div
                   key={`${div.ticker}-${idx}`}
-                  className={`text-xs px-2 py-1 rounded ${
+                  className={`text-xs px-2 py-1 rounded border-l-2 truncate hover:scale-105 transition-transform ${
                     isExDate
-                      ? "bg-red-500/20 text-red-300 border-l-2 border-red-500"
-                      : "bg-green-500/20 text-green-300 border-l-2 border-green-500"
-                  } truncate hover:scale-105 transition-transform`}
+                      ? "bg-red-500/15 text-red-300 border-red-400/80"
+                      : "bg-emerald-500/15 text-emerald-300 border-emerald-400/80"
+                  }`}
                   title={`${div.ticker} - ${div.company}`}
                 >
                   {div.ticker}
@@ -683,43 +629,24 @@ export default function Calendar() {
   };
 
   const monthNames = [
-    "Janvier",
-    "Février",
-    "Mars",
-    "Avril",
-    "Mai",
-    "Juin",
-    "Juillet",
-    "Août",
-    "Septembre",
-    "Octobre",
-    "Novembre",
-    "Décembre",
+    "Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre",
   ];
 
   const getUrgencyColor = (urgency) => {
     switch (urgency) {
-      case "imminent":
-        return "border-red-500 bg-red-500/10";
-      case "proche":
-        return "border-yellow-500 bg-yellow-500/10";
-      case "avenir":
-        return "border-blue-500 bg-blue-500/10";
-      default:
-        return "border-zinc-700 bg-zinc-900/30";
+      case "imminent": return "border-red-500 bg-red-500/10";
+      case "proche":   return "border-amber-500 bg-amber-500/10";
+      case "avenir":   return "border-blue-500 bg-blue-500/10";
+      default:         return "border-white/10 bg-white/[0.02]";
     }
   };
 
   const getUrgencyIcon = (urgency) => {
     switch (urgency) {
-      case "imminent":
-        return "🔴";
-      case "proche":
-        return "🟡";
-      case "avenir":
-        return "🔵";
-      default:
-        return "⚪";
+      case "imminent": return "🔴";
+      case "proche":   return "🟡";
+      case "avenir":   return "🔵";
+      default:         return "⚪";
     }
   };
 
@@ -727,7 +654,7 @@ export default function Calendar() {
      RENDER (wrapper + sidebar)
      =========================== */
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-950 via-zinc-900 to-black text-zinc-200">
+    <div className="min-h-screen bg-ink-950 text-white selection:bg-amber-400/30 selection:text-white">
       <Helmet>
         <title>Calendrier des Dividendes - CasaDividendes</title>
         <meta
@@ -741,23 +668,25 @@ export default function Calendar() {
         {/* Sidebar News (desktop) */}
         <NewsSidebar />
 
-        {/* MAIN CONTENT (VF conservée) */}
+        {/* MAIN CONTENT */}
         <main className="flex-1" role="main" aria-live="polite">
           {/* Header */}
-          <div className="flex items-center justify-between gap-4 flex-wrap mb-6 animate-[fadeIn_0.6s_ease-out]">
+          <div className="flex items-center justify-between gap-4 flex-wrap mb-6 animate-reveal">
             <div>
-              <h1 className="text-white text-3xl font-bold bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
-                Calendrier des Dividendes
+              <h1 className="text-3xl font-bold text-white">
+                <span className="bg-gradient-to-r from-brand-orange to-brand-amber bg-clip-text text-transparent">
+                  Calendrier des Dividendes
+                </span>
               </h1>
               <p className="text-zinc-400 mt-2">
                 Suivez toutes les dates de détachement et de paiement des{" "}
-                <span className="text-teal-400 font-medium">dividendes</span> à la BVC
+                <span className="text-brand-teal font-medium">dividendes</span> à la BVC
               </p>
             </div>
           </div>
 
           {/* Timeline - Distribution temporelle */}
-          <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur p-6 animate-[fadeIn_0.6s_ease-out_0.2s_backwards]">
+          <div className="mt-6 card-premium p-6 animate-reveal">
             <div className="flex justify-between items-center mb-4 flex-wrap gap-4">
               <h3 className="text-white font-semibold flex items-center gap-2">
                 <span className="text-xl">📊</span>
@@ -768,8 +697,8 @@ export default function Calendar() {
                   onClick={() => setTimelineView("year")}
                   className={`px-3 py-1 rounded-lg text-sm transition-all ${
                     timelineView === "year"
-                      ? "bg-teal-500/20 text-teal-400 border border-teal-500"
-                      : "bg-zinc-900 text-zinc-400 border border-zinc-700 hover:bg-zinc-800"
+                      ? "bg-brand-teal/10 text-brand-teal border border-brand-teal"
+                      : "btn-ghost"
                   }`}
                 >
                   Mois
@@ -778,8 +707,8 @@ export default function Calendar() {
                   onClick={() => setTimelineView("quarter")}
                   className={`px-3 py-1 rounded-lg text-sm transition-all ${
                     timelineView === "quarter"
-                      ? "bg-teal-500/20 text-teal-400 border border-teal-500"
-                      : "bg-zinc-900 text-zinc-400 border border-zinc-700 hover:bg-zinc-800"
+                      ? "bg-brand-teal/10 text-brand-teal border border-brand-teal"
+                      : "btn-ghost"
                   }`}
                 >
                   Trimestre
@@ -796,13 +725,10 @@ export default function Calendar() {
                     onClick={() => timelineView === "year" && setCurrentMonth(new Date(2024, period.month, 1))}
                   >
                     <div className="text-center mb-2 text-xs text-zinc-500 font-semibold">{period.name}</div>
-                    <div className="relative h-12 bg-zinc-800/30 rounded-lg overflow-hidden hover:bg-zinc-800/50 transition-all">
+                    <div className="relative h-12 rounded-lg overflow-hidden transition-all bg-white/[0.04] border border-white/10 group-hover:border-brand-teal/40">
                       <div
-                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-teal-500/70 to-teal-500/30 rounded-lg transition-all duration-700"
-                        style={{
-                          height: `${period.height}%`,
-                          animationDelay: `${index * 0.05}s`,
-                        }}
+                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brand-teal/70 to-brand-teal/30 rounded-lg transition-all duration-700"
+                        style={{ height: `${period.height}%`, animationDelay: `${index * 0.05}s` }}
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
                         <span className="text-white font-bold text-sm z-10">{period.count}</span>
@@ -819,39 +745,43 @@ export default function Calendar() {
             </div>
           </div>
 
-          {/* Premium Banner */}
-          <div className="mt-6 rounded-2xl bg-gradient-to-r from-purple-600 to-blue-600 p-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg shadow-purple-500/20 animate-[fadeIn_0.6s_ease-out_0.3s_backwards]">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl">⭐</div>
-              <div>
-                <h3 className="text-white text-lg font-bold">Fonctionnalités Premium</h3>
-                <p className="text-white/80 text-sm">Passez à la vitesse supérieure : alertes, exports et synchronisation.</p>
+          {/* Premium Banner (désaturée, cohérente Home) */}
+          <div className="mt-6 card-premium p-6 bg-gradient-to-r from-brand-orange/15 via-brand-teal/10 to-brand-amber/15 animate-reveal">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="text-4xl">⭐</div>
+                <div>
+                  <h3 className="text-white text-lg font-bold">Fonctionnalités Premium</h3>
+                  <p className="text-zinc-300 text-sm">
+                    Passez à la vitesse supérieure : alertes, exports et synchronisation.
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              <button className="px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white text-sm hover:bg-white/30 transition-all opacity-60 cursor-not-allowed flex items-center gap-2">
-                <span>⏰</span> Alertes J-3
-              </button>
-              <button className="px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white text-sm hover:bg-white/30 transition-all opacity-60 cursor-not-allowed flex items-center gap-2">
-                <span>📧</span> Notifications
-              </button>
-              <button className="px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white text-sm hover:bg-white/30 transition-all opacity-60 cursor-not-allowed flex items-center gap-2">
-                <span>📥</span> Export CSV
-              </button>
-              <button className="px-3 py-2 rounded-lg bg-white/20 border border-white/30 text-white text-sm hover:bg-white/30 transition-all opacity-60 cursor-not-allowed flex items-center gap-2">
-                <span>📅</span> Export iCal
-              </button>
+              <div className="flex gap-2 flex-wrap">
+                <button className="btn-ghost opacity-60 cursor-not-allowed flex items-center gap-2">
+                  <span>⏰</span> Alertes J-3
+                </button>
+                <button className="btn-ghost opacity-60 cursor-not-allowed flex items-center gap-2">
+                  <span>📧</span> Notifications
+                </button>
+                <button className="btn-ghost opacity-60 cursor-not-allowed flex items-center gap-2">
+                  <span>📥</span> Export CSV
+                </button>
+                <button className="btn-ghost opacity-60 cursor-not-allowed flex items-center gap-2">
+                  <span>📅</span> Export iCal
+                </button>
+              </div>
             </div>
           </div>
 
           {/* View Toggle */}
-          <div className="mt-6 flex gap-2 animate-[slideIn_0.6s_ease-out_0.4s_backwards]">
+          <div className="mt-6 flex gap-2 animate-reveal">
             <button
               onClick={() => setView("calendar")}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
                 view === "calendar"
-                  ? "bg-teal-500/20 border-2 border-teal-500 text-teal-400 shadow-lg shadow-teal-500/20"
-                  : "bg-zinc-900 border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                  ? "bg-brand-teal/10 border border-brand-teal text-brand-teal shadow-glow"
+                  : "btn-ghost"
               }`}
             >
               <span>📅</span> Vue Calendrier
@@ -860,8 +790,8 @@ export default function Calendar() {
               onClick={() => setView("table")}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all flex items-center gap-2 ${
                 view === "table"
-                  ? "bg-teal-500/20 border-2 border-teal-500 text-teal-400 shadow-lg shadow-teal-500/20"
-                  : "bg-zinc-900 border border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                  ? "bg-brand-teal/10 border border-brand-teal text-brand-teal shadow-glow"
+                  : "btn-ghost"
               }`}
             >
               <span>📊</span> Vue Tableau
@@ -869,8 +799,8 @@ export default function Calendar() {
           </div>
 
           {/* Search Bar */}
-          <div className="mt-6 relative animate-[slideIn_0.6s_ease-out_0.5s_backwards]">
-            <div className="relative flex items-center bg-zinc-900/40 backdrop-blur border border-zinc-700 rounded-xl p-3 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all">
+          <div className="mt-6 relative animate-reveal">
+            <div className="relative flex items-center card-premium p-3 focus-within:border-brand-teal focus-within:ring-0">
               <span className="text-zinc-500 text-xl mr-3">🔍</span>
               <input
                 type="text"
@@ -882,7 +812,7 @@ export default function Calendar() {
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
-                  className="ml-2 w-7 h-7 rounded-full bg-red-500/20 text-red-400 hover:bg-red-500/30 hover:scale-110 transition-all flex items-center justify-center"
+                  className="ml-2 w-7 h-7 rounded-full bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 hover:scale-110 transition-all flex items-center justify-center"
                 >
                   ✕
                 </button>
@@ -890,7 +820,7 @@ export default function Calendar() {
             </div>
 
             {showSearchResults && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-zinc-950/98 backdrop-blur-xl border border-zinc-700 rounded-xl max-h-96 overflow-y-auto z-50 shadow-2xl animate-[fadeIn_0.3s_ease-out]">
+              <div className="absolute top-full left-0 right-0 mt-2 card-premium max-h-96 overflow-y-auto z-50 animate-reveal">
                 {searchResults.map((company) => (
                   <div
                     key={company.ticker}
@@ -898,18 +828,18 @@ export default function Calendar() {
                       handleFilterChange("company", company.ticker);
                       setSearchQuery("");
                       setShowSearchResults(false);
-                      setView("calendar"); // Basculer vers la vue calendrier
+                      setView("calendar");
                     }}
-                    className="p-4 border-b border-zinc-800 hover:bg-teal-500/10 cursor-pointer transition-all flex justify-between items-center"
+                    className="p-4 border-b border-white/10 hover:bg-brand-teal/10 cursor-pointer transition-all flex justify-between items-center"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-teal-400 font-bold text-lg">{company.ticker}</span>
+                      <span className="text-brand-teal font-bold text-lg">{company.ticker}</span>
                       <div>
                         <div className="text-zinc-200 font-medium">{company.name}</div>
                         <div className="text-zinc-500 text-sm">{company.sector}</div>
                       </div>
                     </div>
-                    <span className="text-teal-400 text-sm bg-teal-500/20 px-3 py-1 rounded-full font-semibold">
+                    <span className="text-brand-teal text-sm bg-brand-teal/10 px-3 py-1 rounded-full font-semibold">
                       {company.count} div.
                     </span>
                   </div>
@@ -919,26 +849,24 @@ export default function Calendar() {
           </div>
 
           {/* Filters */}
-          <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sticky top-20 z-40 backdrop-blur animate-[slideIn_0.6s_ease-out_0.6s_backwards]">
+          <div className="mt-6 sticky top-20 z-40 card-premium p-4 animate-reveal">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <select
                 value={filters.year}
                 onChange={(e) => handleFilterChange("year", e.target.value)}
-                className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all"
+                className="px-3 py-2 rounded-lg bg-ink-950 border border-white/10 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/50 transition-all"
                 aria-label="Filtrer par année"
               >
                 <option value="tous">Toutes les années</option>
                 {uniqueYears.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
+                  <option key={year} value={year}>{year}</option>
                 ))}
               </select>
 
               <select
                 value={filters.company}
                 onChange={(e) => handleFilterChange("company", e.target.value)}
-                className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all"
+                className="px-3 py-2 rounded-lg bg-ink-950 border border-white/10 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/50 transition-all"
               >
                 <option value="tous">Toutes les sociétés</option>
                 {uniqueCompanies.map((comp) => (
@@ -951,58 +879,41 @@ export default function Calendar() {
               <select
                 value={filters.sector}
                 onChange={(e) => handleFilterChange("sector", e.target.value)}
-                className="px-3 py-2 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all"
+                className="px-3 py-2 rounded-lg bg-ink-950 border border-white/10 text-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/50 transition-all"
               >
                 <option value="tous">Tous les secteurs</option>
                 {uniqueSectors.map((sector) => (
-                  <option key={sector} value={sector}>
-                    {sector}
-                  </option>
+                  <option key={sector} value={sector}>{sector}</option>
                 ))}
               </select>
 
-              <button
-                onClick={handleResetFilters}
-                className="px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 text-sm hover:bg-zinc-800 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all"
-              >
+              <button onClick={handleResetFilters} className="btn-ghost">
                 🔄 Réinitialiser
               </button>
             </div>
           </div>
 
           {loading ? (
-            <LoadingSkeleton />
+            <div className="mt-6 space-y-3" role="status" aria-live="polite" aria-label="Chargement des données">
+              {[1,2,3,4,5,6,7,8].map((i) => (
+                <div key={i} className="h-16 rounded-lg relative overflow-hidden bg-white/[0.04]">
+                  <div className="absolute inset-0 shimmer" />
+                </div>
+              ))}
+            </div>
           ) : (
             <>
               {/* Calendar View */}
               {view === "calendar" && (
-                <div
-                  className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 animate-[fadeIn_0.4s_ease-out]"
-                  data-calendar-view
-                >
+                <div className="mt-6 card-premium p-6 animate-reveal" data-calendar-view>
                   <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
                     <h2 className="text-white text-2xl font-bold">
                       {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                     </h2>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => changeMonth(-1)}
-                        className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 hover:bg-zinc-800 hover:border-teal-500 transition-all text-sm"
-                      >
-                        ← Précédent
-                      </button>
-                      <button
-                        onClick={goToToday}
-                        className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 hover:bg-zinc-800 hover:border-teal-500 transition-all text-sm"
-                      >
-                        Aujourd&apos;hui
-                      </button>
-                      <button
-                        onClick={() => changeMonth(1)}
-                        className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 hover:bg-zinc-800 hover:border-teal-500 transition-all text-sm"
-                      >
-                        Suivant →
-                      </button>
+                      <button onClick={() => changeMonth(-1)} className="btn-ghost">← Précédent</button>
+                      <button onClick={goToToday} className="btn-ghost">Aujourd&apos;hui</button>
+                      <button onClick={() => changeMonth(1)} className="btn-ghost">Suivant →</button>
                     </div>
                   </div>
 
@@ -1010,11 +921,11 @@ export default function Calendar() {
 
                   <div className="flex gap-6 justify-center mt-6 text-sm text-zinc-400 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-red-500/50 rounded"></div>
+                      <div className="w-3 h-3 bg-red-500/50 rounded" />
                       <span>Date de détachement</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-500/50 rounded"></div>
+                      <div className="w-3 h-3 bg-emerald-500/50 rounded" />
                       <span>Date de paiement</span>
                     </div>
                   </div>
@@ -1024,9 +935,9 @@ export default function Calendar() {
               {/* Table View */}
               {view === "table" && (
                 <>
-                  <div className="mt-6 overflow-x-auto scroll-smooth rounded-2xl border border-zinc-800 animate-[fadeIn_0.4s_ease-out]">
+                  <div className="mt-6 overflow-x-auto scroll-smooth rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-sm animate-reveal">
                     <table className="min-w-full text-sm">
-                      <thead className="bg-zinc-900 text-zinc-300 sticky top-0 z-10 border-b-2 border-teal-500">
+                      <thead className="bg-white/[0.04] text-zinc-300 sticky top-0 z-10 border-b-2 border-brand-teal/70">
                         <tr>
                           <th className="text-left px-3 py-2 font-semibold">⭐</th>
                           <th className="text-left px-3 py-2 font-semibold">Ticker</th>
@@ -1051,7 +962,7 @@ export default function Calendar() {
                           currentData.map((dividend, i) => (
                             <tr
                               key={`${dividend.ticker}-${dividend.year}-${i}`}
-                              className="border-t border-zinc-800 hover:bg-zinc-900/50 transition-all group"
+                              className="border-t border-white/10 hover:bg-white/[0.04] transition-all group"
                               style={{ backgroundColor: i % 2 === 1 ? "rgba(255,255,255,0.02)" : "transparent" }}
                             >
                               <td className="px-3 py-2">
@@ -1060,7 +971,7 @@ export default function Calendar() {
                                   className="text-xl hover:scale-125 transition-transform"
                                 >
                                   {favorites.includes(dividend.ticker) ? (
-                                    <span className="text-yellow-400">★</span>
+                                    <span className="text-amber-300">★</span>
                                   ) : (
                                     <span className="text-zinc-600 group-hover:text-zinc-400">☆</span>
                                   )}
@@ -1069,7 +980,7 @@ export default function Calendar() {
                               <td className="px-3 py-2 text-white font-medium">
                                 <button
                                   onClick={() => handleSelectCompany(dividend.ticker)}
-                                  className="underline hover:text-teal-400 transition-colors"
+                                  className="underline hover:text-brand-teal transition-colors"
                                 >
                                   {dividend.ticker}
                                 </button>
@@ -1077,7 +988,7 @@ export default function Calendar() {
                               <td className="px-3 py-2 text-zinc-200">{dividend.company}</td>
                               <td className="px-3 py-2 text-zinc-300">{dividend.sector}</td>
                               <td className="px-3 py-2 text-zinc-300 font-medium">{dividend.year}</td>
-                              <td className="px-3 py-2 text-teal-400 font-semibold text-right">
+                              <td className="px-3 py-2 text-brand-teal font-semibold text-right">
                                 {formatAmount(dividend.dividend)}
                               </td>
                               <td className="px-3 py-2 text-zinc-300">{formatDate(dividend.exDate)}</td>
@@ -1086,10 +997,10 @@ export default function Calendar() {
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs border ${
                                     dividend.type === "Spécial"
-                                      ? "border-orange-500 text-orange-400 bg-orange-500/10"
+                                      ? "border-brand-orange text-brand-orange bg-brand-orange/10"
                                       : dividend.type === "Intérim"
                                       ? "border-blue-400 text-blue-300 bg-blue-400/10"
-                                      : "border-teal-500 text-teal-400 bg-teal-500/10"
+                                      : "border-brand-teal text-brand-teal bg-brand-teal/10"
                                   }`}
                                 >
                                   {dividend.type}
@@ -1098,7 +1009,7 @@ export default function Calendar() {
                               <td className="px-3 py-2">
                                 <button
                                   onClick={() => handleSelectCompany(dividend.ticker)}
-                                  className="px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 hover:bg-zinc-800 hover:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-400 transition-colors"
+                                  className="btn-ghost"
                                 >
                                   Ouvrir
                                 </button>
@@ -1111,7 +1022,7 @@ export default function Calendar() {
                   </div>
 
                   {filteredData.length > 0 && (
-                    <div className="flex items-center justify-between p-4 text-sm text-zinc-400 rounded-b-2xl border-x border-b border-zinc-800 bg-zinc-900/40 flex-wrap gap-2">
+                    <div className="flex items-center justify-between p-4 text-sm text-zinc-400 rounded-b-2xl border-x border-b border-white/10 bg-white/[0.02] flex-wrap gap-2">
                       <div>
                         Page {currentPage} sur {totalPages} ({filteredData.length} résultat
                         {filteredData.length > 1 ? "s" : ""})
@@ -1120,14 +1031,14 @@ export default function Calendar() {
                         <button
                           onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                           disabled={currentPage === 1}
-                          className="px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="btn-ghost disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Précédent
                         </button>
                         <button
                           onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                           disabled={currentPage === totalPages}
-                          className="px-3 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-zinc-200 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="btn-ghost disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           Suivant
                         </button>
@@ -1142,8 +1053,8 @@ export default function Calendar() {
           {/* Insights Section */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Card 1: Événements à venir */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 hover:border-teal-500/50 hover:shadow-lg hover:shadow-teal-500/10 transition-all animate-[fadeIn_0.6s_ease-out]">
-              <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-xl mb-4">
+            <div className="card-premium p-6 hover:border-brand-teal/30 hover:shadow-glow transition-all animate-reveal">
+              <div className="w-10 h-10 rounded-lg bg-white/[0.06] flex items-center justify-center text-xl mb-4">
                 📌
               </div>
               <h3 className="text-zinc-400 text-sm font-semibold mb-2">Événements à venir</h3>
@@ -1154,8 +1065,8 @@ export default function Calendar() {
             </div>
 
             {/* Card 2: Statistiques Temporelles */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 hover:border-teal-500/50 hover:shadow-lg hover:shadow-teal-500/10 transition-all animate-[fadeIn_0.6s_ease-out_0.1s_backwards]">
-              <div className="w-10 h-10 rounded-lg bg-teal-500/20 flex items-center justify-center text-xl mb-4">
+            <div className="card-premium p-6 hover:border-brand-teal/30 hover:shadow-glow transition-all animate-reveal">
+              <div className="w-10 h-10 rounded-lg bg-white/[0.06] flex items-center justify-center text-xl mb-4">
                 📊
               </div>
               <h3 className="text-zinc-400 text-sm font-semibold mb-3">Statistiques Temporelles</h3>
@@ -1180,8 +1091,8 @@ export default function Calendar() {
             </div>
 
             {/* Card 3: Paiements en cours */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 hover:border-teal-500/50 hover:shadow-lg hover:shadow-teal-500/10 transition-all animate-[fadeIn_0.6s_ease-out_0.2s_backwards]">
-              <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-xl mb-4">
+            <div className="card-premium p-6 hover:border-brand-teal/30 hover:shadow-glow transition-all animate-reveal">
+              <div className="w-10 h-10 rounded-lg bg-white/[0.06] flex items-center justify-center text-xl mb-4">
                 💰
               </div>
               <h3 className="text-zinc-400 text-sm font-semibold mb-2">Paiements en cours</h3>
@@ -1196,10 +1107,10 @@ export default function Calendar() {
           </div>
 
           {/* Educational Section */}
-          <div className="mt-12 rounded-2xl border border-zinc-800 bg-zinc-900/40 p-8">
+          <div className="mt-12 card-premium p-8">
             <h2 className="text-white text-2xl font-bold text-center mb-8">Comprendre le Calendrier des Dividendes</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-teal-500/50 transition-all">
+              <div className="text-center p-6 rounded-xl bg-white/[0.02] border border-white/10 hover:border-brand-teal/40 transition-all">
                 <div className="text-4xl mb-4">🏷️</div>
                 <h3 className="text-white text-lg font-semibold mb-3">Qu&apos;est-ce que la date de détachement ?</h3>
                 <p className="text-zinc-400 text-sm leading-relaxed">
@@ -1208,7 +1119,7 @@ export default function Calendar() {
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-teal-500/50 transition-all">
+              <div className="text-center p-6 rounded-xl bg-white/[0.02] border border-white/10 hover:border-brand-teal/40 transition-all">
                 <div className="text-4xl mb-4">💵</div>
                 <h3 className="text-white text-lg font-semibold mb-3">Quand recevrai-je mon dividende ?</h3>
                 <p className="text-zinc-400 text-sm leading-relaxed">
@@ -1217,24 +1128,24 @@ export default function Calendar() {
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-zinc-900/50 border border-zinc-800 hover:border-teal-500/50 transition-all">
+              <div className="text-center p-6 rounded-xl bg-white/[0.02] border border-white/10 hover:border-brand-teal/40 transition-all">
                 <div className="text-4xl mb-4">⚠️</div>
                 <h3 className="text-white text-lg font-semibold mb-3">Dates passées et à venir</h3>
                 <p className="text-zinc-400 text-sm leading-relaxed">
-                  Les couleurs vous aident à naviguer. <span className="text-red-500 font-semibold">Rouge</span> pour les
-                  détachements, <span className="text-green-500 font-semibold"> Vert</span> pour les paiements.
+                  Les couleurs vous aident à naviguer. <span className="text-red-400 font-semibold">Rouge</span> pour les
+                  détachements, <span className="text-emerald-400 font-semibold"> Vert</span> pour les paiements.
                 </p>
               </div>
             </div>
             <div className="text-center mt-6">
-              <a href="#/blog" className="text-teal-400 font-semibold hover:text-teal-300 transition-colors">
+              <a href="#/blog" className="text-brand-teal font-semibold hover:text-white transition-colors">
                 Lire notre guide complet sur les dividendes →
               </a>
             </div>
           </div>
 
           {/* Newsletter Section (MOBILE/TABLET UNIQUEMENT) */}
-          <div className="mt-8 rounded-2xl border border-teal-500/30 bg-gradient-to-r from-teal-500/10 to-blue-500/10 p-8 text-center xl:hidden">
+          <div className="mt-8 card-premium p-8 text-center xl:hidden bg-gradient-to-r from-brand-orange/10 via-brand-teal/10 to-brand-amber/10">
             <h2 className="text-white text-2xl font-bold mb-2">Vos Dividendes, Votre Agenda.</h2>
             <p className="text-zinc-400 mb-6">
               Recevez l&apos;essentiel des dividendes directement dans votre boîte mail.
@@ -1243,9 +1154,9 @@ export default function Calendar() {
               <input
                 type="email"
                 placeholder="Votre adresse e-mail"
-                className="flex-1 px-4 py-3 rounded-lg bg-zinc-950 border border-zinc-700 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-teal-400 transition-all"
+                className="flex-1 px-4 py-3 rounded-lg bg-ink-950 border border-white/10 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-brand-teal/50 focus:border-brand-teal/60 transition-all"
               />
-              <button className="px-6 py-3 rounded-lg bg-gradient-to-r from-teal-500 to-blue-500 text-white font-semibold hover:shadow-lg hover:shadow-teal-500/50 transition-all">
+              <button className="btn-ghost text-brand-teal border-brand-teal/40 hover:bg-brand-teal/10">
                 S&apos;abonner
               </button>
             </div>
@@ -1253,21 +1164,21 @@ export default function Calendar() {
           </div>
 
           {/* Source Info */}
-          <div className="mt-8 rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+          <div className="mt-8 card-premium p-5">
             <h2 className="text-white font-semibold mb-2">Source</h2>
             <p className="text-zinc-400 text-sm">
               Historique des dividendes CasaDividendes (2020-2024), données officielles BVC et sociétés émettrices.
             </p>
           </div>
 
-          {/* Premium CTA */}
-          <div className="mt-8 rounded-2xl border border-zinc-800 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          {/* Premium CTA (aligné Home) */}
+          <div className="mt-8 card-premium p-6 bg-gradient-to-r from-ink-950 via-ink-900 to-ink-950 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-white font-semibold">
               Débloquez les alertes automatiques J-3, l&apos;export iCal/CSV et les vues avancées.
             </p>
             <button
               onClick={() => (window.location.hash = "#/premium")}
-              className="px-4 py-2 rounded-xl bg-orange-500 text-black font-semibold hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-zinc-950 whitespace-nowrap transition-colors"
+              className="btn-primary"
             >
               Essayer Premium
             </button>
@@ -1278,62 +1189,6 @@ export default function Calendar() {
           </p>
         </main>
       </div>
-
-      {/* (Optionnel) newsletter légère mobile déjà incluse plus haut (xl:hidden) */}
-
-      {/* Styles anim / scrollbar (styled-jsx si Next.js ; sinon déplacer en CSS global) */}
-      <style jsx>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-          background: rgba(39, 39, 42, 0.5);
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: rgba(20, 184, 166, 0.5);
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: rgba(20, 184, 166, 0.7);
-        }
-      `}</style>
     </div>
   );
 }
