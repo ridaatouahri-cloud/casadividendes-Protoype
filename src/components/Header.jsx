@@ -5,7 +5,7 @@ import { Pill } from "./StatCard";
 const NAV = [
   { key: "home", label: "Accueil", path: "#/" },
   { key: "calendar", label: "Calendrier", path: "#/calendar" },
-  { key: "ranking", label: "Palmarès", path: "#/ranking" }, // <- route unifiée
+  { key: "ranking", label: "Palmarès", path: "#/rankings" }, // <- route unifiée
   { key: "blog", label: "Blog", path: "#/blog" },
   { key: "premium", label: "Premium", path: "#/premium" },
   { key: "about", label: "À propos & Contact", path: "#/about" },
