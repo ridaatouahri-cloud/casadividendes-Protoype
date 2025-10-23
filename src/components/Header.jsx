@@ -46,7 +46,7 @@ export default function Header() {
               <img
                 src="/logo.png"
                 alt="CasaDividendes"
-                className="h-12 md:h-12 w-auto transition-transform hover:scale-[1.02]"
+                className="h-13 md:h-13 w-auto transition-transform hover:scale-[1.02]"
               />
             </a>
             <Pill>Beta</Pill>
