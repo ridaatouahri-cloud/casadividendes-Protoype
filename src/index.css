@@ -1,157 +1,186 @@
+/* src/index.css — CasaDividendes Premium Dark */
+/* Polices (Inter/Manrope/Space Grotesk) */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;600;700&family=Space+Grotesk:wght@400;600&display=swap");
+
+/* Tailwind base */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: 'SF Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', 
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ===== Base premium ===== */
+@layer base {
+  html, body, #root {
+    background-color: #0B0B0D; /* ink-950 */
+    color: #fff;
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Inter", "Manrope", "Space Grotesk", -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans",
+      "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection { background: rgba(251, 191, 36, 0.35); color: #fff; } /* amber/35% */
+
+  /* Scrollbar premium discrète */
+  * { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent; }
+  *::-webkit-scrollbar { width: 10px; height: 10px; }
+  *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 999px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+
+  /* Focus visible accessible (turquoise doux) */
+  :focus-visible { outline: 2px solid rgba(52, 211, 153, 0.5); outline-offset: 2px; } /* #34d399 */
 }
 
-#root {
-  min-height: 100vh;
+/* ===== Utilitaires composants ===== */
+@layer components {
+  .card-premium {
+    @apply rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md shadow-[0_6px_30px_rgba(0,0,0,0.25)];
+  }
+  .divider-soft {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent;
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold text-black
+           bg-gradient-to-r from-orange-400 to-amber-400
+           shadow-[0_8px_30px_rgba(255,140,0,0.25)]
+           hover:shadow-[0_10px_38px_rgba(255,140,0,0.33)] transition-all;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold text-white
+           border border-white/10 hover:bg-white/5 transition-all;
+  }
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
+    background-size: 56px 56px;
+    opacity: .04;
+  }
+  .shimmer {
+    position: relative; overflow: hidden;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
 }
 
+/* ===== Animations premium (adoucies) ===== */
+
+/* Fade-in vers le haut (conservée, plus fine) */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
+.animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
 
+/* Croissance verticale (conservée) */
 @keyframes growUp {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
 }
+.animate-grow-up { animation: growUp 1.1s ease-out forwards; transform-origin: bottom; }
 
+/* Flottement (amplitude réduite) */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+
+/* Glow subtil (turquoise) */
+@keyframes glowpulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(52, 211, 153, 0.35)); }
+  50%      { filter: drop-shadow(0 0 16px rgba(52, 211, 153, 0.7)); }
+}
+.animate-glow { animation: glowpulse 6s ease-in-out infinite; }
+
+/* Gradient shift (fond héro) */
+@keyframes gradient-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient-shift { animation: gradient-shift 12s ease infinite; }
+
+/* Révélation douce */
+@keyframes reveal {
+  0%   { opacity: 0; transform: translateY(24px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-reveal { animation: reveal .7s ease-out both; }
+
+/* Shimmer (skeleton/loading) */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-@keyframes glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.4));
-  }
-  50% {
-    filter: drop-shadow(0 0 20px rgba(20, 184, 166, 0.8));
-  }
-}
+/* Delays & durations (conservés) */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
 
-.animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out forwards;
-}
+.duration-250 { transition-duration: 0.25s; }
+.duration-400 { transition-duration: 0.4s; }
 
-.animate-grow-up {
-  animation: growUp 1.2s ease-out forwards;
-  transform-origin: bottom;
-}
+/* ===== Effets visuels ===== */
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-glow {
-  animation: glow 3s ease-in-out infinite;
-}
-
-.delay-100 {
-  animation-delay: 0.1s;
-}
-
-.delay-200 {
-  animation-delay: 0.2s;
-}
-
-.delay-300 {
-  animation-delay: 0.3s;
-}
-
-.delay-400 {
-  animation-delay: 0.4s;
-}
-
-.delay-500 {
-  animation-delay: 0.5s;
-}
-
-.delay-600 {
-  animation-delay: 0.6s;
-}
-
-.duration-250 {
-  transition-duration: 0.25s;
-}
-
-.duration-400 {
-  transition-duration: 0.4s;
-}
-
+/* Vitrage doux (glassmorphism) — same API, teinte plus sombre */
 .glassmorphism {
-  background: rgba(15, 15, 15, 0.7);
+  background: rgba(10, 10, 12, 0.60);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
+/* Header discret flouté */
 header {
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
 
+/* Liens nav (conservé) */
 header nav a {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
 }
 
+/* Héro gradient premium (noir profond + halos turquoise/orange, saturation réduite) */
 .hero-gradient {
-  background: radial-gradient(ellipse at 20% 40%, rgba(16, 185, 129, 0.25) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 30%, rgba(126, 34, 206, 0.18) 0%, transparent 50%),
-              radial-gradient(ellipse at 50% 90%, rgba(249, 115, 22, 0.15) 0%, transparent 50%),
-              linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%);
+  background:
+    radial-gradient(ellipse at 18% 42%, rgba(52, 211, 153, 0.18) 0%, transparent 52%),
+    radial-gradient(ellipse at 82% 32%, rgba(251, 146, 60, 0.14) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 88%, rgba(251, 191, 36, 0.10) 0%, transparent 50%),
+    linear-gradient(135deg, #0B0B0D 0%, #0F1115 55%, #0B0B0D 100%);
+  background-size: 160% 160%;
 }
 
-.text-glow {
-  text-shadow: 0 0 20px rgba(20, 184, 166, 0.3);
-}
+/* Lueur de texte discrète */
+.text-glow { text-shadow: 0 0 16px rgba(52, 211, 153, 0.28); }
 
+/* Titres en dégradé (teal -> amber) */
 .hero-title-gradient {
-  background: linear-gradient(135deg, #14B8A6 0%, #5EEAD4 50%, #14B8A6 100%);
-  -webkit-background-clip: text;
+  background: linear-gradient(135deg, #34D399 0%, #FBBF24 100%);
+  -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
+/* Variante animée (teal -> orange, très soft) */
 .hero-title-gradient-alt {
   background: linear-gradient(90deg, #10B981 0%, #F97316 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   background-size: 200% auto;
-  animation: gradient-shift 3s ease infinite;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 9s ease infinite;
 }
 
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% center;
-  }
-  50% {
-    background-position: 100% center;
-  }
-}
 /* Scrollbar masquée proprement (Chrome/Safari/Firefox/Edge) */
 .scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
 .scrollbar-hide::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -160,8 +189,8 @@ header nav a {
 @supports (height: 100dvh) {
   .sidebar-maxh { max-height: calc(100dvh - 4rem); }
 }
-/* focus visible et accessible */
-:focus-visible { outline: 2px solid #14B8A6; outline-offset: 2px; }
+
+/* Accessibilité mouvement réduit */
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
