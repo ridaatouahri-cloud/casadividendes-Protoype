@@ -97,3 +97,26 @@ export async function getCompanies() {
     return [];
   }
 }
+
+export async function getAllDividends(years = DATA_YEARS) {
+  try {
+    const results = await Promise.all(
+      years.map(async (y) => {
+        const res = await fetch(DIVIDENDS_URL(y));
+        if (!res.ok) return [];
+        const arr = await res.json();
+        return Array.isArray(arr) ? arr.map((r) => ({ year: y, ...r })) : [];
+      })
+    );
+    return results.flat().map((r) => ({
+      year: Number(r.year),
+      ticker: r.ticker || "",
+      company: r.company || "",
+      exDate: r.exDate || r.exdate || r.detachmentDate || null,
+      paymentDate: r.paymentDate || r.pay || r.payment || null,
+      amount: Number(r.dividend ?? r.amount ?? 0),
+    }));
+  } catch {
+    return [];
+  }
+}

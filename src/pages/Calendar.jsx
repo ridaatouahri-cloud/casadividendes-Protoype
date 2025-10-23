@@ -2,6 +2,7 @@
 // Dépendances attendues : Tailwind + index.css premium, react-helmet-async déjà configuré
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
+import { getAllDividends } from "../services/dataService";
 
 const AVAILABLE_YEARS = [2020, 2021, 2022, 2023, 2024];
 
@@ -245,17 +246,10 @@ export default function Calendar() {
         let allDividends = [];
 
         if (filters.year === "tous") {
-          const promises = AVAILABLE_YEARS.map(year =>
-            fetch(`/data/dividends/${year}.json`)
-              .then(res => (res.ok ? res.json() : []))
-              .catch(() => [])
-          );
-          const results = await Promise.all(promises);
-          allDividends = results.flat();
+          allDividends = await getAllDividends(AVAILABLE_YEARS);
         } else {
-          const year = filters.year;
-          const response = await fetch(`/data/dividends/${year}.json`);
-          allDividends = response.ok ? await response.json() : [];
+          const year = parseInt(filters.year);
+          allDividends = await getAllDividends([year]);
         }
 
         setDividends(allDividends);
@@ -268,17 +262,6 @@ export default function Calendar() {
     };
 
     loadDividends();
-  }, [filters.year]);
-
-  // Préchargement des années adjacentes
-  useEffect(() => {
-    if (filters.year !== "tous") {
-      const currentYear = parseInt(filters.year);
-      const adjacentYears = [currentYear - 1, currentYear + 1].filter(y => AVAILABLE_YEARS.includes(y));
-      adjacentYears.forEach(year => {
-        fetch(`/data/dividends/${year}.json`).catch(() => null);
-      });
-    }
   }, [filters.year]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
@@ -41,7 +41,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/calendar" element={<Calendar />} />
-          <Route path="/rankings" element={<Rankings />} />
+          <Route path="/ranking" element={<Rankings />} />
+          <Route path="/rankings" element={<Navigate to="/ranking" replace />} />
           <Route path="/company/:ticker" element={<Company />} />
           <Route path="/premium" element={<Premium />} />
           <Route path="/blog" element={<Blog />} />
