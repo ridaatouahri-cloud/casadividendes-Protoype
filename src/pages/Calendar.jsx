@@ -972,21 +972,21 @@ export default function Calendar() {
                               <td className="px-3 py-2 text-zinc-300">{dividend.sector}</td>
                               <td className="px-3 py-2 text-zinc-300 font-medium">{dividend.year}</td>
                               <td className="px-3 py-2 text-brand-teal font-semibold text-right">
-                                {formatAmount(dividend.dividend)}
+                                {dividend.amount ? `${dividend.amount.toFixed(2)} ${dividend.currency || "MAD"}` : "—"}
                               </td>
                               <td className="px-3 py-2 text-zinc-300">{formatDate(dividend.exDate)}</td>
                               <td className="px-3 py-2 text-zinc-300">{formatDate(dividend.paymentDate)}</td>
                               <td className="px-3 py-2">
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs border ${
-                                    dividend.type === "Spécial"
+                                    dividend.dividendType === "Spécial"
                                       ? "border-brand-orange text-brand-orange bg-brand-orange/10"
-                                      : dividend.type === "Intérim"
+                                      : dividend.dividendType === "Intérim"
                                       ? "border-blue-400 text-blue-300 bg-blue-400/10"
                                       : "border-brand-teal text-brand-teal bg-brand-teal/10"
                                   }`}
                                 >
-                                  {dividend.type}
+                                  {dividend.dividendType || "—"}
                                 </span>
                               </td>
                               <td className="px-3 py-2">

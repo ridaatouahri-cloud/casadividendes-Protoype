@@ -2,6 +2,14 @@ import { DATA_YEARS, DIVIDENDS_URL, COMPANIES_URL } from "../constants/paths";
 
 const norm = (s) => (s || "").toString().toLowerCase().trim();
 
+function normalizeAmount(v) {
+  if (v == null) return 0;
+  if (typeof v === "number" && isFinite(v)) return v;
+  const s = String(v).replace(/\s/g, "").replace(/[A-Za-z]+/g, "").replace(/,/g, ".");
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+
 export async function getDividendsFor(tickerOrName) {
   try {
     const results = await Promise.all(
@@ -108,14 +116,21 @@ export async function getAllDividends(years = DATA_YEARS) {
         return Array.isArray(arr) ? arr.map((r) => ({ year: y, ...r })) : [];
       })
     );
-    return results.flat().map((r) => ({
-      year: Number(r.year),
-      ticker: r.ticker || "",
-      company: r.company || "",
-      exDate: r.exDate || r.exdate || r.detachmentDate || null,
-      paymentDate: r.paymentDate || r.pay || r.payment || null,
-      amount: Number(r.dividend ?? r.amount ?? 0),
-    }));
+    return results.flat().map((r) => {
+      const amount = normalizeAmount(r.dividend ?? r.amount ?? r.value);
+      const dividendType = r.type ?? r.dividendType ?? r.category ?? r.kind ?? null;
+      const currency = r.currency ?? "MAD";
+      return {
+        year: Number(r.year),
+        ticker: r.ticker || "",
+        company: r.company || "",
+        exDate: r.exDate || r.exdate || r.detachmentDate || null,
+        paymentDate: r.paymentDate || r.pay || r.payment || null,
+        amount,
+        dividendType,
+        currency,
+      };
+    });
   } catch {
     return [];
   }
