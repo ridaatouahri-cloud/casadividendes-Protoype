@@ -4,25 +4,24 @@ import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { StatCard, Pill } from "../components/StatCard";
 import { getAllDividends } from "../services/dataService";
+import { DATA_YEARS } from "../constants/paths";
 import { ROUTES } from "../constants/routes";
 
 export default function Rankings() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedYear, setSelectedYear] = useState("all");
+  const [year, setYear] = useState("tous");
 
   useEffect(() => {
     let alive = true;
     (async () => {
       setLoading(true);
-      const data = await getAllDividends();
+      const years = year === "tous" ? DATA_YEARS : [Number(year)];
+      const data = await getAllDividends(years);
       if (!alive) return;
 
       const aggregated = new Map();
       data.forEach((row) => {
-        if (selectedYear !== "all" && row.year !== parseInt(selectedYear)) {
-          return;
-        }
         const key = row.ticker;
         if (!aggregated.has(key)) {
           aggregated.set(key, {
@@ -54,7 +53,7 @@ export default function Rankings() {
     return () => {
       alive = false;
     };
-  }, [selectedYear]);
+  }, [year]);
 
   const totalAmount = rows.reduce((sum, r) => sum + (r.amount || 0), 0);
   const avgAmount = rows.length > 0 ? (totalAmount / rows.length).toFixed(2) : "0.00";
@@ -85,16 +84,16 @@ export default function Rankings() {
         <div className="mt-6 flex flex-wrap gap-2 text-sm items-center">
           <span className="text-zinc-400">Année:</span>
           <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
             className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.02] text-white focus:outline-none focus:ring-2 focus:ring-brand-teal/60"
           >
-            <option value="all">Toutes</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-            <option value="2020">2020</option>
+            <option value="tous">Toutes</option>
+            {DATA_YEARS.slice().reverse().map((y) => (
+              <option key={y} value={String(y)}>
+                {y}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -158,7 +157,7 @@ export default function Rankings() {
                       <td className="p-3 text-white font-medium">{row.ticker}</td>
                       <td className="p-3 text-zinc-200">{row.company}</td>
                       <td className="p-3 text-brand-teal font-semibold text-right">
-                        {row.amount
+                        {typeof row.amount === "number"
                           ? `${row.amount.toFixed(2)} ${row.currency || "MAD"}`
                           : "—"}
                       </td>
