@@ -1,15 +1,16 @@
 // src/components/Header.jsx — premium, dark, glassy
 import React from "react";
 import { Pill } from "./StatCard";
+import { ROUTES } from "../constants/routes";
 
 const NAV = [
-  { key: "home", label: "Accueil", path: "#/" },
-  { key: "calendar", label: "Calendrier", path: "#/calendar" },
-  { key: "ranking", label: "Palmarès", path: "#/rankings" }, // <- route unifiée
-  { key: "blog", label: "Blog", path: "#/blog" },
-  { key: "premium", label: "Premium", path: "#/premium" },
-  { key: "about", label: "À propos & Contact", path: "#/about" },
-  { key: "legal", label: "Mentions légales", path: "#/legal" },
+  { key: "home", label: "Accueil", path: ROUTES.HOME },
+  { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
+  { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
+  { key: "blog", label: "Blog", path: ROUTES.BLOG },
+  { key: "premium", label: "Premium", path: ROUTES.PREMIUM },
+  { key: "about", label: "À propos & Contact", path: ROUTES.ABOUT },
+  { key: "legal", label: "Mentions légales", path: ROUTES.LEGAL },
 ];
 
 function getHashPath() {
@@ -39,7 +40,7 @@ export default function Header() {
           {/* Brand */}
           <div className="flex items-center gap-3">
             <a
-              href="#/"
+              href={ROUTES.HOME}
               className="flex items-center gap-2 rounded focus:outline-none focus:ring-2 focus:ring-brand-teal/60 focus:ring-offset-2 focus:ring-offset-ink-950"
               aria-label="Retour à l'accueil"
             >
@@ -74,7 +75,7 @@ export default function Header() {
               );
             })}
             <a
-              href="#/premium"
+              href={ROUTES.PREMIUM}
               className="btn-primary ml-2"
               aria-label="Découvrir Premium"
             >
@@ -83,7 +84,7 @@ export default function Header() {
           </nav>
 
           {/* Mobile CTA simple */}
-          <a href="#/premium" className="md:hidden btn-primary px-3 py-1.5 text-sm">Premium</a>
+          <a href={ROUTES.PREMIUM} className="md:hidden btn-primary px-3 py-1.5 text-sm">Premium</a>
         </div>
       </div>
     </header>

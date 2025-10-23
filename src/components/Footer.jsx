@@ -1,14 +1,15 @@
 // src/components/Footer.jsx — minimal, muted, premium
 import React from "react";
+import { ROUTES } from "../constants/routes";
 
 const NAV = [
-  { key: "home", label: "Accueil", path: "#/" },
-  { key: "calendar", label: "Calendrier", path: "#/calendar" },
-  { key: "ranking", label: "Palmarès", path: "#/ranking" }, // <- route unifiée
-  { key: "blog", label: "Blog", path: "#/blog" },
-  { key: "premium", label: "Premium", path: "#/premium" },
-  { key: "about", label: "À propos & Contact", path: "#/about" },
-  { key: "legal", label: "Mentions légales", path: "#/legal" },
+  { key: "home", label: "Accueil", path: ROUTES.HOME },
+  { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
+  { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
+  { key: "blog", label: "Blog", path: ROUTES.BLOG },
+  { key: "premium", label: "Premium", path: ROUTES.PREMIUM },
+  { key: "about", label: "À propos & Contact", path: ROUTES.ABOUT },
+  { key: "legal", label: "Mentions légales", path: ROUTES.LEGAL },
 ];
 
 export default function Footer() {

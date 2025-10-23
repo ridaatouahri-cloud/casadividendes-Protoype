@@ -11,10 +11,12 @@ import {
   ArrowLeft, Info, RotateCcw, TrendingUp,
   ExternalLink, Calendar, Percent, Hash, Award, Play,
 } from "lucide-react";
+import { getDividendsFor, getCompanies } from "../services/dataService";
+import { DATA_YEARS } from "../constants/paths";
 
 /* ============ Utils ============ */
 const DAY_MS = 86400000;
-const YEARS = [2020, 2021, 2022, 2023, 2024, 2025];
+const YEARS = DATA_YEARS;
 const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
 const norm = (s) => (s || "").toString().toLowerCase().trim();
 const fmtISO = (iso) => {
@@ -47,89 +49,37 @@ function useDividendsData(ticker, companyName) {
     (async () => {
       setState((s) => ({ ...s, loading: true, error: null }));
       try {
-        // Précharge années récentes
-        [2024, 2023].forEach(y => fetch(`/data/dividends/${y}.json`).catch(()=>null));
-
-        const results = await Promise.all(
-          YEARS.map(async (y) => {
-            try {
-              const res = await fetch(`/data/dividends/${y}.json`);
-              if (!res.ok) {
-                if (y === 2025 && res.status === 404) return [];
-                throw new Error(`HTTP ${res.status}`);
-              }
-              const arr = await res.json();
-              return Array.isArray(arr) ? arr.map((r) => ({ year: y, ...r })) : [];
-            } catch (e) {
-              if (y === 2025) return [];
-              throw e;
-            }
-          })
-        );
-
-        const flat = results.flat();
-        let filtered = flat;
-        const t = norm(ticker);
-        const c = norm(companyName);
-        if (t) filtered = flat.filter((r) => norm(r.ticker) === t);
-        else if (c) filtered = flat.filter((r) => norm(r.company) === c);
-
-        const rows = filtered.map((r) => ({
-          year: Number(r.year),
-          exDate: r.exDate || r.exdate || r.detachmentDate || null,
-          paymentDate: r.paymentDate || r.pay || r.payment || null,
-          amount: Number(r.dividend ?? r.amount ?? 0),
-          company: r.company || "",
-          ticker: r.ticker || "",
-        }));
-
-        rows.sort((a, b) => (a.year !== b.year ? a.year - b.year :
-          (new Date(a.exDate || 0) - new Date(b.exDate || 0))));
-
-        // Sommes annuelles (2020-2025)
-        const agg = new Map();
-        rows.forEach((r) => agg.set(r.year, (agg.get(r.year) || 0) + (isFinite(r.amount) ? r.amount : 0)));
-        const yearly = YEARS.map((y) => ({
-          year: y,
-          total: agg.has(y) ? Number(agg.get(y).toFixed(2)) : null,
-        }));
-
-        // ✅ FIX "Détails paiements (5 dernières années)"
-        // On prend, pour chaque année, l’occurrence avec dates les plus "complètes" (exDate/pay valides).
-        const byYear = new Map();
-        for (const r of rows) {
-          const prev = byYear.get(r.year);
-          const score = (r.exDate ? 1 : 0) + (r.paymentDate ? 1 : 0);
-          const prevScore = prev ? ((prev.exDate ? 1 : 0) + (prev.paymentDate ? 1 : 0)) : -1;
-          if (!prev || score > prevScore) byYear.set(r.year, r);
-        }
-        const yearsAvail = Array.from(byYear.keys()).sort((a, b) => a - b);
-        const last5Years = yearsAvail.slice(-5);
-        const last5 = last5Years.map((y) => {
-          const r = byYear.get(y);
-          return { year: y, exDate: r?.exDate || null, pay: r?.paymentDate || null };
-        });
-
-        // Dernières dates
-        const latestYear = yearsAvail.length ? yearsAvail[yearsAvail.length - 1] : null;
-        const latest = latestYear ? byYear.get(latestYear) : null;
+        const searchValue = ticker || companyName;
+        const result = await getDividendsFor(searchValue);
 
         if (!cancelled) {
           setState({
-            loading: false, error: null, rows,
-            yearly, last5,
-            latestEx: latest?.exDate || null,
-            latestPay: latest?.paymentDate || null,
+            loading: false,
+            error: null,
+            rows: result.rows,
+            yearly: result.yearly,
+            last5: result.last5,
+            latestEx: result.latestEx,
+            latestPay: result.latestPay,
           });
         }
       } catch (err) {
-        if (!cancelled) setState({
-          loading: false, error: err?.message || "Erreur de chargement",
-          rows: [], yearly: [], last5: [], latestEx: null, latestPay: null,
-        });
+        if (!cancelled) {
+          setState({
+            loading: false,
+            error: err?.message || "Erreur de chargement",
+            rows: [],
+            yearly: [],
+            last5: [],
+            latestEx: null,
+            latestPay: null,
+          });
+        }
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [ticker, companyName]);
 
   return state;
@@ -137,8 +87,15 @@ function useDividendsData(ticker, companyName) {
 
 function useCompanyMeta(tickerMaybe, fallbackCompany) {
   const [meta, setMeta] = useState({
-    loading: true, error: null,
-    data: { ticker: tickerMaybe || null, name: fallbackCompany || null, sector: null, isin: null, frequency: "Annuel" },
+    loading: true,
+    error: null,
+    data: {
+      ticker: tickerMaybe || null,
+      name: fallbackCompany || null,
+      sector: null,
+      isin: null,
+      frequency: "Annuel",
+    },
   });
 
   useEffect(() => {
@@ -146,9 +103,7 @@ function useCompanyMeta(tickerMaybe, fallbackCompany) {
     (async () => {
       setMeta((m) => ({ ...m, loading: true, error: null }));
       try {
-        const res = await fetch(`/data/listing/companies.json`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const list = await res.json();
+        const list = await getCompanies();
 
         const t = norm(tickerMaybe);
         const c = norm(fallbackCompany);
@@ -165,13 +120,23 @@ function useCompanyMeta(tickerMaybe, fallbackCompany) {
         };
         if (!cancelled) setMeta({ loading: false, error: null, data });
       } catch (e) {
-        if (!cancelled) setMeta({
-          loading: false, error: e?.message || "Erreur meta",
-          data: { ticker: tickerMaybe || null, name: fallbackCompany || null, sector: null, isin: null, frequency: "Annuel" },
-        });
+        if (!cancelled)
+          setMeta({
+            loading: false,
+            error: e?.message || "Erreur meta",
+            data: {
+              ticker: tickerMaybe || null,
+              name: fallbackCompany || null,
+              sector: null,
+              isin: null,
+              frequency: "Annuel",
+            },
+          });
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [tickerMaybe, fallbackCompany]);
 
   return meta;
