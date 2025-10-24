@@ -200,86 +200,70 @@ function HeroHome() {
 }
 
 function TradingViewTicker() {
-  React.useEffect(() => {
-    // Charger le script TradingView
-    const script = document.createElement('script');
-    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
-    script.async = true;
-    script.innerHTML = JSON.stringify({
-      "symbols": [
-        {
-          "proName": "CASABLANCA:IAM",
-          "title": "IAM"
-        },
-        {
-          "proName": "CASABLANCA:ATW",
-          "title": "Attijariwafa Bank"
-        },
-        {
-          "proName": "CASABLANCA:BCP",
-          "title": "BCP"
-        },
-        {
-          "proName": "CASABLANCA:CIH",
-          "title": "CIH Bank"
-        },
-        {
-          "proName": "CASABLANCA:LBV",
-          "title": "Label'Vie"
-        },
-        {
-          "proName": "CASABLANCA:CSR",
-          "title": "Cosumar"
-        },
-        {
-          "proName": "CASABLANCA:MNG",
-          "title": "Managem"
-        },
-        {
-          "proName": "CASABLANCA:TQM",
-          "title": "Taqa Morocco"
-        }
-      ],
-      "showSymbolLogo": false,
-      "colorTheme": "dark",
-      "isTransparent": true,
-      "displayMode": "adaptive",
-      "locale": "fr"
-    });
+  // Actions de la Bourse de Casablanca avec données mockées
+  const stocks = [
+    { ticker: "IAM", name: "Maroc Telecom", price: "145.50", change: "+2.3%" },
+    { ticker: "ATW", name: "Attijariwafa Bank", price: "485.00", change: "+1.8%" },
+    { ticker: "BCP", name: "Banque Populaire", price: "268.90", change: "-0.5%" },
+    { ticker: "CSR", name: "Cosumar", price: "198.50", change: "+3.1%" },
+    { ticker: "TQM", name: "Taqa Morocco", price: "876.00", change: "+0.9%" },
+    { ticker: "LBV", name: "Label'Vie", price: "3420.00", change: "+1.2%" },
+    { ticker: "LHM", name: "LafargeHolcim", price: "1845.00", change: "-0.3%" },
+    { ticker: "MNG", name: "Managem", price: "2150.00", change: "+2.7%" },
+    { ticker: "CIH", name: "CIH Bank", price: "325.00", change: "+0.6%" },
+    { ticker: "CDM", name: "Centrale Danone", price: "1560.00", change: "-1.2%" },
+    { ticker: "SMI", name: "SMI", price: "2890.00", change: "+1.5%" },
+    { ticker: "SID", name: "Sonasid", price: "542.00", change: "-0.8%" },
+  ];
 
-    const container = document.getElementById('tradingview-ticker-container');
-    if (container) {
-      container.appendChild(script);
-    }
-
-    return () => {
-      if (container) {
-        container.innerHTML = '';
-      }
-    };
-  }, []);
+  // Dupliquer pour un défilement infini fluide
+  const duplicatedStocks = [...stocks, ...stocks];
 
   return (
-    <section className="relative overflow-hidden bg-[#0B0B0D] border-y border-white/[0.03] py-2">
-      <div 
-        id="tradingview-ticker-container" 
-        className="tradingview-widget-container"
-        style={{ height: '46px' }}
-      >
-        <div className="tradingview-widget-container__widget"></div>
+    <section className="relative overflow-hidden bg-[#0B0B0D] border-y border-white/[0.03] py-4">
+      <div className="flex animate-scroll">
+        {duplicatedStocks.map((stock, index) => (
+          <div
+            key={index}
+            className="flex-shrink-0 px-6 flex items-center gap-3 whitespace-nowrap"
+          >
+            <span className="text-zinc-400 text-sm font-semibold tracking-wide">
+              {stock.ticker}
+            </span>
+            <span className="text-zinc-500 text-sm">
+              {stock.price} MAD
+            </span>
+            <span 
+              className={`text-sm font-medium ${
+                stock.change.startsWith('+') 
+                  ? 'text-emerald-500' 
+                  : 'text-red-500'
+              }`}
+            >
+              {stock.change}
+            </span>
+          </div>
+        ))}
       </div>
       
-      {/* Style personnalisé pour harmoniser avec le design */}
+      {/* Gradient fade aux extrémités */}
+      <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0B0B0D] to-transparent pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-[#0B0B0D] to-transparent pointer-events-none" />
+      
       <style>{`
-        .tradingview-widget-container {
-          width: 100%;
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
         }
-        .tradingview-widget-container__widget {
-          height: 100%;
+        .animate-scroll {
+          animation: scroll 60s linear infinite;
         }
-        /* Harmoniser les couleurs avec notre thème */
-        .tradingview-widget-container iframe {
-          border: none !important;
+        .animate-scroll:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </section>
@@ -753,9 +737,9 @@ export default function Home() {
   return (
     <div className="bg-[#0B0B0D] text-white selection:bg-amber-400/30 selection:text-white">
       <HeroHome />
-      <TradingViewTicker />
       <TickerBand />
       <BrandMessage />
+      <TradingViewTicker />
       <ExclusiveTools />
       <StatsSection />
       <Values />
