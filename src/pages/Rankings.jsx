@@ -192,7 +192,7 @@ export default function Rankings() {
                       </td>
                       <td className="p-3">
                         <a href={ROUTES.COMPANY(row.ticker)} className="btn-ghost">
-                          +
+                          +📊
                         </a>
                       </td>
                     </tr>
