@@ -68,28 +68,15 @@ export default function Header() {
           <div className="flex items-center gap-8">
             <a
               href={ROUTES.HOME}
-              className="flex items-center gap-0 focus:outline-none focus:ring-2 focus:ring-teal-400/60 focus:ring-offset-2 focus:ring-offset-[#0B0B0D] rounded group"
+              className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-teal-400/60 focus:ring-offset-2 focus:ring-offset-[#0B0B0D] rounded group"
               aria-label="Retour à l'accueil"
             >
-              {/* Logo typographique premium */}
+              {/* Logo minimaliste premium */}
               <span 
-                className="text-2xl font-bold tracking-tight transition-all duration-300"
-                style={{ fontFamily: "Space Grotesk, Inter, ui-sans-serif, system-ui" }}
+                className="text-[22px] font-medium tracking-[-0.02em] text-white/95 transition-all duration-300 group-hover:text-white"
+                style={{ fontFamily: "Inter, -apple-system, system-ui" }}
               >
-                {/* "C" initial stylisé avec gradient */}
-                <span className="inline-block bg-gradient-to-br from-orange-400 via-amber-400 to-orange-300 bg-clip-text text-transparent text-3xl font-extrabold mr-[1px] group-hover:scale-110 transition-transform duration-300">
-                  C
-                </span>
-                {/* "asa" en blanc */}
-                <span className="text-white font-semibold">asa</span>
-                {/* Séparateur subtil */}
-                <span className="inline-block w-[2px] h-5 bg-gradient-to-b from-transparent via-orange-400/40 to-transparent mx-1 align-middle"></span>
-                {/* "D" stylisé */}
-                <span className="inline-block bg-gradient-to-br from-teal-400 via-emerald-400 to-teal-300 bg-clip-text text-transparent text-3xl font-extrabold mr-[1px] group-hover:scale-110 transition-transform duration-300">
-                  D
-                </span>
-                {/* "ividendes" en blanc */}
-                <span className="text-white font-semibold">ividendes</span>
+                CasaDividendes
               </span>
               <Pill>Beta</Pill>
             </a>
