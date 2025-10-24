@@ -11,6 +11,8 @@ export default function Rankings() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState("tous");
+  const [page, setPage] = useState(1);
+  const pageSize = 15;
 
   useEffect(() => {
     let alive = true;
@@ -54,6 +56,15 @@ export default function Rankings() {
       alive = false;
     };
   }, [year]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [rows]);
+
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  const totalPages = Math.ceil(rows.length / pageSize);
+  const visible = rows.slice(start, end);
 
   const totalAmount = rows.reduce((sum, r) => sum + (r.amount || 0), 0);
   const avgAmount = rows.length > 0 ? (totalAmount / rows.length).toFixed(2) : "0.00";
@@ -137,14 +148,14 @@ export default function Rankings() {
                 </tr>
               </thead>
               <tbody>
-                {rows.length === 0 ? (
+                {visible.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="p-6 text-center text-zinc-400">
                       Aucune donnée disponible
                     </td>
                   </tr>
                 ) : (
-                  rows.map((row, idx) => (
+                  visible.map((row, idx) => (
                     <tr
                       key={`${row.ticker}-${idx}`}
                       className="border-t border-white/10 hover:bg-white/[0.04] transition-all"
@@ -153,7 +164,7 @@ export default function Rankings() {
                           idx % 2 === 1 ? "rgba(255,255,255,0.02)" : "transparent",
                       }}
                     >
-                      <td className="p-3 text-zinc-300">{idx + 1}</td>
+                      <td className="p-3 text-zinc-300">{start + idx + 1}</td>
                       <td className="p-3 text-white font-medium">{row.ticker}</td>
                       <td className="p-3 text-zinc-200">{row.company}</td>
                       <td className="p-3 text-brand-teal font-semibold text-right">
@@ -183,6 +194,30 @@ export default function Rankings() {
               </tbody>
             </table>
           </section>
+        )}
+
+        {!loading && rows.length > 0 && (
+          <div className="flex justify-between items-center mt-4 text-sm text-white/70">
+            <div>
+              Page {page} sur {totalPages || 1}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="btn-ghost disabled:opacity-40"
+              >
+                ← Précédent
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages || totalPages === 0}
+                className="btn-primary disabled:opacity-40"
+              >
+                Suivant →
+              </button>
+            </div>
+          </div>
         )}
 
         <footer className="mt-6 card-premium p-5">
