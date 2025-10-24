@@ -83,6 +83,23 @@ const sectionClass = "relative overflow-hidden";
 
 function HeroHome() {
   const [email, setEmail] = useState("");
+  const [displayedText, setDisplayedText] = useState("");
+  const fullText = "maîtrisés.";
+
+  // Animation de typing pour "maîtrisés"
+  useEffect(() => {
+    let index = 0;
+    const timer = setInterval(() => {
+      if (index <= fullText.length) {
+        setDisplayedText(fullText.slice(0, index));
+        index++;
+      } else {
+        clearInterval(timer);
+      }
+    }, 100);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -127,14 +144,47 @@ function HeroHome() {
             </motion.div>
 
             <motion.h1
-              {...fadeUp(0.1)}
               className="font-semibold leading-[1.06] tracking-[-0.02em] text-white text-5xl lg:text-6xl"
               style={{ fontFamily: "Inter, Manrope, Space Grotesk, ui-sans-serif, system-ui" }}
             >
-              Les dividendes marocains,<br />
-              <span className="text-white">clairs, précis,</span>{" "}
-              <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent">
-                maîtrisés.
+              {/* "Les dividendes marocains," - apparition progressive */}
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="block"
+              >
+                Les dividendes marocains,
+              </motion.span>
+              <br />
+              
+              {/* "clairs, précis," - apparition avec scale */}
+              <motion.span
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.6 }}
+                className="text-white inline-block"
+              >
+                clairs, précis,
+              </motion.span>{" "}
+              
+              {/* "maîtrisés." - effet typing avec gradient + cursor */}
+              <span className="inline-flex items-baseline">
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 1.0 }}
+                  className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent"
+                >
+                  {displayedText}
+                  {displayedText.length < fullText.length && (
+                    <motion.span
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                      className="inline-block w-[3px] h-[1em] ml-1 bg-gradient-to-b from-orange-400 to-amber-400"
+                    />
+                  )}
+                </motion.span>
               </span>
             </motion.h1>
 
