@@ -5,8 +5,8 @@ import { getAllDividends, getCompanies } from '../services/dataService';
 import { DATA_YEARS } from '../constants/paths';
 
 const userData = {
-  name: "Youssef Benali",
-  email: "youssef@example.com",
+  name: "Yuri Atouahri",
+  email: "yuri@example.com",
   subscriptionTier: "free",
   avatar: "YB",
   joinedDate: "2024-10-15"
