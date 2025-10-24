@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-// Icons as SVG components
+// ========== ICONS ==========
 const LineChart = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
@@ -62,43 +62,109 @@ const Linkedin = ({ className }) => (
   </svg>
 );
 
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 28 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.7, ease: "easeOut", delay },
-  viewport: { once: true, amount: 0.2 },
-});
+// ========== COMPONENTS ==========
 
-const sectionClass = "relative overflow-hidden";
+// Pill Component
+export const Pill = ({ children }) => (
+  <span className="px-2 py-1 rounded-full text-[11px] bg-white/[0.06] border border-white/10 text-white/80">
+    {children}
+  </span>
+);
 
+// StatCard Component
+export const StatCard = ({ title, value, sub, className = "" }) => (
+  <div className={`rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-4 ${className}`}>
+    <div className="text-sm text-white/60">{title}</div>
+    <div className="text-2xl font-semibold text-white mt-1">{value}</div>
+    {sub ? <div className="text-xs text-white/50 mt-1">{sub}</div> : null}
+  </div>
+);
+
+// ROUTES
+const ROUTES = {
+  HOME: "#/",
+  CALENDAR: "#/calendar",
+  RANKING: "#/rankings",
+  BLOG: "#/blog",
+  PREMIUM: "#/premium",
+  ABOUT: "#/about",
+  LEGAL: "#/legal",
+  LOGIN: "#/login",
+  REGISTER: "#/register",
+  FAQ: "#/faq",
+  CONTACT: "#/contact",
+  PRIVACY: "#/privacy",
+  TERMS: "#/terms",
+};
+
+const NAV = [
+  { key: "home", label: "Accueil", path: ROUTES.HOME },
+  { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
+  { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
+  { key: "blog", label: "Blog", path: ROUTES.BLOG },
+];
+
+function getHashPath() {
+  const h = window.location.hash || "#/";
+  return h.replace(/^#/, "").split("?")[0] || "/";
+}
+
+// ========== HEADER ==========
 function Header() {
   const [searchQuery, setSearchQuery] = useState("");
+  const currentPath = getHashPath();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0B0B0D]/95 backdrop-blur-xl border-b border-white/[0.06]">
+    <header
+      className={[
+        "sticky top-0 z-50 backdrop-blur-xl transition-all",
+        isScrolled
+          ? "bg-[#0B0B0D]/95 border-b border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
+          : "bg-[#0B0B0D]/80",
+      ].join(" ")}
+    >
       <div className="w-full px-6 lg:px-12">
         <div className="flex items-center justify-between h-16">
+          {/* Logo + Navigation à gauche */}
           <div className="flex items-center gap-8">
             <a
-              href="#/"
-              className="text-xl font-semibold bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent"
+              href={ROUTES.HOME}
+              className="text-xl font-semibold bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent flex items-center gap-2"
             >
               CasaDividendes
+              <Pill>Beta</Pill>
             </a>
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="#/calendar" className="text-sm text-zinc-300 hover:text-white transition-colors">
-                Calendrier
-              </a>
-              <a href="#/rankings" className="text-sm text-zinc-300 hover:text-white transition-colors">
-                Palmarès
-              </a>
-              <a href="#/blog" className="text-sm text-zinc-300 hover:text-white transition-colors">
-                Blog
-              </a>
+            <nav className="hidden md:flex items-center gap-6" aria-label="Navigation principale">
+              {NAV.map((n) => {
+                const isActive = currentPath === n.path.replace("#", "");
+                return (
+                  <a
+                    key={n.key}
+                    href={n.path}
+                    aria-current={isActive ? "page" : undefined}
+                    className={[
+                      "text-sm font-medium tracking-tight transition-colors",
+                      isActive ? "text-teal-300" : "text-zinc-300 hover:text-white",
+                    ].join(" ")}
+                  >
+                    {n.label}
+                    {isActive && <span className="block h-[2px] mt-1 rounded-full bg-teal-300/80" />}
+                  </a>
+                );
+              })}
             </nav>
           </div>
 
+          {/* Barre de recherche + Boutons à droite */}
           <div className="flex items-center gap-3">
+            {/* Mini barre de recherche */}
             <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/10 focus-within:border-teal-400/30 transition-all">
               <Search className="h-4 w-4 text-zinc-500" />
               <input
@@ -110,25 +176,120 @@ function Header() {
               />
             </div>
 
-            <button
-              onClick={() => (window.location.hash = "#/premium")}
+            {/* Bouton Premium */}
+            <a
+              href={ROUTES.PREMIUM}
               className="px-3 py-1.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-orange-400 to-amber-400 text-black hover:brightness-110 transition-all"
             >
               Premium
-            </button>
+            </a>
 
-            <button
-              onClick={() => (window.location.hash = "#/login")}
+            {/* Bouton Se connecter */}
+            <a
+              href={ROUTES.LOGIN}
               className="px-3 py-1.5 text-sm font-semibold rounded-lg border border-white/10 text-white hover:bg-white/5 transition-all"
             >
               Se connecter
-            </button>
+            </a>
           </div>
         </div>
       </div>
     </header>
   );
 }
+
+// ========== FOOTER ==========
+function Footer() {
+  const footerNav = [
+    { key: "home", label: "Accueil", path: ROUTES.HOME },
+    { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
+    { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
+    { key: "blog", label: "Blog", path: ROUTES.BLOG },
+    { key: "premium", label: "Premium", path: ROUTES.PREMIUM },
+    { key: "about", label: "À propos & Contact", path: ROUTES.ABOUT },
+    { key: "legal", label: "Mentions légales", path: ROUTES.LEGAL },
+  ];
+
+  return (
+    <footer className="mt-16 border-t border-white/10 bg-[#0B0B0D]">
+      <div className="mx-auto max-w-6xl px-6 py-10 text-sm">
+        <div className="flex flex-col items-center justify-center gap-6 text-center">
+          <div className="flex items-center gap-2 opacity-90">
+            <div className="text-2xl font-semibold bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">
+              CasaDividendes
+            </div>
+          </div>
+
+          <nav
+            className="flex flex-wrap gap-4 justify-center text-white/60"
+            aria-label="Navigation du pied de page"
+          >
+            {footerNav.map((n) => (
+              <a key={n.key} href={n.path} className="hover:text-teal-300 transition-colors">
+                {n.label}
+              </a>
+            ))}
+          </nav>
+
+          {/* Réseaux sociaux */}
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href="https://twitter.com/CasaDividendes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
+              aria-label="Twitter"
+            >
+              <Twitter className="h-4 w-4" />
+            </a>
+            <a
+              href="https://linkedin.com/company/casadividendes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-4 w-4" />
+            </a>
+            <a
+              href="mailto:contact@casadividendes.ma"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
+              aria-label="Email"
+            >
+              <Mail className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5">
+            <p className="text-white/70">Made with ❤️ in Morocco</p>
+            <p className="text-white/50 text-xs">
+              © {new Date().getFullYear()} CasaDividendes — Tous droits réservés.
+            </p>
+            <p className="text-white/40 text-xs">Sources : Bourse de Casablanca & AMMC</p>
+          </div>
+
+          <p className="text-zinc-500 text-xs leading-relaxed max-w-3xl mx-auto mt-4">
+            Informations fournies à titre indicatif. CasaDividendes n'offre pas de conseil en
+            investissement, fiscal ou juridique. Chaque investisseur demeure responsable de ses
+            décisions.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ========== HELPERS ==========
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 28 },
+  whileInView: { opacity: 1, y: 0 },
+  transition: { duration: 0.7, ease: "easeOut", delay },
+  viewport: { once: true, amount: 0.2 },
+});
+
+const sectionClass = "relative overflow-hidden";
+
+// ========== PAGE SECTIONS ==========
 
 function HeroHome() {
   const [email, setEmail] = useState("");
@@ -358,13 +519,8 @@ function StatsSection() {
         </motion.h2>
         <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((s, i) => (
-            <motion.div
-              key={s.label}
-              {...fadeUp(0.1 + i * 0.05)}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-center"
-            >
-              <div className="text-3xl md:text-4xl font-bold text-white">{s.value}</div>
-              <div className="mt-1 text-zinc-400">{s.label}</div>
+            <motion.div key={s.label} {...fadeUp(0.1 + i * 0.05)}>
+              <StatCard title={s.label} value={s.value} />
             </motion.div>
           ))}
         </div>
@@ -430,12 +586,12 @@ function PalmaresPreview() {
       <div className="max-w-6xl mx-auto">
         <motion.div {...fadeUp(0.05)} className="flex items-center justify-between mb-4">
           <h2 className="text-white text-xl font-semibold">Aperçu Palmarès</h2>
-          <button
-            onClick={() => (window.location.hash = "#/rankings")}
+          <a
+            href={ROUTES.RANKING}
             className="text-teal-300/90 hover:underline text-sm"
           >
             Voir le palmarès complet
-          </button>
+          </a>
         </motion.div>
         <motion.div {...fadeUp(0.12)} className="overflow-x-auto rounded-2xl border border-white/10">
           <table className="min-w-full text-sm">
@@ -605,7 +761,7 @@ function ContactSupport() {
             <ShieldCheck className="h-8 w-8 text-amber-300/80 mx-auto mb-3" />
             <h3 className="text-white font-semibold mb-2">FAQ & Aide</h3>
             <a
-              href="#/faq"
+              href={ROUTES.FAQ}
               className="text-sm text-teal-300 hover:text-teal-200 underline-offset-4 hover:underline"
             >
               Consulter la FAQ
@@ -639,149 +795,19 @@ function SignupCTA() {
           <p className="text-zinc-400 mb-6">
             Calendrier intelligent, alertes personnalisées, scores de fiabilité et bien plus.
           </p>
-          <button
-            onClick={() => (window.location.hash = "#/register")}
-            className="px-6 py-3 rounded-xl bg-gradient-to-r from-orange-400 to-amber-400 text-black font-semibold hover:brightness-110 transition-all shadow-[0_8px_30px_rgba(255,140,0,0.25)]"
+          <a
+            href={ROUTES.REGISTER}
+            className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-orange-400 to-amber-400 text-black font-semibold hover:brightness-110 transition-all shadow-[0_8px_30px_rgba(255,140,0,0.25)]"
           >
             Créer mon compte gratuitement
-          </button>
+          </a>
         </motion.div>
       </div>
     </section>
   );
 }
 
-function Footer() {
-  return (
-    <footer className="bg-[#0B0B0D] border-t border-white/5">
-      <div className="max-w-6xl mx-auto px-6 lg:px-12 py-12">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
-          <div className="md:col-span-1">
-            <div className="text-2xl font-semibold bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent mb-3">
-              CasaDividendes
-            </div>
-            <p className="text-zinc-500 text-sm leading-relaxed">
-              La plateforme de référence pour les dividendes de la Bourse de Casablanca.
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-white font-semibold mb-3 text-sm">Navigation</h3>
-            <ul className="space-y-2 text-zinc-400 text-sm">
-              <li>
-                <a href="#/" className="hover:text-amber-300 transition-colors">
-                  Accueil
-                </a>
-              </li>
-              <li>
-                <a href="#/calendar" className="hover:text-amber-300 transition-colors">
-                  Calendrier
-                </a>
-              </li>
-              <li>
-                <a href="#/rankings" className="hover:text-amber-300 transition-colors">
-                  Palmarès
-                </a>
-              </li>
-              <li>
-                <a href="#/blog" className="hover:text-amber-300 transition-colors">
-                  Blog
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-semibold mb-3 text-sm">Entreprise</h3>
-            <ul className="space-y-2 text-zinc-400 text-sm">
-              <li>
-                <a href="#/about" className="hover:text-amber-300 transition-colors">
-                  À propos
-                </a>
-              </li>
-              <li>
-                <a href="#/contact" className="hover:text-amber-300 transition-colors">
-                  Contact
-                </a>
-              </li>
-              <li>
-                <a href="#/premium" className="hover:text-amber-300 transition-colors">
-                  Premium
-                </a>
-              </li>
-              <li>
-                <a href="#/faq" className="hover:text-amber-300 transition-colors">
-                  FAQ
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-white font-semibold mb-3 text-sm">Légal</h3>
-            <ul className="space-y-2 text-zinc-400 text-sm">
-              <li>
-                <a href="#/legal" className="hover:text-amber-300 transition-colors">
-                  Mentions légales
-                </a>
-              </li>
-              <li>
-                <a href="#/privacy" className="hover:text-amber-300 transition-colors">
-                  Confidentialité
-                </a>
-              </li>
-              <li>
-                <a href="#/terms" className="hover:text-amber-300 transition-colors">
-                  CGU
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-center gap-4 mb-8 pb-8 border-b border-white/5">
-          <a
-            href="https://twitter.com/CasaDividendes"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
-            aria-label="Twitter"
-          >
-            <Twitter className="h-4 w-4" />
-          </a>
-          <a
-            href="https://linkedin.com/company/casadividendes"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
-            aria-label="LinkedIn"
-          >
-            <Linkedin className="h-4 w-4" />
-          </a>
-          <a
-            href="mailto:contact@casadividendes.ma"
-            className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
-            aria-label="Email"
-          >
-            <Mail className="h-4 w-4" />
-          </a>
-        </div>
-
-        <div className="text-center space-y-3">
-          <p className="text-zinc-500 text-xs leading-relaxed max-w-3xl mx-auto">
-            Informations fournies à titre indicatif. CasaDividendes n'offre pas de conseil en
-            investissement, fiscal ou juridique. Chaque investisseur demeure responsable de ses
-            décisions.
-          </p>
-          <p className="text-zinc-600 text-xs">
-            © {new Date().getFullYear()} CasaDividendes — Tous droits réservés.
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
+// ========== MAIN COMPONENT ==========
 export default function Home() {
   useEffect(() => {
     document.title =
