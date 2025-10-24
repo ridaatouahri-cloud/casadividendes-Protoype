@@ -199,6 +199,59 @@ function HeroHome() {
   );
 }
 
+function TickerBand() {
+  // Entreprises cotées à la Bourse de Casablanca
+  const companies = [
+    "IAM", "ATTIJARIWAFA BANK", "BCP", "COSUMAR", "TAQA MOROCCO",
+    "LABEL'VIE", "LAFARGEHOLCIM MAROC", "MANAGEM", "MAROC TELECOM",
+    "CIH BANK", "BMCE BANK", "CDM", "CENTRALE DANONE", "CIMAR",
+    "CMT", "COLORADO", "DISWAY", "EQDOM", "HPS", "LESIEUR CRISTAL",
+    "MAGHREB OXYGENE", "MARSA MAROC", "MEDIACO", "MICROCRED",
+    "MUTANDIS", "OULMES", "RDS", "RISMA", "REBAB", "SALAFIN",
+    "SMI", "SNEP", "SODEP", "SONASID", "SOTHEMA", "STOKVIS",
+    "STROC INDUSTRIE", "TGCC", "TIMAR", "UNIMER", "WAFA ASSURANCE"
+  ];
+
+  // Dupliquer pour un défilement infini fluide
+  const duplicatedCompanies = [...companies, ...companies];
+
+  return (
+    <section className="relative overflow-hidden bg-[#0B0B0D] border-y border-white/[0.03] py-4">
+      <div className="flex animate-scroll">
+        {duplicatedCompanies.map((company, index) => (
+          <div
+            key={index}
+            className="flex-shrink-0 px-6 text-zinc-500 text-sm font-medium tracking-wide whitespace-nowrap"
+          >
+            {company}
+          </div>
+        ))}
+      </div>
+      
+      {/* Gradient fade aux extrémités */}
+      <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0B0B0D] to-transparent pointer-events-none" />
+      <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-[#0B0B0D] to-transparent pointer-events-none" />
+      
+      <style>{`
+        @keyframes scroll {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .animate-scroll {
+          animation: scroll 60s linear infinite;
+        }
+        .animate-scroll:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+    </section>
+  );
+}
+
 function BrandMessage() {
   return (
     <section className="bg-[#0F1115] border-y border-white/[0.06]">
@@ -613,6 +666,7 @@ export default function Home() {
   return (
     <div className="bg-[#0B0B0D] text-white selection:bg-amber-400/30 selection:text-white">
       <HeroHome />
+      <TickerBand />
       <BrandMessage />
       <ExclusiveTools />
       <StatsSection />
