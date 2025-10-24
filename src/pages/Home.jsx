@@ -199,6 +199,93 @@ function HeroHome() {
   );
 }
 
+function TradingViewTicker() {
+  React.useEffect(() => {
+    // Charger le script TradingView
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      "symbols": [
+        {
+          "proName": "CASABLANCA:IAM",
+          "title": "IAM"
+        },
+        {
+          "proName": "CASABLANCA:ATW",
+          "title": "Attijariwafa Bank"
+        },
+        {
+          "proName": "CASABLANCA:BCP",
+          "title": "BCP"
+        },
+        {
+          "proName": "CASABLANCA:CIH",
+          "title": "CIH Bank"
+        },
+        {
+          "proName": "CASABLANCA:LBV",
+          "title": "Label'Vie"
+        },
+        {
+          "proName": "CASABLANCA:CSR",
+          "title": "Cosumar"
+        },
+        {
+          "proName": "CASABLANCA:MNG",
+          "title": "Managem"
+        },
+        {
+          "proName": "CASABLANCA:TQM",
+          "title": "Taqa Morocco"
+        }
+      ],
+      "showSymbolLogo": false,
+      "colorTheme": "dark",
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "locale": "fr"
+    });
+
+    const container = document.getElementById('tradingview-ticker-container');
+    if (container) {
+      container.appendChild(script);
+    }
+
+    return () => {
+      if (container) {
+        container.innerHTML = '';
+      }
+    };
+  }, []);
+
+  return (
+    <section className="relative overflow-hidden bg-[#0B0B0D] border-y border-white/[0.03] py-2">
+      <div 
+        id="tradingview-ticker-container" 
+        className="tradingview-widget-container"
+        style={{ height: '46px' }}
+      >
+        <div className="tradingview-widget-container__widget"></div>
+      </div>
+      
+      {/* Style personnalisé pour harmoniser avec le design */}
+      <style>{`
+        .tradingview-widget-container {
+          width: 100%;
+        }
+        .tradingview-widget-container__widget {
+          height: 100%;
+        }
+        /* Harmoniser les couleurs avec notre thème */
+        .tradingview-widget-container iframe {
+          border: none !important;
+        }
+      `}</style>
+    </section>
+  );
+}
+
 function TickerBand() {
   // Entreprises cotées à la Bourse de Casablanca
   const companies = [
