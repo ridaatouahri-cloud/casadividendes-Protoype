@@ -1,10 +1,7 @@
-// src/pages/Home.jsx --- Page d'accueil CasaDividendes
+// src/pages/Home.jsx --- Page d'accueil CasaDividendes (autonome)
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import { StatCard, StatCardGrid } from "../components/StatCard";
 
 // ========== ICONS ==========
 const LineChart = ({ className }) => (
@@ -43,10 +40,46 @@ const ArrowRight = ({ className }) => (
   </svg>
 );
 
+const Search = ({ className }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+  </svg>
+);
+
 const Mail = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
   </svg>
+);
+
+const Twitter = ({ className }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const Linkedin = ({ className }) => (
+  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+  </svg>
+);
+
+// ========== SHARED COMPONENTS ==========
+
+const Pill = ({ children }) => (
+  <span className="px-2 py-1 rounded-full text-[11px] bg-white/[0.06] border border-white/10 text-white/80">
+    {children}
+  </span>
+);
+
+const StatCard = ({ title, value, sub, className = "" }) => (
+  <div
+    className={`rounded-2xl border border-white/10 bg-white/[0.02] backdrop-blur-md p-4 transition-all hover:-translate-y-1 hover:border-teal-400/30 ${className}`}
+  >
+    <div className="text-sm text-white/60">{title}</div>
+    <div className="text-2xl font-semibold text-white mt-1">{value}</div>
+    {sub ? <div className="text-xs text-white/50 mt-1">{sub}</div> : null}
+  </div>
 );
 
 // ========== ROUTES ==========
@@ -56,9 +89,188 @@ const ROUTES = {
   RANKING: "#/rankings",
   BLOG: "#/blog",
   PREMIUM: "#/premium",
+  ABOUT: "#/about",
+  LEGAL: "#/legal",
+  LOGIN: "#/login",
   REGISTER: "#/register",
   FAQ: "#/faq",
+  CONTACT: "#/contact",
+  PRIVACY: "#/privacy",
+  TERMS: "#/terms",
 };
+
+const NAV = [
+  { key: "home", label: "Accueil", path: ROUTES.HOME },
+  { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
+  { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
+  { key: "blog", label: "Blog", path: ROUTES.BLOG },
+];
+
+function getHashPath() {
+  const h = window.location.hash || "#/";
+  return h.replace(/^#/, "").split("?")[0] || "/";
+}
+
+// ========== HEADER ==========
+function Header() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const currentPath = getHashPath();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setIsScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <header
+      className={[
+        "sticky top-0 z-50 backdrop-blur-xl transition-all",
+        isScrolled
+          ? "bg-[#0B0B0D]/95 border-b border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
+          : "bg-[#0B0B0D]/80",
+      ].join(" ")}
+    >
+      <div className="w-full px-6 lg:px-12">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-8">
+            <a
+              href={ROUTES.HOME}
+              className="text-xl font-semibold bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent flex items-center gap-2"
+            >
+              CasaDividendes
+              <Pill>Beta</Pill>
+            </a>
+            <nav className="hidden md:flex items-center gap-6" aria-label="Navigation principale">
+              {NAV.map((n) => {
+                const isActive = currentPath === n.path.replace("#", "");
+                return (
+                  <a
+                    key={n.key}
+                    href={n.path}
+                    aria-current={isActive ? "page" : undefined}
+                    className={[
+                      "text-[14px] font-medium tracking-tight transition-colors",
+                      isActive ? "text-teal-300" : "text-white/80 hover:text-teal-300",
+                    ].join(" ")}
+                  >
+                    {n.label}
+                    {isActive && <span className="block h-[2px] mt-1 rounded-full bg-teal-300/80" />}
+                  </a>
+                );
+              })}
+            </nav>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/10 focus-within:border-teal-400/30 transition-all">
+              <Search className="h-4 w-4 text-zinc-500" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Rechercher une société, un dividende…"
+                className="w-56 bg-transparent text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none"
+              />
+            </div>
+
+            <a
+              href={ROUTES.PREMIUM}
+              className="px-3 py-1.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-orange-400 to-amber-400 text-black hover:brightness-110 transition-all"
+            >
+              Premium
+            </a>
+
+            <a
+              href={ROUTES.LOGIN}
+              className="hidden md:inline-flex px-3 py-1.5 text-sm font-semibold rounded-lg border border-white/10 text-white hover:bg-white/5 transition-all"
+            >
+              Se connecter
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// ========== FOOTER ==========
+function Footer() {
+  const footerNav = [
+    { key: "home", label: "Accueil", path: ROUTES.HOME },
+    { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
+    { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
+    { key: "blog", label: "Blog", path: ROUTES.BLOG },
+    { key: "premium", label: "Premium", path: ROUTES.PREMIUM },
+    { key: "about", label: "À propos & Contact", path: ROUTES.ABOUT },
+    { key: "legal", label: "Mentions légales", path: ROUTES.LEGAL },
+  ];
+
+  return (
+    <footer className="mt-16 border-t border-white/10 bg-[#0B0B0D]">
+      <div className="mx-auto max-w-6xl px-6 py-10 text-sm">
+        <div className="flex flex-col items-center justify-center gap-6 text-center">
+          <div className="flex items-center gap-2 opacity-90">
+            <div className="text-2xl font-semibold bg-gradient-to-r from-amber-300 to-orange-400 bg-clip-text text-transparent">
+              CasaDividendes
+            </div>
+          </div>
+
+          <nav className="flex flex-wrap gap-4 justify-center text-white/60" aria-label="Navigation du pied de page">
+            {footerNav.map((n) => (
+              <a key={n.key} href={n.path} className="hover:text-teal-300 transition-colors">
+                {n.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href="https://twitter.com/CasaDividendes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
+              aria-label="Twitter"
+            >
+              <Twitter className="h-4 w-4" />
+            </a>
+            <a
+              href="https://linkedin.com/company/casadividendes"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-4 w-4" />
+            </a>
+            <a
+              href="mailto:contact@casadividendes.ma"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white/[0.03] border border-white/10 text-zinc-400 hover:text-teal-300 hover:border-teal-400/30 transition-all"
+              aria-label="Email"
+            >
+              <Mail className="h-4 w-4" />
+            </a>
+          </div>
+
+          <div className="flex flex-col items-center gap-1.5">
+            <p className="text-white/70">Made with ❤️ in Morocco</p>
+            <p className="text-white/50 text-xs">
+              © {new Date().getFullYear()} CasaDividendes — Tous droits réservés.
+            </p>
+            <p className="text-white/40 text-xs">Sources : Bourse de Casablanca & AMMC</p>
+          </div>
+
+          <p className="text-zinc-500 text-xs leading-relaxed max-w-3xl mx-auto mt-4">
+            Informations fournies à titre indicatif. CasaDividendes n'offre pas de conseil en
+            investissement, fiscal ou juridique. Chaque investisseur demeure responsable de ses
+            décisions.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
 
 // ========== HELPERS ==========
 const fadeUp = (delay = 0) => ({
@@ -82,11 +294,7 @@ function HeroHome() {
   };
 
   return (
-    <section
-      className={`min-h-[88vh] ${sectionClass} flex items-center bg-[#0B0B0D]`}
-      aria-label="Hero"
-    >
-      {/* Background effects */}
+    <section className={`min-h-[88vh] ${sectionClass} flex items-center bg-[#0B0B0D]`} aria-label="Hero">
       <div className="absolute inset-0">
         <div
           className="absolute -top-24 -left-24 w-[38rem] h-[38rem] rounded-full blur-[140px] bg-gradient-to-br from-teal-500/10 to-emerald-400/5 animate-pulse"
@@ -108,7 +316,6 @@ function HeroHome() {
 
       <div className="relative z-10 w-full px-6 lg:px-12 py-20">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
-          {/* Contenu gauche */}
           <div>
             <motion.div {...fadeUp(0.05)} className="inline-flex items-center gap-2 mb-8">
               <span className="relative flex h-2 w-2">
@@ -132,16 +339,12 @@ function HeroHome() {
               </span>
             </motion.h1>
 
-            <motion.p
-              {...fadeUp(0.2)}
-              className="mt-6 max-w-xl text-[17px] leading-relaxed text-zinc-400"
-            >
+            <motion.p {...fadeUp(0.2)} className="mt-6 max-w-xl text-[17px] leading-relaxed text-zinc-400">
               La première plateforme marocaine dédiée aux dividendes de la Bourse de Casablanca :
               maximisez votre rentabilité, suivez chaque dividende, anticipez les paiements et
               optimisez vos décisions avec nos outils d'analyse.
             </motion.p>
 
-            {/* Formulaire Email CTA */}
             <motion.form {...fadeUp(0.32)} onSubmit={handleSubmit} className="mt-10 flex flex-wrap gap-3 max-w-md">
               <input
                 type="email"
@@ -161,7 +364,6 @@ function HeroHome() {
             </motion.form>
           </div>
 
-          {/* Visuel Dashboard à droite */}
           <motion.div {...fadeUp(0.4)} className="hidden lg:block">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-teal-400/20 to-orange-400/20 rounded-2xl blur-3xl" />
@@ -200,10 +402,7 @@ function BrandMessage() {
   return (
     <section className="bg-[#0F1115] border-y border-white/[0.06]">
       <div className="max-w-6xl mx-auto px-6 lg:px-12 py-6">
-        <motion.p
-          {...fadeUp(0.05)}
-          className="text-sm md:text-[15px] text-zinc-300 leading-relaxed"
-        >
+        <motion.p {...fadeUp(0.05)} className="text-sm md:text-[15px] text-zinc-300 leading-relaxed">
           <span className="relative">
             CasaDividendes est une plateforme gratuite, conçue pour rendre l'analyse des dividendes accessible à tous.
             <span className="mx-2 text-zinc-500">·</span>
@@ -303,13 +502,13 @@ function StatsSection() {
           Déjà plus de 2 000 investisseurs marocains utilisent CasaDividendes
         </motion.h2>
         
-        <StatCardGrid cols={3}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {stats.map((s, i) => (
             <motion.div key={s.label} {...fadeUp(0.1 + i * 0.05)}>
               <StatCard title={s.label} value={s.value} />
             </motion.div>
           ))}
-        </StatCardGrid>
+        </div>
       </div>
     </section>
   );
@@ -372,10 +571,7 @@ function PalmaresPreview() {
       <div className="max-w-6xl mx-auto">
         <motion.div {...fadeUp(0.05)} className="flex items-center justify-between mb-4">
           <h2 className="text-white text-xl font-semibold">Aperçu Palmarès</h2>
-          <a
-            href={ROUTES.RANKING}
-            className="text-teal-300/90 hover:underline text-sm"
-          >
+          <a href={ROUTES.RANKING} className="text-teal-300/90 hover:underline text-sm">
             Voir le palmarès complet
           </a>
         </motion.div>
