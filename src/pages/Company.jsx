@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getDividendsFor, getCompanies } from "../services/dataService";
 import { DATA_YEARS } from "../constants/paths";
+import CompanyLogo from "../components/CompanyLogo";
 
 /* ============ Utils ============ */
 const DAY_MS = 86400000;
@@ -355,7 +356,12 @@ export default function Company() {
             <button className="btn-ghost" onClick={() => window.history.back()} aria-label="Retour">
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <img src={company.logo} alt="" className="w-10 h-10 rounded-lg border border-white/10 bg-black/40 object-contain" />
+            <CompanyLogo
+              ticker={company.ticker}
+              name={company.name}
+              logo={company.logo}
+              size="md"
+            />
             <div className="flex-1">
               <h1 className="text-xl font-semibold tracking-tight">{company.name}</h1>
               <div className="text-xs text-zinc-400">{company.ticker} • {company.sector}</div>
