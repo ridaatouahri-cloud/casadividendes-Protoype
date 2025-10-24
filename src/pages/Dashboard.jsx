@@ -41,9 +41,7 @@ import {
   Trash2,
   ChevronRight,
 } from "lucide-react";
-Puis builder.
- // TODO: ajuster le chemin selon le projet
-import { getAllDividends } from "../services/dividends"; // TODO: ajuster le chemin selon le projet
+import { getCompanies, getAllDividends } from "../services/dataService";
 
 /* -----------------------------------------
  * Utils format
