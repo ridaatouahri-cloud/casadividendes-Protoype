@@ -114,7 +114,7 @@ function Header() {
               onClick={() => (window.location.hash = "#/premium")}
               className="px-3 py-1.5 text-sm font-semibold rounded-lg bg-gradient-to-r from-orange-400 to-amber-400 text-black hover:brightness-110 transition-all"
             >
-              Premium
+              Premiu
             </button>
 
             <button
