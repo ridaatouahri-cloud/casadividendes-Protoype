@@ -1,292 +1,569 @@
 [
   {
-    "ticker": "IMO",
-    "company": "IMMORENTE INVEST",
-    "sector": null,
+    "ticker": "MOX",
+    "company": "MAGHREB OXYGENE",
     "year": 2023,
-    "exDate": "2024-04-22",
-    "paymentDate": "2024-04-30",
-    "dividend": 1.0,
+    "exDate": "2024-04-03",
+    "paymentDate": "2024-04-16",
+    "dividend": 4,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "GAZ",
+    "company": "AFRIQUIA GAZ",
+    "year": 2023,
+    "exDate": "2024-04-02",
+    "paymentDate": "2024-04-16",
+    "dividend": 140,
     "type": "Ordinaire"
   },
   {
     "ticker": "IMO",
     "company": "IMMORENTE INVEST",
-    "sector": null,
     "year": 2023,
-    "exDate": "2024-09-17",
-    "paymentDate": "2024-09-30",
-    "dividend": 1.0,
-    "type": "Intérim"
+    "exDate": "2024-04-22",
+    "paymentDate": "2024-04-30",
+    "dividend": 1,
+    "type": "Ordinaire"
   },
   {
     "ticker": "MUT",
     "company": "MUTANDIS SCA",
-    "sector": null,
     "year": 2023,
     "exDate": "2024-06-27",
-    "paymentDate": "2024-07-08",
+    "paymentDate": "2024-07-10",
     "dividend": 10.5,
     "type": "Ordinaire"
   },
   {
     "ticker": "NEJ",
     "company": "AUTO NEJMA",
-    "sector": null,
     "year": 2023,
     "exDate": "2024-05-23",
-    "paymentDate": "2024-06-04",
-    "dividend": 94.0,
+    "paymentDate": "2024-06-03",
+    "dividend": 94,
     "type": "Ordinaire"
   },
   {
-    "ticker": "SID",
-    "company": "SONASID",
-    "sector": null,
+    "ticker": "SBM",
+    "company": "SOCIETE DES BOISSONS DU MAROC",
+    "year": 2023,
+    "exDate": "2024-06-06",
+    "paymentDate": "2024-06-20",
+    "dividend": 160,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SLF",
+    "company": "SALAFIN",
+    "year": 2023,
+    "exDate": "2024-05-27",
+    "paymentDate": "2024-06-05",
+    "dividend": 14.25,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SLF",
+    "company": "SALAFIN",
+    "year": 2023,
+    "exDate": "2024-05-27",
+    "paymentDate": "2024-06-05",
+    "dividend": 14.25,
+    "type": "Exceptionnel"
+  },
+  {
+    "ticker": "COL",
+    "company": "COLORADO",
+    "year": 2023,
+    "exDate": "2024-06-06",
+    "paymentDate": "2024-06-20",
+    "dividend": 2.25,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "DWY",
+    "company": "DISWAY",
+    "year": 2023,
+    "exDate": "2024-06-25",
+    "paymentDate": "2024-07-04",
+    "dividend": 35,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "LHM",
+    "company": "LAFARGEHOLCIM MAROC",
+    "year": 2023,
+    "exDate": "2024-06-06",
+    "paymentDate": "2024-06-20",
+    "dividend": 66,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "IMO",
+    "company": "IMMORENTE INVEST",
+    "year": 2023,
+    "exDate": "2024-06-11",
+    "paymentDate": "2024-06-24",
+    "dividend": 2.2,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "WAA",
+    "company": "WAFA ASSURANCE",
+    "year": 2023,
+    "exDate": "2024-06-11",
+    "paymentDate": "2024-06-26",
+    "dividend": 140,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SOT",
+    "company": "SOCIETE DE THERAPEUTIQUE MAROCAINE",
+    "year": 2023,
+    "exDate": "2024-06-21",
+    "paymentDate": "2024-07-02",
+    "dividend": 17,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CFG",
+    "company": "CFG BANK",
+    "year": 2023,
+    "exDate": "2024-06-11",
+    "paymentDate": "2024-06-24",
+    "dividend": 3.3,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ATH",
+    "company": "AUTO HALL",
     "year": 2023,
     "exDate": "2024-06-20",
-    "paymentDate": "2024-07-02",
-    "dividend": 25.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "AFM",
-    "company": "AFMA",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-06-27",
-    "paymentDate": "2024-07-05",
-    "dividend": 55.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "ADI",
-    "company": "ADDOHA",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-04",
-    "paymentDate": "2024-07-19",
-    "dividend": 0.3,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "AGM",
-    "company": "AGMA",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-08",
-    "paymentDate": "2024-07-22",
-    "dividend": 130.0,
+    "paymentDate": "2024-07-01",
+    "dividend": 2,
     "type": "Ordinaire"
   },
   {
     "ticker": "ATL",
-    "company": "ATTIJARIWAFA BANK",
-    "sector": null,
+    "company": "ATLANTASANAD",
     "year": 2023,
-    "exDate": "2024-07-10",
-    "paymentDate": "2024-07-23",
-    "dividend": 17.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "BAL",
-    "company": "BALIMA",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-02",
-    "paymentDate": "2024-07-15",
-    "dividend": 10.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "BCP",
-    "company": "BANQUE POPULAIRE",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-02",
-    "paymentDate": "2024-07-17",
-    "dividend": 6.5,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "CDM",
-    "company": "CREDIT DU MAROC",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-01",
-    "paymentDate": "2024-07-15",
-    "dividend": 9.5,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "CMA",
-    "company": "COSUMAR",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-08",
-    "paymentDate": "2024-07-22",
-    "dividend": 3.5,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "DRI",
-    "company": "DELTA HOLDING",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-06-28",
-    "paymentDate": "2024-07-15",
-    "dividend": 2.1,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "GHA",
-    "company": "GROUPE ADDOHA",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-11",
-    "paymentDate": "2024-07-26",
-    "dividend": 1.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "HPS",
-    "company": "HPS",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-06-28",
-    "paymentDate": "2024-07-16",
-    "dividend": 50.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "IBN",
-    "company": "IB MAROC.COM",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-08",
-    "paymentDate": "2024-07-22",
-    "dividend": 0.5,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "INV",
-    "company": "INVOLYS",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-02",
-    "paymentDate": "2024-07-17",
-    "dividend": 8.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "JET",
-    "company": "JET CONTRACTORS",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-06-26",
-    "paymentDate": "2024-07-12",
-    "dividend": 3.5,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "LAC",
-    "company": "LABEL VIE",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-07-10",
-    "paymentDate": "2024-07-23",
-    "dividend": 105.0,
+    "exDate": "2024-06-20",
+    "paymentDate": "2024-06-28",
+    "dividend": 5.7,
     "type": "Ordinaire"
   },
   {
     "ticker": "LES",
     "company": "LESIEUR CRISTAL",
-    "sector": null,
     "year": 2023,
-    "exDate": "2024-07-01",
-    "paymentDate": "2024-07-16",
-    "dividend": 9.0,
+    "exDate": "2024-06-26",
+    "paymentDate": "2024-07-05",
+    "dividend": 2,
     "type": "Ordinaire"
   },
   {
-    "ticker": "LHM",
-    "company": "LYDEC",
-    "sector": null,
+    "ticker": "TMA",
+    "company": "TOTALENERGIES MARKETING MAROC",
     "year": 2023,
-    "exDate": "2024-07-04",
+    "exDate": "2024-06-19",
+    "paymentDate": "2024-06-27",
+    "dividend": 56,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "EQD",
+    "company": "EQDOM",
+    "year": 2023,
+    "exDate": "2024-06-20",
+    "paymentDate": "2024-07-01",
+    "dividend": 55,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SMI",
+    "company": "SOCIETE METALLURGIQUE D'IMITER",
+    "year": 2023,
+    "exDate": "2024-06-20",
+    "paymentDate": "2024-07-01",
+    "dividend": 80,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "LBV",
+    "company": "LABEL VIE",
+    "year": 2023,
+    "exDate": "2024-06-20",
+    "paymentDate": "2024-07-01",
+    "dividend": 96.75,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "MNG",
+    "company": "MANAGEM",
+    "year": 2023,
+    "exDate": "2024-06-20",
+    "paymentDate": "2024-07-01",
+    "dividend": 30,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "TQM",
+    "company": "TAQA MOROCCO",
+    "year": 2023,
+    "exDate": "2024-06-20",
+    "paymentDate": "2024-06-28",
+    "dividend": 35,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CMA",
+    "company": "CIMENTS DU MAROC",
+    "year": 2023,
+    "exDate": "2024-07-02",
+    "paymentDate": "2024-07-15",
+    "dividend": 60,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CMA",
+    "company": "CIMENTS DU MAROC",
+    "year": 2023,
+    "exDate": "2024-07-02",
+    "paymentDate": "2024-07-15",
+    "dividend": 10,
+    "type": "Exceptionnel"
+  },
+  {
+    "ticker": "OUL",
+    "company": "SOCIETE LES EAUX MINERALES D'OULMES",
+    "year": 2023,
+    "exDate": "2024-06-26",
+    "paymentDate": "2024-07-05",
+    "dividend": 22,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "JET",
+    "company": "JET CONTRACTORS",
+    "year": 2023,
+    "exDate": "2024-07-09",
     "paymentDate": "2024-07-18",
-    "dividend": 16.0,
+    "dividend": 7,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "DYT",
+    "company": "DISTY TECHNOLOGIES",
+    "year": 2023,
+    "exDate": "2024-07-09",
+    "paymentDate": "2024-07-18",
+    "dividend": 15,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "DHO",
+    "company": "DELTA HOLDING",
+    "year": 2023,
+    "exDate": "2024-07-10",
+    "paymentDate": "2024-07-19",
+    "dividend": 1.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CDM",
+    "company": "CREDIT DU MAROC",
+    "year": 2023,
+    "exDate": "2024-07-09",
+    "paymentDate": "2024-07-18",
+    "dividend": 34.2,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CIH",
+    "company": "CREDIT IMMOBILIER ET HOTELIER",
+    "year": 2023,
+    "exDate": "2024-07-09",
+    "paymentDate": "2024-07-18",
+    "dividend": 14,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ADI",
+    "company": "ALLIANCES DEVELOPPEMENT IMMOBILIER SA",
+    "year": 2023,
+    "exDate": "2024-07-11",
+    "paymentDate": "2024-07-22",
+    "dividend": 3,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "NKL",
+    "company": "ENNAKL AUTOMOBILES",
+    "year": 2023,
+    "exDate": "2024-07-10",
+    "paymentDate": "2024-07-19",
+    "dividend": 1.99,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SID",
+    "company": "SOCIETE NATIONALE DE SIDERURGIE SA",
+    "year": 2023,
+    "exDate": "2024-07-12",
+    "paymentDate": "2024-07-23",
+    "dividend": 21,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ARD",
+    "company": "ARADEI CAPITAL",
+    "year": 2023,
+    "exDate": "2024-07-18",
+    "paymentDate": "2024-07-29",
+    "dividend": 5.88,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ARD",
+    "company": "ARADEI CAPITAL",
+    "year": 2023,
+    "exDate": "2024-07-18",
+    "paymentDate": "2024-07-29",
+    "dividend": 14.59,
+    "type": "Exceptionnel"
+  },
+  {
+    "ticker": "ATW",
+    "company": "ATTIJARIWAFA BANK",
+    "year": 2023,
+    "exDate": "2024-07-10",
+    "paymentDate": "2024-07-19",
+    "dividend": 16.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BAL",
+    "company": "BALIMA",
+    "year": 2023,
+    "exDate": "2024-07-16",
+    "paymentDate": "2024-07-25",
+    "dividend": 5.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "MIC",
+    "company": "MICRODATA",
+    "year": 2023,
+    "exDate": "2024-07-15",
+    "paymentDate": "2024-07-24",
+    "dividend": 34,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "HPS",
+    "company": "HIGHTECH PAYMENT SYSTEMS",
+    "year": 2023,
+    "exDate": "2024-07-17",
+    "paymentDate": "2024-07-26",
+    "dividend": 6.8,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BOA",
+    "company": "BANK OF AFRICA",
+    "year": 2023,
+    "exDate": "2024-07-17",
+    "paymentDate": "2024-07-26",
+    "dividend": 4,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BCP",
+    "company": "BANQUE CENTRALE POPULAIRE",
+    "year": 2023,
+    "exDate": "2024-07-19",
+    "paymentDate": "2024-07-31",
+    "dividend": 10,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CSR",
+    "company": "COSUMAR",
+    "year": 2023,
+    "exDate": "2024-07-11",
+    "paymentDate": "2024-07-22",
+    "dividend": 7,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CSR",
+    "company": "COSUMAR",
+    "year": 2023,
+    "exDate": "2024-07-11",
+    "paymentDate": "2024-07-22",
+    "dividend": 3,
+    "type": "Exceptionnel"
+  },
+  {
+    "ticker": "RIS",
+    "company": "RISMA",
+    "year": 2023,
+    "exDate": "2024-07-18",
+    "paymentDate": "2024-07-29",
+    "dividend": 6,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "TGC",
+    "company": "TRAVAUX GENERAUX DE CONSTRUCTION DE CASABLANCA",
+    "year": 2023,
+    "exDate": "2024-07-12",
+    "paymentDate": "2024-07-23",
+    "dividend": 7.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "AFI",
+    "company": "AFRIC INDUSTRIES SA",
+    "year": 2023,
+    "exDate": "2024-07-16",
+    "paymentDate": "2024-07-25",
+    "dividend": 20,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "DRI",
+    "company": "DARI COUSPATE",
+    "year": 2023,
+    "exDate": "2024-07-18",
+    "paymentDate": "2024-07-29",
+    "dividend": 120,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "AGM",
+    "company": "AGMA",
+    "year": 2023,
+    "exDate": "2024-07-16",
+    "paymentDate": "2024-07-25",
+    "dividend": 275,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "BCI",
+    "company": "BANQUE MAROCAINE POUR LE COMMERCE ET L'INDUSTRIE",
+    "year": 2023,
+    "exDate": "2024-07-17",
+    "paymentDate": "2024-07-26",
+    "dividend": 18,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "SAH",
+    "company": "SANLAM MAROC",
+    "year": 2023,
+    "exDate": "2024-08-22",
+    "paymentDate": "2024-08-30",
+    "dividend": 77,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "MSA",
+    "company": "SOCIETE D'EXPLOITATION DES PORTS - MARSA MAROC",
+    "year": 2023,
+    "exDate": "2024-07-24",
+    "paymentDate": "2024-08-07",
+    "dividend": 8.5,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "UMR",
+    "company": "UNIMER",
+    "year": 2023,
+    "exDate": "2024-09-09",
+    "paymentDate": "2024-09-20",
+    "dividend": 1,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "AFM",
+    "company": "AFMA SA",
+    "year": 2023,
+    "exDate": "2024-09-03",
+    "paymentDate": "2024-09-12",
+    "dividend": 55,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "AKT",
+    "company": "AKDITAL",
+    "year": 2023,
+    "exDate": "2024-07-31",
+    "paymentDate": "2024-08-09",
+    "dividend": 6,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "CTM",
+    "company": "COMPAGNIE DE TRANSPORT AU MAROC",
+    "year": 2023,
+    "exDate": "2024-09-10",
+    "paymentDate": "2024-09-23",
+    "dividend": 15,
+    "type": "Ordinaire"
+  },
+  {
+    "ticker": "ALM",
+    "company": "ALUMINIUM DU MAROC",
+    "year": 2023,
+    "exDate": "2024-08-01",
+    "paymentDate": "2024-08-09",
+    "dividend": 90,
     "type": "Ordinaire"
   },
   {
     "ticker": "MAB",
-    "company": "MAGHREB OXYGENE",
-    "sector": null,
+    "company": "MAGHREBAIL",
     "year": 2023,
-    "exDate": "2024-03-26",
-    "paymentDate": "2024-04-08",
-    "dividend": 4.0,
+    "exDate": "2024-08-06",
+    "paymentDate": "2024-08-15",
+    "dividend": 50,
     "type": "Ordinaire"
   },
   {
-    "ticker": "GAZ",
-    "company": "AFRIQUIA GAZ",
-    "sector": null,
+    "ticker": "IAM",
+    "company": "ITISSALAT AL-MAGHRIB",
     "year": 2023,
-    "exDate": "2024-03-26",
-    "paymentDate": "2024-04-08",
-    "dividend": 175.0,
+    "exDate": "2024-09-03",
+    "paymentDate": "2024-09-12",
+    "dividend": 4.2,
     "type": "Ordinaire"
   },
   {
-    "ticker": "TQM",
-    "company": "TAQA MOROCCO",
-    "sector": null,
+    "ticker": "MLE",
+    "company": "MAROC LEASING",
     "year": 2023,
-    "exDate": "2024-06-28",
-    "paymentDate": "2024-07-16",
-    "dividend": 13.0,
+    "exDate": "2024-09-18",
+    "paymentDate": "2024-09-27",
+    "dividend": 14,
     "type": "Ordinaire"
   },
   {
-    "ticker": "TQM",
-    "company": "TAQA MOROCCO",
-    "sector": null,
+    "ticker": "IMO",
+    "company": "IMMORENTE INVEST",
     "year": 2023,
-    "exDate": "2024-10-01",
-    "paymentDate": "2024-10-15",
-    "dividend": 5.0,
-    "type": "Intérim"
-  },
-  {
-    "ticker": "TLB",
-    "company": "TOTAL MAROC",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-06-28",
-    "paymentDate": "2024-07-15",
-    "dividend": 66.0,
+    "exDate": "2024-09-19",
+    "paymentDate": "2024-09-30",
+    "dividend": 1,
     "type": "Ordinaire"
   },
   {
-    "ticker": "UNM",
-    "company": "UNIMER",
-    "sector": null,
+    "ticker": "IMO",
+    "company": "IMMORENTE INVEST",
     "year": 2023,
-    "exDate": "2024-07-05",
-    "paymentDate": "2024-07-19",
-    "dividend": 6.0,
-    "type": "Ordinaire"
-  },
-  {
-    "ticker": "ZMJ",
-    "company": "ZELLIDJA",
-    "sector": null,
-    "year": 2023,
-    "exDate": "2024-06-28",
-    "paymentDate": "2024-07-15",
-    "dividend": 12.0,
+    "exDate": "2024-12-11",
+    "paymentDate": "2024-12-20",
+    "dividend": 1,
     "type": "Ordinaire"
   }
 ]
