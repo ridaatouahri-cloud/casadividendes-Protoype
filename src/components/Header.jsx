@@ -19,6 +19,7 @@ const Search = ({ className }) => (
 // ROUTES
 const ROUTES = {
   HOME: "#/",
+  DASHBOARD: "#/dashboard",
   CALENDAR: "#/calendar",
   RANKING: "#/rankings",
   BLOG: "#/blog",
@@ -32,6 +33,7 @@ const ROUTES = {
 
 const NAV = [
   { key: "home", label: "Accueil", path: ROUTES.HOME },
+  { key: "dashboard", label: "Dashboard", path: ROUTES.DASHBOARD },
   { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
   { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
   { key: "blog", label: "Blog", path: ROUTES.BLOG },
@@ -72,7 +74,7 @@ export default function Header() {
               aria-label="Retour à l'accueil"
             >
               {/* Logo style Stripe - minimaliste premium */}
-              <span 
+              <span
                 className="text-[21px] font-semibold tracking-[-0.04em] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-300 bg-clip-text text-transparent transition-all duration-300 group-hover:opacity-90"
                 style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, system-ui" }}
               >
@@ -80,6 +82,7 @@ export default function Header() {
               </span>
               <Pill>Beta</Pill>
             </a>
+
             <nav className="hidden md:flex items-center gap-6" aria-label="Navigation principale">
               {NAV.map((n) => {
                 const isActive = currentPath === n.path.replace("#", "");
@@ -110,7 +113,7 @@ export default function Header() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Rechercher une société, un dividende…"
+                placeholder="Rechercher une société, un dividende..."
                 className="w-56 bg-transparent text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none"
               />
             </div>
