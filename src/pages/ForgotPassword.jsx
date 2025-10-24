@@ -1,8 +1,8 @@
-/ ========================================
-// 3. PAGE MOT DE PASSE OUBLIÉ (ForgotPassword.jsx)
-// ========================================
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { CheckCircle } from "lucide-react";
 
-export function ForgotPassword() {
+export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);

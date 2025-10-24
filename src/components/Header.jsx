@@ -1,6 +1,7 @@
 // src/components/Header.jsx --- premium, dark, glassy
 
 import React, { useEffect, useState } from "react";
+import { ROUTES } from "../constants/routes";
 
 // Pill Component
 export const Pill = ({ children }) => (
@@ -16,22 +17,12 @@ const Search = ({ className }) => (
   </svg>
 );
 
-// ROUTES
-const ROUTES = {
-  HOME: "#/",
-  CALENDAR: "#/calendar",
-  RANKING: "#/rankings",
-  BLOG: "#/blog",
-  PREMIUM: "#/premium",
-  ABOUT: "#/about",
-  LEGAL: "#/legal",
-  LOGIN: "#/login",
-  CONTACT: "#/contact",
-  FAQ: "#/faq",
-};
+// Navigation locale
+const LOGIN = "#/login";
 
 const NAV = [
   { key: "home", label: "Accueil", path: ROUTES.HOME },
+  { key: "dashboard", label: "Dashboard", path: ROUTES.DASHBOARD },
   { key: "calendar", label: "Calendrier", path: ROUTES.CALENDAR },
   { key: "ranking", label: "Palmarès", path: ROUTES.RANKING },
   { key: "blog", label: "Blog", path: ROUTES.BLOG },
@@ -126,7 +117,7 @@ export default function Header() {
 
             {/* Bouton Se connecter */}
             <a
-              href={ROUTES.LOGIN}
+              href={LOGIN}
               className="hidden md:inline-flex px-3 py-1.5 text-sm font-semibold rounded-lg border border-white/10 text-white hover:bg-white/5 transition-all"
             >
               Se connecter

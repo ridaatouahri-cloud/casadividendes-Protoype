@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, Calendar, DollarSign, PieChart, Plus, Search, Filter, Download, Bell, User, Crown, BookOpen, Menu, X, Copy, Check, LogOut, Settings, Zap, Info, ChevronDown } from 'lucide-react';
+import { TrendingUp, Calendar, DollarSign, PieChart, Plus, Filter, Download, Bell, User, Crown, BookOpen, Menu, X, Copy, Check, LogOut, Settings, ChevronDown } from 'lucide-react';
+import { getAllDividends, getCompanies } from '../services/dataService';
+import { DATA_YEARS } from '../constants/paths';
 
-// ========== DONNÉES MOCKÉES ==========
 const userData = {
   name: "Youssef Benali",
   email: "youssef@example.com",
@@ -11,142 +12,123 @@ const userData = {
   joinedDate: "2024-10-15"
 };
 
-const portfolioData = [
-  {
-    ticker: "IAM",
-    name: "Maroc Telecom",
-    logo: "🔵",
-    shares: 50,
-    purchasePrice: 140.00,
-    currentPrice: 145.50,
-    dividendYield: 5.2,
-    sector: "Télécoms",
-    cdrs: 88,
-    prt: 18,
-    ndf: 92,
-    nextDividend: { date: "2025-06-28", amount: 6.50, status: "confirmed" }
-  },
-  {
-    ticker: "ATW",
-    name: "Attijariwafa Bank",
-    logo: "🔴",
-    shares: 30,
-    purchasePrice: 520.00,
-    currentPrice: 538.00,
-    dividendYield: 4.8,
-    sector: "Banque",
-    cdrs: 84,
-    prt: 21,
-    ndf: 94,
-    nextDividend: { date: "2025-05-15", amount: 25.00, status: "confirmed" }
-  },
-  {
-    ticker: "CIH",
-    name: "CIH Bank",
-    logo: "🟢",
-    shares: 75,
-    purchasePrice: 280.00,
-    currentPrice: 295.00,
-    dividendYield: 5.5,
-    sector: "Banque",
-    cdrs: 78,
-    prt: 25,
-    ndf: 85,
-    nextDividend: { date: "2025-07-10", amount: 15.00, status: "estimated" }
-  },
-  {
-    ticker: "CSR",
-    name: "Cosumar",
-    logo: "🟡",
-    shares: 40,
-    purchasePrice: 195.00,
-    currentPrice: 198.50,
-    dividendYield: 4.2,
-    sector: "Agroalimentaire",
-    cdrs: 82,
-    prt: 19,
-    ndf: 88,
-    nextDividend: { date: "2025-06-05", amount: 8.50, status: "confirmed" }
-  },
-  {
-    ticker: "ADH",
-    name: "Addoha",
-    logo: "🟠",
-    shares: 120,
-    purchasePrice: 12.50,
-    currentPrice: 13.80,
-    dividendYield: 3.8,
-    sector: "Immobilier",
-    cdrs: 68,
-    prt: 35,
-    ndf: 72,
-    nextDividend: { date: "2025-08-20", amount: 0.52, status: "estimated" }
-  },
-  {
-    ticker: "ALM",
-    name: "Alliances",
-    logo: "🟣",
-    shares: 60,
-    purchasePrice: 85.00,
-    currentPrice: 89.00,
-    dividendYield: 6.1,
-    sector: "Assurance",
-    cdrs: 86,
-    prt: 16,
-    ndf: 90,
-    nextDividend: { date: "2025-05-30", amount: 5.50, status: "confirmed" }
-  }
-];
-
-const chartData = [
-  { month: 'Mai', dividendes: 1250 },
-  { month: 'Juin', dividendes: 2100 },
-  { month: 'Juil', dividendes: 1800 },
-  { month: 'Août', dividendes: 950 },
-  { month: 'Sept', dividendes: 2400 },
-  { month: 'Oct', dividendes: 3950 }
-];
-
-// ========== CALCULS ==========
-const calculateStats = () => {
-  const totalValue = portfolioData.reduce((sum, stock) => 
-    sum + (stock.shares * stock.currentPrice), 0
-  );
-  const totalCost = portfolioData.reduce((sum, stock) => 
-    sum + (stock.shares * stock.purchasePrice), 0
-  );
-  const avgYield = portfolioData.reduce((sum, stock) => 
-    sum + stock.dividendYield, 0
-  ) / portfolioData.length;
-  const ytdIncome = chartData.reduce((sum, month) => sum + month.dividendes, 0);
-  
-  return {
-    totalYield: ((totalValue - totalCost) / totalCost * 100).toFixed(1),
-    ytdIncome,
-    avgDividendYield: avgYield.toFixed(1),
-    upcomingPayments: portfolioData.filter(s => 
-      new Date(s.nextDividend.date) <= new Date(Date.now() + 7*24*60*60*1000)
-    ).length,
-    totalStocks: portfolioData.length
-  };
-};
-
-const stats = calculateStats();
-
-// ========== COMPOSANT PRINCIPAL ==========
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [copiedTicker, setCopiedTicker] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [year, setYear] = useState("2024");
+  const [rows, setRows] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Easter egg confettis
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      try {
+        const [companiesData] = await Promise.all([
+          getCompanies()
+        ]);
+        setCompanies(companiesData);
+      } catch (err) {
+        console.error("Error loading data:", err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const years = year === "tous" ? DATA_YEARS : [Number(year)];
+        const dividendsData = await getAllDividends(years);
+        setRows(dividendsData);
+      } catch (err) {
+        console.error("Error loading dividends:", err);
+      }
+    })();
+  }, [year]);
+
+  const portfolioData = companies.slice(0, 6).map((c, i) => {
+    const companyRows = rows.filter(r => r.ticker === c.ticker);
+    const totalDiv = companyRows.reduce((sum, r) => sum + (r.amount || 0), 0);
+    const avgDiv = companyRows.length > 0 ? totalDiv / companyRows.length : 0;
+    const shares = [50, 30, 75, 40, 120, 60][i] || 10;
+    const purchasePrice = [140, 520, 280, 195, 12.5, 85][i] || 100;
+    const currentPrice = purchasePrice * (1 + Math.random() * 0.1);
+
+    const nextDiv = companyRows.find(r => r.exDate && new Date(r.exDate) > new Date());
+
+    return {
+      ticker: c.ticker,
+      name: c.name,
+      shares,
+      purchasePrice,
+      currentPrice,
+      dividendYield: avgDiv > 0 ? ((avgDiv / currentPrice) * 100) : 4.5,
+      sector: c.sector || "—",
+      cdrs: Math.round(70 + Math.random() * 30),
+      prt: Math.round(15 + Math.random() * 20),
+      ndf: Math.round(70 + Math.random() * 30),
+      nextDividend: nextDiv ? {
+        date: nextDiv.exDate,
+        amount: nextDiv.amount || 0,
+        status: "confirmed"
+      } : {
+        date: new Date(Date.now() + 90*24*60*60*1000).toISOString().split('T')[0],
+        amount: avgDiv || 5.0,
+        status: "estimated"
+      }
+    };
+  });
+
+  const chartData = Array.from({ length: 6 }, (_, i) => {
+    const month = new Date(2024, i + 5, 1);
+    const monthName = month.toLocaleDateString('fr-FR', { month: 'short' });
+    const monthRows = rows.filter(r => {
+      if (!r.exDate) return false;
+      const d = new Date(r.exDate);
+      return d.getMonth() === month.getMonth();
+    });
+    const total = monthRows.reduce((sum, r) => sum + (r.amount || 0), 0);
+    return {
+      month: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+      dividendes: Math.round(total * 100)
+    };
+  });
+
+  const calculateStats = () => {
+    const totalValue = portfolioData.reduce((sum, stock) =>
+      sum + (stock.shares * stock.currentPrice), 0
+    );
+    const totalCost = portfolioData.reduce((sum, stock) =>
+      sum + (stock.shares * stock.purchasePrice), 0
+    );
+    const avgYield = portfolioData.length > 0
+      ? portfolioData.reduce((sum, stock) => sum + (stock.dividendYield || 0), 0) / portfolioData.length
+      : 0;
+    const ytdIncome = chartData.reduce((sum, month) => sum + month.dividendes, 0);
+
+    return {
+      totalYield: totalCost > 0 ? ((totalValue - totalCost) / totalCost * 100).toFixed(1) : "0.0",
+      ytdIncome,
+      avgDividendYield: avgYield.toFixed(1),
+      upcomingPayments: portfolioData.filter(s =>
+        s.nextDividend && new Date(s.nextDividend.date) <= new Date(Date.now() + 7*24*60*60*1000)
+      ).length,
+      totalStocks: portfolioData.length
+    };
+  };
+
+  const stats = calculateStats();
+
   useEffect(() => {
     if (parseFloat(stats.totalYield) > 5) {
       setShowConfetti(true);
       setTimeout(() => setShowConfetti(false), 3000);
     }
-  }, []);
+  }, [stats.totalYield]);
 
   const copyTicker = (ticker) => {
     navigator.clipboard.writeText(ticker);
@@ -158,10 +140,17 @@ const Dashboard = () => {
     .sort((a, b) => new Date(a.nextDividend.date) - new Date(b.nextDividend.date))
     .slice(0, 5);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#0B0B0D] text-white">
+        <div className="text-zinc-400">Chargement...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0B0B0D] text-white">
-      {/* Grille subtile en fond */}
-      <div 
+      <div
         className="fixed inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: "linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)",
@@ -169,7 +158,6 @@ const Dashboard = () => {
         }}
       />
 
-      {/* Glows animés */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div
           className="absolute -top-24 -left-24 w-[50rem] h-[50rem] rounded-full blur-[160px] bg-gradient-to-br from-teal-500/12 to-emerald-400/6 animate-pulse"
@@ -181,7 +169,6 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Confetti Easter Egg */}
       {showConfetti && (
         <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
           {[...Array(30)].map((_, i) => (
@@ -201,12 +188,10 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Sidebar */}
       <aside className={`fixed left-0 top-0 h-full w-64 bg-black/40 backdrop-blur-xl border-r border-white/10 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
         <div className="p-6">
-          {/* Logo - Style exact du Header */}
           <div className="flex items-center justify-between mb-8">
-            <a 
+            <a
               href="#/"
               className="flex items-center gap-2 group"
             >
@@ -225,12 +210,11 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Navigation */}
           <nav className="space-y-2">
             {[
               { icon: PieChart, label: 'Dashboard', href: '#/dashboard', active: true },
               { icon: Calendar, label: 'Calendrier', href: '#/calendar' },
-              { icon: TrendingUp, label: 'Palmarès', href: '#/rankings' },
+              { icon: TrendingUp, label: 'Palmarès', href: '#/ranking' },
               { icon: Bell, label: 'Mes Alertes', href: '#/alerts' },
               { icon: User, label: 'Mon Profil', href: '#/profile' },
               { icon: Crown, label: 'Premium', href: '#/premium', badge: true },
@@ -240,8 +224,8 @@ const Dashboard = () => {
                 key={i}
                 href={item.href}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                  item.active 
-                    ? 'bg-gradient-to-r from-teal-500/20 via-emerald-500/20 to-teal-500/20 border border-teal-500/30 shadow-lg shadow-teal-500/10' 
+                  item.active
+                    ? 'bg-gradient-to-r from-teal-500/20 via-emerald-500/20 to-teal-500/20 border border-teal-500/30 shadow-lg shadow-teal-500/10'
                     : 'hover:bg-white/5 text-zinc-400 hover:text-white'
                 }`}
               >
@@ -258,14 +242,12 @@ const Dashboard = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
       <div className="lg:ml-64 relative">
-        {/* Header */}
         <header className="sticky top-0 z-40 bg-[#0B0B0D]/95 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
           <div className="px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button 
-                onClick={() => setSidebarOpen(true)} 
+              <button
+                onClick={() => setSidebarOpen(true)}
                 className="lg:hidden p-2 hover:bg-white/5 rounded-lg transition-colors"
               >
                 <Menu size={24} />
@@ -279,16 +261,15 @@ const Dashboard = () => {
                 </p>
               </div>
             </div>
-            
-            {/* User Menu */}
+
             <div className="flex items-center gap-4">
               <span className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs bg-zinc-900/60 border border-zinc-800 rounded-lg">
                 <span className="w-2 h-2 rounded-full bg-zinc-600"></span>
                 {userData.subscriptionTier === 'free' ? 'Gratuit' : 'Premium'}
               </span>
-              
+
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-xl transition-colors"
                 >
@@ -321,7 +302,6 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Stats Cards */}
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {[
@@ -362,9 +342,8 @@ const Dashboard = () => {
                 key={i}
                 className="group relative bg-white/[0.02] backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all hover:scale-105 cursor-pointer overflow-hidden"
               >
-                {/* Glow subtil au hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                
+
                 <div className="relative">
                   <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-4 shadow-lg`}>
                     <stat.icon size={24} className="text-white" />
@@ -386,7 +365,6 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* Portfolio Table */}
           <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/10 p-6 mb-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
               <h3 className="text-xl font-semibold tracking-tight">Mon Portefeuille</h3>
@@ -406,7 +384,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Table responsive */}
             <div className="overflow-x-auto -mx-6 px-6">
               <table className="w-full">
                 <thead>
@@ -427,11 +404,13 @@ const Dashboard = () => {
                       <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                         <td className="py-4 px-4">
                           <div className="flex items-center gap-3">
-                            <div className="text-3xl">{stock.logo}</div>
+                            <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs font-semibold">
+                              {stock.ticker.slice(0,2)}
+                            </div>
                             <div>
                               <div className="flex items-center gap-2">
                                 <span className="font-bold">{stock.ticker}</span>
-                                <button 
+                                <button
                                   onClick={() => copyTicker(stock.ticker)}
                                   className="text-zinc-500 hover:text-white transition-colors"
                                 >
@@ -444,10 +423,14 @@ const Dashboard = () => {
                           </div>
                         </td>
                         <td className="py-4 px-4 font-semibold">{stock.shares}</td>
-                        <td className="py-4 px-4 text-zinc-400">{stock.purchasePrice.toFixed(2)} MAD</td>
+                        <td className="py-4 px-4 text-zinc-400">
+                          {typeof stock.purchasePrice === 'number' ? stock.purchasePrice.toFixed(2) : '—'} MAD
+                        </td>
                         <td className="py-4 px-4">
                           <div>
-                            <p className="font-semibold">{stock.currentPrice.toFixed(2)} MAD</p>
+                            <p className="font-semibold">
+                              {typeof stock.currentPrice === 'number' ? stock.currentPrice.toFixed(2) : '—'} MAD
+                            </p>
                             <p className={`text-xs font-medium ${parseFloat(gain) > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                               {parseFloat(gain) > 0 ? '+' : ''}{gain}%
                             </p>
@@ -465,13 +448,17 @@ const Dashboard = () => {
                         </td>
                         <td className="py-4 px-4">
                           <span className="px-3 py-1 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-500/30 rounded-full text-sm font-semibold text-emerald-300">
-                            {stock.dividendYield}%
+                            {typeof stock.dividendYield === 'number' ? stock.dividendYield.toFixed(1) : '—'}%
                           </span>
                         </td>
                         <td className="py-4 px-4">
                           <div>
-                            <p className="text-sm font-semibold">{stock.nextDividend.amount.toFixed(2)} MAD</p>
-                            <p className="text-xs text-zinc-500">{new Date(stock.nextDividend.date).toLocaleDateString('fr-FR')}</p>
+                            <p className="text-sm font-semibold">
+                              {typeof stock.nextDividend.amount === 'number' ? stock.nextDividend.amount.toFixed(2) : '—'} MAD
+                            </p>
+                            <p className="text-xs text-zinc-500">
+                              {stock.nextDividend.date ? new Date(stock.nextDividend.date).toLocaleDateString('fr-FR') : '—'}
+                            </p>
                             <div className="flex items-center gap-1 mt-1">
                               <span className={`w-2 h-2 rounded-full ${stock.nextDividend.status === 'confirmed' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                               <span className={`text-xs ${stock.nextDividend.status === 'confirmed' ? 'text-emerald-400' : 'text-amber-400'}`}>
@@ -488,9 +475,7 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Bottom Row: Chart + Timeline */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Performance Chart */}
             <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/10 p-6">
               <h3 className="text-xl font-semibold tracking-tight mb-6">Performance Dividendes</h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -502,18 +487,18 @@ const Dashboard = () => {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis 
-                    dataKey="month" 
-                    stroke="#71717A" 
-                    tick={{ fill: '#71717A', fontSize: 12 }}
-                    axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
-                  />
-                  <YAxis 
+                  <XAxis
+                    dataKey="month"
                     stroke="#71717A"
                     tick={{ fill: '#71717A', fontSize: 12 }}
                     axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
                   />
-                  <Tooltip 
+                  <YAxis
+                    stroke="#71717A"
+                    tick={{ fill: '#71717A', fontSize: 12 }}
+                    axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                  />
+                  <Tooltip
                     contentStyle={{
                       backgroundColor: 'rgba(0,0,0,0.9)',
                       border: '1px solid rgba(255,255,255,0.1)',
@@ -523,8 +508,8 @@ const Dashboard = () => {
                     labelStyle={{ color: '#fff', fontWeight: 600 }}
                     itemStyle={{ color: '#14B8A6' }}
                   />
-                  <Bar 
-                    dataKey="dividendes" 
+                  <Bar
+                    dataKey="dividendes"
                     fill="url(#barGradient)"
                     radius={[8, 8, 0, 0]}
                   />
@@ -532,31 +517,34 @@ const Dashboard = () => {
               </ResponsiveContainer>
             </div>
 
-            {/* Upcoming Dividends Timeline */}
             <div className="bg-white/[0.02] backdrop-blur-sm rounded-2xl border border-white/10 p-6">
               <h3 className="text-xl font-semibold tracking-tight mb-6">Prochains Dividendes</h3>
               <div className="space-y-4">
                 {upcomingDividends.map((stock, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     className="flex items-center gap-4 p-4 bg-white/[0.02] hover:bg-white/[0.04] border border-white/5 hover:border-white/10 rounded-xl transition-all cursor-pointer"
                   >
-                    <div className="text-3xl">{stock.logo}</div>
+                    <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs font-semibold">
+                      {stock.ticker.slice(0,2)}
+                    </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <span className="font-bold">{stock.ticker}</span>
                         <span className={`w-2 h-2 rounded-full ${stock.nextDividend.status === 'confirmed' ? 'bg-emerald-400' : 'bg-amber-400'}`} />
                       </div>
                       <p className="text-sm text-zinc-400">
-                        {new Date(stock.nextDividend.date).toLocaleDateString('fr-FR', { 
-                          day: 'numeric', 
+                        {stock.nextDividend.date ? new Date(stock.nextDividend.date).toLocaleDateString('fr-FR', {
+                          day: 'numeric',
                           month: 'long',
                           year: 'numeric'
-                        })}
+                        }) : '—'}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-lg">{stock.nextDividend.amount.toFixed(2)} MAD</p>
+                      <p className="font-bold text-lg">
+                        {typeof stock.nextDividend.amount === 'number' ? stock.nextDividend.amount.toFixed(2) : '—'} MAD
+                      </p>
                       <p className="text-xs text-zinc-500">par action</p>
                     </div>
                   </div>

@@ -18,8 +18,8 @@ const Register = lazy(() => import("./pages/Register"));
 const Login = lazy(() => import("./pages/Login"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 
-// Pages utilisateur (à créer plus tard)
-// const Dashboard = lazy(() => import("./pages/Dashboard"));
+// Pages utilisateur
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 // const Profile = lazy(() => import("./pages/Profile"));
 
 function LoadingFallback() {
@@ -82,8 +82,8 @@ export default function App() {
           <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
           <Route path="/forgot-password" element={<AuthLayout><ForgotPassword /></AuthLayout>} />
 
-          {/* Pages utilisateur avec Header/Footer (à créer plus tard) */}
-          {/* <Route path="/dashboard" element={<LayoutWithHeaderFooter><Dashboard /></LayoutWithHeaderFooter>} /> */}
+          {/* Pages utilisateur avec Header/Footer */}
+          <Route path="/dashboard" element={<LayoutWithHeaderFooter><Dashboard /></LayoutWithHeaderFooter>} />
           {/* <Route path="/profile" element={<LayoutWithHeaderFooter><Profile /></LayoutWithHeaderFooter>} /> */}
 
           {/* 404 */}
