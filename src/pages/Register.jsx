@@ -102,7 +102,7 @@ export default function Register() {
             Un email de vérification a été envoyé à <span className="text-teal-300">{formData.email}</span>
           </p>
           <a
-            href="#/login"
+            href="/login"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-400 to-amber-400 text-black font-semibold hover:brightness-110 transition-all"
           >
             Se connecter
