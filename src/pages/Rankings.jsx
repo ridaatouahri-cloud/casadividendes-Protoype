@@ -12,7 +12,7 @@ export default function Rankings() {
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState("tous");
   const [page, setPage] = useState(1);
-  const pageSize = 5;
+  const pageSize = 10;
 
   useEffect(() => {
     let alive = true;
