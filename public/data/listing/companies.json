@@ -83,10 +83,10 @@
     "ticker": "ATW",
     "isin": "MA0000012445",
     "name": "ATTIJARIWAFA BANK",
-    "logo": "/logos/ATW.png"
     "compartment": "Principal A",
     "shares_outstanding": 215140839,
     "sector": "Banques"
+     "logo": "/logos/ATW.png"
   },
   {
     "ticker": "BAL",
