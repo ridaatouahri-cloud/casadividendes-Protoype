@@ -38,7 +38,7 @@ const PassionIcon = ({ className = "h-6 w-auto" }) => (
     
     {/* Texte "Passion" stylisé en cursive */}
    <text 
-  x="120" 
+  x="100" 
   y="40" 
   fontFamily="cursive, 'Brush Script MT', 'Segoe Script', serif" 
   fontSize="48" 
