@@ -140,7 +140,7 @@ export default function Register() {
             <h1 className="text-3xl font-semibold text-white mb-2">Créer un compte</h1>
             <p className="text-zinc-400 mb-8">
               Déjà inscrit ?{" "}
-              <a href="#/login" className="text-teal-300 hover:text-teal-200 transition-colors">
+              <a href="/login" className="text-teal-300 hover:text-teal-200 transition-colors">
                 Se connecter
               </a>
             </p>
