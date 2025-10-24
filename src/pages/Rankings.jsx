@@ -94,19 +94,26 @@ export default function Rankings() {
 
         <div className="mt-6 flex flex-wrap gap-2 text-sm items-center">
           <span className="text-zinc-400">Année:</span>
-          <select
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/[0.02] text-white focus:outline-none focus:ring-2 focus:ring-brand-teal/60"
-          >
-            <option value="tous">Toutes</option>
-            {DATA_YEARS.slice().reverse().map((y) => (
-              <option key={y} value={String(y)}>
-                {y}
-              </option>
-            ))}
-          </select>
-        </div>
+        <select
+    value={year}
+    onChange={(e) => setYear(e.target.value)}
+    className="appearance-none bg-ink-900 text-white border border-white/20 rounded-lg px-3 py-1.5 pr-8 focus:outline-none focus:ring-2 focus:ring-brand-teal/50 cursor-pointer"
+  >
+    <option value="tous">Toutes</option>
+    {DATA_YEARS.slice().reverse().map((y) => (
+      <option key={y} value={String(y)}>{y}</option>
+    ))}
+  </select>
+
+  {/* Flèche */}
+  <svg
+    className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-white/70"
+    xmlns="http://www.w3.org/2000/svg"
+    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+  </svg>
+</div>
 
         <section className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <StatCard title="Dividende moyen" value={`${avgAmount} MAD`} />
