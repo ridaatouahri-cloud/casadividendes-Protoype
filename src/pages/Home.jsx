@@ -83,22 +83,11 @@ const sectionClass = "relative overflow-hidden";
 
 function HeroHome() {
   const [email, setEmail] = useState("");
-  const [displayedText, setDisplayedText] = useState("");
-  const fullText = "maîtrisés.";
+  const [showCTA, setShowCTA] = useState(false);
 
-  // Animation de typing pour "maîtrisés"
   useEffect(() => {
-    let index = 0;
-    const timer = setInterval(() => {
-      if (index <= fullText.length) {
-        setDisplayedText(fullText.slice(0, index));
-        index++;
-      } else {
-        clearInterval(timer);
-      }
-    }, 100);
-
-    return () => clearInterval(timer);
+    const timer = setTimeout(() => setShowCTA(true), 2800);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSubmit = (e) => {
@@ -107,33 +96,57 @@ function HeroHome() {
     window.location.hash = ROUTES.REGISTER;
   };
 
+  // Données dynamiques pour le dashboard
+  const [liveData, setLiveData] = useState([
+    { name: "Attijariwafa Bank", ticker: "ATW", value: 485.50, change: 2.3, color: "teal" },
+    { name: "Maroc Telecom", ticker: "IAM", value: 145.80, change: -0.8, color: "red" },
+    { name: "BCP", ticker: "BCP", value: 268.90, change: 1.5, color: "teal" },
+  ]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveData(prev => prev.map(stock => ({
+        ...stock,
+        value: stock.value + (Math.random() - 0.5) * 2,
+        change: stock.change + (Math.random() - 0.5) * 0.3,
+        color: stock.change >= 0 ? "teal" : "red"
+      })));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <section className={`min-h-[88vh] ${sectionClass} flex items-center bg-[#0B0B0D]`} aria-label="Hero">
+    <section className={`min-h-screen ${sectionClass} flex items-center bg-[#0B0B0D]`} aria-label="Hero">
       {/* Background effects */}
       <div className="absolute inset-0">
         <div
-          className="absolute -top-24 -left-24 w-[38rem] h-[38rem] rounded-full blur-[140px] bg-gradient-to-br from-teal-500/10 to-emerald-400/5 animate-pulse"
-          style={{ animationDuration: "9s" }}
+          className="absolute -top-24 -left-24 w-[50rem] h-[50rem] rounded-full blur-[160px] bg-gradient-to-br from-teal-500/12 to-emerald-400/6 animate-pulse"
+          style={{ animationDuration: "12s" }}
         />
         <div
-          className="absolute -bottom-24 -right-24 w-[40rem] h-[40rem] rounded-full blur-[160px] bg-gradient-to-br from-orange-500/12 to-amber-400/8 animate-pulse"
-          style={{ animationDuration: "11s" }}
+          className="absolute -bottom-24 -right-24 w-[55rem] h-[55rem] rounded-full blur-[180px] bg-gradient-to-br from-orange-500/15 to-amber-400/10 animate-pulse"
+          style={{ animationDuration: "15s" }}
         />
         <div
-          className="absolute inset-0 opacity-[0.04]"
+          className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px)",
-            backgroundSize: "56px 56px",
+              "linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px)",
+            backgroundSize: "64px 64px",
           }}
         />
       </div>
 
-      <div className="relative z-10 w-full px-6 lg:px-12 py-20">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 w-full px-8 lg:px-16 xl:px-24 py-20">
+        <div className="max-w-[1800px] mx-auto grid lg:grid-cols-2 gap-16 xl:gap-24 items-center">
           {/* Contenu gauche */}
           <div>
-            <motion.div {...fadeUp(0.05)} className="inline-flex items-center gap-2 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              className="inline-flex items-center gap-2 mb-10"
+            >
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400/70 opacity-60" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-400/90" />
@@ -143,102 +156,184 @@ function HeroHome() {
               </span>
             </motion.div>
 
-            <motion.h1
-              className="font-semibold leading-[1.06] tracking-[-0.02em] text-white text-5xl lg:text-6xl"
+            <h1
+              className="font-semibold leading-[1.08] tracking-[-0.02em] text-white text-5xl lg:text-6xl xl:text-7xl mb-8"
               style={{ fontFamily: "Inter, Manrope, Space Grotesk, ui-sans-serif, system-ui" }}
             >
-              {/* "Les dividendes marocains," - apparition progressive */}
+              {/* Animation ultra-fluide et élégante */}
               <motion.span
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+                transition={{ duration: 1.4, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="block"
               >
                 Les dividendes marocains,
               </motion.span>
-              <br />
               
-              {/* "clairs, précis," - apparition avec scale */}
               <motion.span
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                className="text-white inline-block"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.4, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                className="block"
               >
-                clairs, précis,
-              </motion.span>{" "}
+                <span className="text-white">clairs, précis,</span>
+              </motion.span>
               
-              {/* "maîtrisés." - effet typing avec gradient + cursor */}
-              <span className="inline-flex items-baseline">
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3, delay: 1.0 }}
-                  className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent"
-                >
-                  {displayedText}
-                  {displayedText.length < fullText.length && (
-                    <motion.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                      className="inline-block w-[3px] h-[1em] ml-1 bg-gradient-to-b from-orange-400 to-amber-400"
-                    />
-                  )}
-                </motion.span>
-              </span>
-            </motion.h1>
+              <motion.span
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 1.6, delay: 1.3, ease: [0.22, 1, 0.36, 1] }}
+                className="block bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent"
+              >
+                maîtrisés.
+              </motion.span>
+            </h1>
 
-            <motion.p {...fadeUp(0.2)} className="mt-6 max-w-xl text-[17px] leading-relaxed text-zinc-400">
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1.2, delay: 2.0 }}
+              className="max-w-xl text-[18px] leading-relaxed text-zinc-400 mb-12"
+            >
               La première plateforme marocaine dédiée aux dividendes de la Bourse de Casablanca :
-              maximisez votre rentabilité, suivez chaque dividende, anticipez les paiements et
-              optimisez vos décisions avec nos outils d'analyse.
+              maximisez votre rentabilité, suivez chaque dividende, anticipez les paiements.
             </motion.p>
 
-            {/* Formulaire Email CTA */}
-            <motion.form {...fadeUp(0.32)} onSubmit={handleSubmit} className="mt-10 flex flex-wrap gap-3 max-w-md">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Entrez votre email"
-                required
-                className="flex-1 min-w-[200px] px-4 py-3 rounded-xl bg-white/[0.05] border border-white/10 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-teal-400/50"
-              />
-              <button
-                type="submit"
-                className="group inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[15px] font-semibold text-black transition-all bg-gradient-to-r from-orange-400 to-amber-400 hover:to-orange-500 shadow-[0_8px_30px_rgba(255,140,0,0.25)] hover:shadow-[0_10px_38px_rgba(255,140,0,0.33)]"
-              >
-                Découvrir la plateforme
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </button>
+            {/* CTA fusionné avec fade élégant */}
+            <motion.form
+              initial={{ opacity: 0 }}
+              animate={{ opacity: showCTA ? 1 : 0 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              onSubmit={handleSubmit}
+              className="relative max-w-xl"
+            >
+              <div className="relative group">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Entrez votre email"
+                  required
+                  className="w-full pl-6 pr-56 py-5 rounded-2xl bg-white/[0.03] border border-white/10 text-zinc-200 placeholder-zinc-500 text-[16px] focus:outline-none focus:border-teal-400/40 transition-all duration-500 backdrop-blur-sm"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-[15px] font-semibold text-black bg-gradient-to-r from-orange-400 to-amber-400 hover:to-orange-500 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                >
+                  Découvrir
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
             </motion.form>
           </div>
 
-          {/* Visuel Dashboard à droite */}
-          <motion.div {...fadeUp(0.4)} className="hidden lg:block">
+          {/* Dashboard interactif à droite */}
+          <motion.div
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.6, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="hidden lg:block"
+          >
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-400/20 to-orange-400/20 rounded-2xl blur-3xl" />
-              <div className="relative rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.03] to-white/[0.01] p-6 backdrop-blur-sm shadow-2xl">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                    <span className="text-sm font-medium text-white">Tableau de bord</span>
-                    <span className="text-xs text-teal-300">En temps réel</span>
+              {/* Glow animé */}
+              <motion.div
+                animate={{
+                  opacity: [0.4, 0.6, 0.4],
+                  scale: [1, 1.05, 1],
+                }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute -inset-4 bg-gradient-to-br from-teal-400/25 to-orange-400/25 rounded-3xl blur-3xl"
+              />
+              
+              {/* Dashboard */}
+              <div className="relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-white/[0.01] p-8 backdrop-blur-xl shadow-2xl">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/10">
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-1">Portefeuille Dividendes</h3>
+                    <p className="text-xs text-zinc-500">Performance en temps réel</p>
                   </div>
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-400/20 to-orange-400/20" />
-                        <div>
-                          <div className="text-sm font-medium text-white">Société {i}</div>
-                          <div className="text-xs text-zinc-500">Ticker</div>
+                  <div className="px-3 py-1.5 rounded-lg bg-teal-400/10 border border-teal-400/20">
+                    <span className="text-xs font-medium text-teal-300">● LIVE</span>
+                  </div>
+                </div>
+
+                {/* Stats rapides */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                    <p className="text-xs text-zinc-500 mb-1">Rendement moyen</p>
+                    <p className="text-2xl font-bold text-teal-300">4.8%</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                    <p className="text-xs text-zinc-500 mb-1">Prochains paiements</p>
+                    <p className="text-2xl font-bold text-orange-300">12</p>
+                  </div>
+                </div>
+
+                {/* Actions en temps réel */}
+                <div className="space-y-3">
+                  {liveData.map((stock, i) => (
+                    <motion.div
+                      key={stock.ticker}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1.2 + i * 0.2 }}
+                      className="group p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <motion.div
+                            animate={{
+                              boxShadow: stock.color === "teal"
+                                ? ["0 0 0 rgba(20, 184, 166, 0)", "0 0 20px rgba(20, 184, 166, 0.3)", "0 0 0 rgba(20, 184, 166, 0)"]
+                                : ["0 0 0 rgba(239, 68, 68, 0)", "0 0 20px rgba(239, 68, 68, 0.3)", "0 0 0 rgba(239, 68, 68, 0)"]
+                            }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                            className={`w-12 h-12 rounded-xl bg-gradient-to-br ${
+                              stock.color === "teal" ? "from-teal-400/20 to-emerald-400/10" : "from-red-400/20 to-orange-400/10"
+                            } flex items-center justify-center`}
+                          >
+                            <span className="text-sm font-bold text-white">{stock.ticker}</span>
+                          </motion.div>
+                          <div>
+                            <p className="text-sm font-medium text-white">{stock.name}</p>
+                            <p className="text-xs text-zinc-500">{stock.ticker}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <motion.p
+                            key={stock.value}
+                            initial={{ scale: 1.1 }}
+                            animate={{ scale: 1 }}
+                            className="text-base font-bold text-white"
+                          >
+                            {stock.value.toFixed(2)} MAD
+                          </motion.p>
+                          <motion.p
+                            key={stock.change}
+                            initial={{ scale: 1.1 }}
+                            animate={{ scale: 1 }}
+                            className={`text-sm font-medium ${
+                              stock.change >= 0 ? "text-teal-300" : "text-red-400"
+                            }`}
+                          >
+                            {stock.change >= 0 ? "+" : ""}{stock.change.toFixed(2)}%
+                          </motion.p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm font-semibold text-teal-300">{4 + i}.{i}%</div>
-                        <div className="text-xs text-zinc-500">Rendement</div>
-                      </div>
-                    </div>
+                    </motion.div>
                   ))}
+                </div>
+
+                {/* Mini chart indicator */}
+                <div className="mt-6 pt-6 border-t border-white/10">
+                  <div className="flex items-center justify-between text-xs text-zinc-500">
+                    <span>Mis à jour il y a quelques secondes</span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+                      Données en temps réel
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
