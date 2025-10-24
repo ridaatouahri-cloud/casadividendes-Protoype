@@ -45,7 +45,7 @@ const PassionIcon = ({ className = "h-6 w-auto" }) => (
   fontWeight="100"
   fill="url(#passionGradient)"
   textAnchor="middle"
-  transform="rotate(-25 100 50)"
+  transform="rotate(-15 100 50)"
   style={{ fontStyle: 'italic' }}
 >
       Passion
