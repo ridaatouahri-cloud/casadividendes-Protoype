@@ -22,7 +22,7 @@ const Linkedin = ({ className }) => (
 );
 
 // Passion Icon
-const PassionIcon = ({ className = "h-4 w-auto" }) => (
+const PassionIcon = ({ className = "h-6 w-auto" }) => (
   <svg className={className} viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="passionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
