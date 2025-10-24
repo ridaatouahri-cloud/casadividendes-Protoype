@@ -71,10 +71,10 @@ export default function Header() {
               className="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-teal-400/60 focus:ring-offset-2 focus:ring-offset-[#0B0B0D] rounded group"
               aria-label="Retour à l'accueil"
             >
-              {/* Logo minimaliste premium */}
+              {/* Logo style Stripe - minimaliste premium */}
               <span 
-                className="text-[22px] font-medium tracking-[-0.02em] text-white/95 transition-all duration-300 group-hover:text-white"
-                style={{ fontFamily: "Inter, -apple-system, system-ui" }}
+                className="text-[21px] font-semibold tracking-[-0.04em] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-300 bg-clip-text text-transparent transition-all duration-300 group-hover:opacity-90"
+                style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, system-ui" }}
               >
                 CasaDividendes
               </span>
