@@ -42,7 +42,7 @@ const PassionIcon = ({ className = "h-6 w-auto" }) => (
       y="50" 
       fontFamily="cursive, 'Brush Script MT', 'Segoe Script', serif" 
       fontSize="56" 
-      fontWeight="200"
+      fontWeight="100"
       fill="url(#passionGradient)"
       textAnchor="middle"
       style={{ fontStyle: 'italic' }}
