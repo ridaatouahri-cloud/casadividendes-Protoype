@@ -21,6 +21,37 @@ const Linkedin = ({ className }) => (
   </svg>
 );
 
+// Passion Icon
+const PassionIcon = ({ className = "h-6 w-auto" }) => (
+  <svg className={className} viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="passionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#DC2626" />
+        <stop offset="50%" stopColor="#F59E0B" />
+        <stop offset="100%" stopColor="#FBBF24" />
+      </linearGradient>
+    </defs>
+    
+    {/* Étoiles décoratives */}
+    <circle cx="15" cy="20" r="2" fill="url(#passionGradient)" opacity="0.8" />
+    <circle cx="185" cy="35" r="2" fill="url(#passionGradient)" opacity="0.8" />
+    
+    {/* Texte "Passion" stylisé en cursive */}
+    <text 
+      x="100" 
+      y="50" 
+      fontFamily="cursive, 'Brush Script MT', 'Segoe Script', serif" 
+      fontSize="48" 
+      fontWeight="600"
+      fill="url(#passionGradient)"
+      textAnchor="middle"
+      style={{ fontStyle: 'italic' }}
+    >
+      Passion
+    </text>
+  </svg>
+);
+
 // ROUTES
 const ROUTES = {
   HOME: "#/",
@@ -105,7 +136,11 @@ export default function Footer() {
 
           {/* Informations */}
           <div className="flex flex-col items-center gap-1.5">
-            <p className="text-white/70">Made with ❤️ in Morocco</p>
+            <p className="text-white/70 flex items-center justify-center gap-2">
+              Made with 
+              <PassionIcon className="h-6 w-auto" />
+              in Morocco
+            </p>
             <p className="text-white/50 text-xs">
               © {new Date().getFullYear()} CasaDividendes — Tous droits réservés.
             </p>
