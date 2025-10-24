@@ -18,7 +18,7 @@ const Search = ({ className }) => (
 
 // ROUTES
 const ROUTES = {
-  HOME: "/",
+  HOME: "#/",
   DASHBOARD: "#/dashboard",
   CALENDAR: "#/calendar",
   RANKING: "#/rankings",
@@ -40,7 +40,8 @@ const NAV = [
 ];
 
 function getHashPath() {
-  return window.location.pathname || "/";
+  const h = window.location.hash || "#/";
+  return h.replace(/^#/, "").split("?")[0] || "/";
 }
 
 export default function Header() {
@@ -84,7 +85,7 @@ export default function Header() {
 
             <nav className="hidden md:flex items-center gap-6" aria-label="Navigation principale">
               {NAV.map((n) => {
-                const isActive = currentPath === n.path;
+                const isActive = currentPath === n.path.replace("#", "");
                 return (
                   <a
                     key={n.key}
