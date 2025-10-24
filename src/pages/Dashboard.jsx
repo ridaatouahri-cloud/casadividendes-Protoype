@@ -204,16 +204,22 @@ const Dashboard = () => {
       {/* Sidebar */}
       <aside className={`fixed left-0 top-0 h-full w-64 bg-black/40 backdrop-blur-xl border-r border-white/10 z-50 transform transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
         <div className="p-6">
-          {/* Logo */}
+          {/* Logo - Style exact du Header */}
           <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-emerald-400 flex items-center justify-center text-white font-bold text-xl">
-                C
-              </div>
-              <h1 className="text-xl font-semibold bg-gradient-to-r from-teal-300 to-emerald-300 bg-clip-text text-transparent">
+            <a 
+              href="#/"
+              className="flex items-center gap-2 group"
+            >
+              <span
+                className="text-[21px] font-semibold tracking-[-0.04em] bg-gradient-to-r from-orange-400 via-amber-400 to-orange-300 bg-clip-text text-transparent transition-all duration-300 group-hover:opacity-90"
+                style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, system-ui" }}
+              >
                 CasaDividendes
-              </h1>
-            </div>
+              </span>
+              <span className="px-2 py-1 rounded-full text-[11px] bg-white/[0.06] border border-white/10 text-white/80">
+                Beta
+              </span>
+            </a>
             <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-zinc-400 hover:text-white">
               <X size={24} />
             </button>
@@ -222,16 +228,17 @@ const Dashboard = () => {
           {/* Navigation */}
           <nav className="space-y-2">
             {[
-              { icon: PieChart, label: 'Dashboard', active: true },
-              { icon: Calendar, label: 'Calendrier' },
-              { icon: TrendingUp, label: 'Classements' },
-              { icon: Bell, label: 'Mes Alertes' },
-              { icon: User, label: 'Mon Profil' },
-              { icon: Crown, label: 'Premium', badge: true },
-              { icon: BookOpen, label: 'Ressources' }
+              { icon: PieChart, label: 'Dashboard', href: '#/dashboard', active: true },
+              { icon: Calendar, label: 'Calendrier', href: '#/calendar' },
+              { icon: TrendingUp, label: 'Palmarès', href: '#/rankings' },
+              { icon: Bell, label: 'Mes Alertes', href: '#/alerts' },
+              { icon: User, label: 'Mon Profil', href: '#/profile' },
+              { icon: Crown, label: 'Premium', href: '#/premium', badge: true },
+              { icon: BookOpen, label: 'Blog', href: '#/blog' }
             ].map((item, i) => (
-              <button
+              <a
                 key={i}
+                href={item.href}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                   item.active 
                     ? 'bg-gradient-to-r from-teal-500/20 via-emerald-500/20 to-teal-500/20 border border-teal-500/30 shadow-lg shadow-teal-500/10' 
@@ -245,7 +252,7 @@ const Dashboard = () => {
                     Pro
                   </span>
                 )}
-              </button>
+              </a>
             ))}
           </nav>
         </div>
@@ -254,7 +261,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="lg:ml-64 relative">
         {/* Header */}
-        <header className="sticky top-0 z-40 bg-black/40 backdrop-blur-xl border-b border-white/10">
+        <header className="sticky top-0 z-40 bg-[#0B0B0D]/95 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]">
           <div className="px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button 
