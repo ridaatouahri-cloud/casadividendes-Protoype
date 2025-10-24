@@ -753,6 +753,7 @@ export default function Home() {
   return (
     <div className="bg-[#0B0B0D] text-white selection:bg-amber-400/30 selection:text-white">
       <HeroHome />
+      <TradingViewTicker />
       <TickerBand />
       <BrandMessage />
       <ExclusiveTools />
