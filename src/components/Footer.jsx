@@ -21,49 +21,34 @@ const Linkedin = ({ className }) => (
   </svg>
 );
 
-// Passion Icon - Style handwritten fin et élégant
+// Passion Icon
 const PassionIcon = ({ className = "h-6 w-auto" }) => (
-  <svg className={className} viewBox="0 0 220 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <svg className={className} viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="passionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stopColor="#DC2626" />
-        <stop offset="40%" stopColor="#EA580C" />
-        <stop offset="70%" stopColor="#F59E0B" />
+        <stop offset="50%" stopColor="#F59E0B" />
         <stop offset="100%" stopColor="#FBBF24" />
       </linearGradient>
     </defs>
     
-    {/* Petite étoile décorative gauche */}
-    <path d="M18 18 L20 20 L18 22 L16 20 Z" fill="url(#passionGradient)" opacity="0.7" />
+    {/* Étoiles décoratives */}
+    <circle cx="15" cy="20" r="2" fill="url(#passionGradient)" opacity="0.8" />
+    <circle cx="185" cy="35" r="2" fill="url(#passionGradient)" opacity="0.8" />
     
-    {/* Grande étoile décorative droite */}
-    <path d="M200 30 L203 34 L200 38 L197 34 Z" fill="url(#passionGradient)" opacity="0.7" />
-    
-    {/* Texte "Passion" en handwriting fin - tracé à la main */}
-    <path 
-      d="M 30 55 
-         Q 32 35, 38 30 
-         Q 44 25, 50 28 
-         Q 54 30, 55 35 
-         Q 56 40, 54 48 
-         Q 52 56, 48 62 
-         Q 44 68, 38 70 
-         Q 32 72, 28 68
-         M 48 42 Q 52 40, 58 42 Q 62 44, 64 48
-         M 70 50 Q 72 42, 76 38 Q 80 34, 86 36 Q 90 38, 92 44 Q 93 50, 90 56 Q 87 60, 82 62
-         M 100 52 Q 102 46, 106 42 Q 110 38, 116 38 Q 120 38, 122 40 Q 124 42, 124 46 Q 124 50, 120 52 Q 118 54, 114 54 Q 108 54, 104 50
-         M 132 52 Q 134 46, 138 42 Q 142 38, 148 38 Q 152 38, 154 40 Q 156 42, 156 46 Q 156 50, 152 52 Q 150 54, 146 54 Q 140 54, 136 50
-         M 164 52 Q 166 44, 170 38 Q 174 32, 180 36 Q 184 40, 184 46 Q 184 52, 180 56 Q 176 60, 172 60
-         M 180 46 Q 182 44, 186 44 Q 190 44, 192 46 Q 194 48, 192 52 Q 190 54, 186 54 Q 182 54, 180 52"
-      stroke="url(#passionGradient)"
-      strokeWidth="1.5"
-      fill="none"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{ 
-        filter: 'drop-shadow(0 1px 2px rgba(251, 191, 36, 0.3))'
-      }}
-    />
+    {/* Texte "Passion" stylisé en cursive */}
+    <text 
+      x="100" 
+      y="50" 
+      fontFamily="cursive, 'Brush Script MT', 'Segoe Script', serif" 
+      fontSize="48" 
+      fontWeight="600"
+      fill="url(#passionGradient)"
+      textAnchor="middle"
+      style={{ fontStyle: 'italic' }}
+    >
+      Passion
+    </text>
   </svg>
 );
 
