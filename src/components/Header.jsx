@@ -19,16 +19,16 @@ const Search = ({ className }) => (
 // ROUTES
 const ROUTES = {
   HOME: "/",
-  DASHBOARD: "/dashboard",
-  CALENDAR: "/calendar",
-  RANKING: "/rankings",
-  BLOG: "/blog",
-  PREMIUM: "/premium",
-  ABOUT: "/about",
-  LEGAL: "/legal",
-  LOGIN: "/login",
-  CONTACT: "/contact",
-  FAQ: "/faq",
+  DASHBOARD: "#/dashboard",
+  CALENDAR: "#/calendar",
+  RANKING: "#/rankings",
+  BLOG: "#/blog",
+  PREMIUM: "#/premium",
+  ABOUT: "#/about",
+  LEGAL: "#/legal",
+  LOGIN: "#/login",
+  CONTACT: "#/contact",
+  FAQ: "#/faq",
 };
 
 const NAV = [
