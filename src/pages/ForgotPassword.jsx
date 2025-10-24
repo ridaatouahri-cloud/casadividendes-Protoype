@@ -119,7 +119,7 @@ export function ForgotPassword() {
         </div>
 
         <div className="mt-6 text-center">
-          <a href="#/login" className="text-sm text-zinc-400 hover:text-zinc-300 transition-colors">
+          <a href="/login" className="text-sm text-zinc-400 hover:text-zinc-300 transition-colors">
             ← Retour à la connexion
           </a>
         </div>
