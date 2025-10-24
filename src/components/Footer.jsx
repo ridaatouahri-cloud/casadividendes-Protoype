@@ -37,16 +37,17 @@ const PassionIcon = ({ className = "h-6 w-auto" }) => (
     <circle cx="185" cy="35" r="2" fill="url(#passionGradient)" opacity="0.8" />
     
     {/* Texte "Passion" stylisé en cursive */}
-    <text 
-      x="100" 
-      y="50" 
-      fontFamily="cursive, 'Brush Script MT', 'Segoe Script', serif" 
-      fontSize="48" 
-      fontWeight="100"
-      fill="url(#passionGradient)"
-      textAnchor="middle"
-      style={{ fontStyle: 'italic' }}
-    >
+   <text 
+  x="100" 
+  y="50" 
+  fontFamily="cursive, 'Brush Script MT', 'Segoe Script', serif" 
+  fontSize="48" 
+  fontWeight="100"
+  fill="url(#passionGradient)"
+  textAnchor="middle"
+  transform="rotate(-45 100 50)"
+  style={{ fontStyle: 'italic' }}
+>
       Passion
     </text>
   </svg>
