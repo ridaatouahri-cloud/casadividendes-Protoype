@@ -19,7 +19,7 @@ const Search = ({ className }) => (
 // ROUTES
 const ROUTES = {
   HOME: "#/",
-  DASHBOARD: "#/Dashboard",
+  DASHBOARD: "/Dashboard",
   CALENDAR: "#/calendar",
   RANKING: "#/rankings",
   BLOG: "#/blog",
