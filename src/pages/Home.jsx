@@ -93,7 +93,8 @@ function HeroHome() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Email submitted:", email);
-    window.location.hash = ROUTES.REGISTER;
+    // Rediriger vers la page d'inscription
+    window.location.hash = "#/register";
   };
 
   // Données dynamiques pour le dashboard
@@ -848,7 +849,7 @@ function SignupCTA() {
             Calendrier intelligent, alertes personnalisées, scores de fiabilité et bien plus.
           </p>
           <a
-            href={ROUTES.REGISTER}
+            href="#/register"
             className="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-orange-400 to-amber-400 text-black font-semibold hover:brightness-110 transition-all shadow-[0_8px_30px_rgba(255,140,0,0.25)]"
           >
             Créer mon compte gratuitement
