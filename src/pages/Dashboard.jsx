@@ -1,13 +1,11 @@
 // src/pages/Dashboard.jsx
-// Dashboard with Light (default) + Dark toggle, improved contrast on light,
-// and icon styling that matches CasaDividendes accents (teal/orange).
-// All logic kept from previous MVP: localStorage store + real data via dataService.
+// Phase 1 — Tokens dans le fichier + transitions fluides + lisibilité Light + icônes CasaDividendes
+// Conserve la logique existante (localStorage store + dataService pour données réelles)
 
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ResponsiveContainer,
   BarChart, Bar,
-  LineChart, Line,
   CartesianGrid, XAxis, YAxis,
   Tooltip as RTooltip, Legend,
   PieChart, Pie, Cell,
@@ -20,11 +18,57 @@ import {
 } from "lucide-react";
 
 import { getCompanies, getAllDividends } from "../services/dataService"; // TODO: garder ce chemin
-import { DATA_YEARS } from "../constants/paths";
+import { DATA_YEARS } from "../constants/paths"; // TODO: garder ce chemin
 
-/* -------------------------------------------------------------
-   Helpers (formatters, ids, math)
-------------------------------------------------------------- */
+/* ===========================================================
+   0) TOKENS — palette + styles centralisés (inline)
+   =========================================================== */
+const TOKENS = {
+  light: {
+    pageBg: "bg-[#F6F8FB]", // plus clair que #F5F7FA
+    textPrimary: "text-[#0F1115]", // très lisible
+    textSecondary: "text-[#374151]", // gris foncé pour le corps
+    textMuted: "text-[#6B7280]", // légende / aides
+    cardBg: "bg-white",
+    surface: "bg-[#F9FAFB]", // surfaces claires (mini-stats)
+    border: "border-[rgba(15,17,21,0.06)]",
+    gridStroke: "rgba(0,0,0,0.05)",
+    tooltipBg: "#FFFFFF",
+    tooltipFg: "#0F1115",
+    tooltipBorder: "rgba(15,17,21,0.10)",
+    iconAccent: "text-emerald-600",
+    pillActive: "bg-[#0F1115] text-white",
+    pillHover: "hover:bg-[#EEF2F7]",
+    input: "bg-white text-[#0F1115] border-[rgba(15,17,21,0.10)] placeholder:text-[#9CA3AF]",
+    hoverSoft: "hover:bg-[#EEF2F7]",
+    kpiBadge: "bg-emerald-50 text-emerald-700",
+  },
+  dark: {
+    pageBg: "bg-ink-950", // déjà présent dans ton preset
+    textPrimary: "text-white",
+    textSecondary: "text-gray-300",
+    textMuted: "text-gray-400",
+    cardBg: "bg-ink-900",
+    surface: "bg-ink-800",
+    border: "border-white/10",
+    gridStroke: "rgba(255,255,255,0.08)",
+    tooltipBg: "#0F1115",
+    tooltipFg: "#F3F4F6",
+    tooltipBorder: "rgba(255,255,255,0.12)",
+    iconAccent: "text-brand-teal",
+    pillActive: "bg-emerald-600 text-white",
+    pillHover: "hover:bg-white/10",
+    input: "bg-ink-900 text-white border-white/10 placeholder:text-gray-500",
+    hoverSoft: "hover:bg-white/5",
+    kpiBadge: "bg-emerald-900/30 text-emerald-200",
+  },
+};
+
+const THEME_KEY = "cd_dashboard_theme";
+
+/* ===========================================================
+   1) Helpers
+   =========================================================== */
 const fmtMAD = (n) =>
   typeof n === "number"
     ? `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 }).format(n)} MAD`
@@ -40,9 +84,53 @@ const nowYear = new Date().getFullYear();
 const COLORS = ["#14b8a6","#64748b","#f59e0b","#ef4444","#22c55e","#06b6d4","#a855f7","#84cc16","#f97316","#3b82f6"];
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-/* -------------------------------------------------------------
-   Local store
-------------------------------------------------------------- */
+/* ===========================================================
+   2) Theme hook — gère tokens + transitions
+   =========================================================== */
+function useThemeTokens() {
+  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || inferPref());
+  useEffect(() => { localStorage.setItem(THEME_KEY, theme); }, [theme]);
+  const isDark = theme === "dark";
+  const t = isDark ? TOKENS.dark : TOKENS.light;
+
+  // Wrap d’icône accentué (CasaDividendes teal)
+  const IconWrap = ({ children }) => (
+    <div className={`h-11 w-11 grid place-items-center rounded-xl ${isDark ? "bg-ink-800 text-brand-teal" : "bg-emerald-50 text-emerald-600"} shadow-[0_8px_30px_rgba(16,185,129,0.25)] transition-colors duration-300`}>
+      {children}
+    </div>
+  );
+
+  // Classes utilitaires unifiées + transitions
+  const cls = {
+    page: `${t.pageBg} transition-colors duration-300`,
+    card: `rounded-[18px] ${t.cardBg} border ${t.border} shadow-[0_1px_0_rgba(0,0,0,0.03),0_12px_40px_rgba(0,0,0,0.06)] p-4 transition-colors duration-300`,
+    surfaceCard: `rounded-xl ${t.surface} border ${t.border} p-3 transition-colors duration-300`,
+    textPrimary: `${t.textPrimary} transition-colors duration-300`,
+    textSecondary: `${t.textSecondary} transition-colors duration-300`,
+    textMuted: `${t.textMuted} transition-colors duration-300`,
+    input: `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/60 ${t.input} transition-colors duration-300`,
+    btnPrimary: `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 px-3.5 py-2 transition-colors duration-200`,
+    btnSoft: `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium ${t.cardBg} border ${t.border} ${t.textSecondary} px-3.5 py-2 transition-colors duration-200`,
+    btnGhost: `inline-flex items-center justify-center gap-2 rounded-xl text-sm ${t.textSecondary} ${t.pillHover} px-3 py-2 transition-colors duration-200`,
+    iconAccent: t.iconAccent,
+    pillActive: `${t.pillActive} transition-colors duration-300`,
+    hoverSoft: `${t.hoverSoft} transition-colors duration-200`,
+    kpiBadge: `${t.kpiBadge} inline-flex items-center rounded-md px-2 py-0.5 text-xs`,
+  };
+
+  return { theme, setTheme, isDark, t, cls, IconWrap };
+}
+
+// détection initiale du thème système
+function inferPref() {
+  try {
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  } catch { return "light"; }
+}
+
+/* ===========================================================
+   3) Local store (comptes, holdings, activités)
+   =========================================================== */
 const STORE_KEY = "cd_dashboard_store_oripiofin";
 const defaultState = { accounts: [], holdings: [], activities: [] };
 
@@ -106,13 +194,13 @@ function usePortfolioStore() {
     };
   });
 
-  return { state, addAccount, updateAccount, removeAccount, deposit, withdraw, transfer, addActivity,
-           addHolding, updateHolding, removeHolding, buyLot, sellLot };
+  return { state, addAccount, updateAccount, removeAccount, deposit, withdraw, transfer,
+           addHolding, updateHolding, removeHolding, buyLot, sellLot, addActivity };
 }
 
-/* -------------------------------------------------------------
-   External data hooks
-------------------------------------------------------------- */
+/* ===========================================================
+   4) External data hooks
+   =========================================================== */
 function useCompanies() {
   const [companies, setCompanies] = useState([]);
   useEffect(()=>{(async()=>{
@@ -128,9 +216,9 @@ function useDividends(years) {
   return rows;
 }
 
-/* -------------------------------------------------------------
-   Math utils (positions)
-------------------------------------------------------------- */
+/* ===========================================================
+   5) Math utils (positions)
+   =========================================================== */
 const currentQty = (h)=> (h.lots||[]).reduce((s,l)=>s+ +l.quantity,0) - (h.sells||[]).reduce((s,l)=>s+ +l.quantity,0);
 const avgCost = (h)=>{ const q=(h.lots||[]).reduce((s,l)=>s+ +l.quantity,0); const c=(h.lots||[]).reduce((s,l)=>s + (+l.quantity*+l.price + (+l.fees||0)),0); return q>0?c/q:0; };
 const investedNet = (h)=> (h.lots||[]).reduce((s,l)=>s + (+l.quantity*+l.price + (+l.fees||0)),0) - (h.sells||[]).reduce((s,l)=>s + +l.quantity*+l.price,0);
@@ -142,103 +230,61 @@ const qtyAtDate = (h, dateISO)=> {
   return b-s;
 };
 
-/* -------------------------------------------------------------
-   Theme (Light default + Dark toggle)
-------------------------------------------------------------- */
-const THEME_KEY = "cd_dashboard_theme";
-function useTheme() {
-  const [theme, setTheme] = useState(() => localStorage.getItem(THEME_KEY) || "light");
-  useEffect(()=>{ localStorage.setItem(THEME_KEY, theme); },[theme]);
-  const isDark = theme === "dark";
-
-  // tokens
-  const tok = {
-    bg: isDark ? "bg-ink-950" : "bg-[#F5F7FA]",
-    textPrimary: isDark ? "text-white" : "text-gray-900",
-    textSecondary: isDark ? "text-gray-300" : "text-gray-700",
-    textMuted: isDark ? "text-gray-400" : "text-gray-500",
-    cardBg: isDark ? "bg-ink-900" : "bg-white",
-    cardBorder: isDark ? "border-white/10" : "border-black/[0.06]",
-    cardShadow: isDark ? "shadow-[0_1px_0_rgba(255,255,255,0.03),0_12px_40px_rgba(0,0,0,0.45)]"
-                       : "shadow-[0_1px_0_rgba(0,0,0,0.03),0_12px_40px_rgba(0,0,0,0.06)]",
-    surface: isDark ? "bg-ink-800" : "bg-gray-50/60",
-    accent: "#14b8a6",      // teal
-    warm: "#f59e0b",        // amber/orange
-    iconBase: isDark ? "text-brand-teal" : "text-emerald-600",
-    pillActive: isDark ? "bg-emerald-600 text-white" : "bg-gray-900 text-white",
-    pill: isDark ? "text-gray-300 hover:bg-white/10" : "text-gray-700 hover:bg-gray-100",
-    input: isDark
-      ? "bg-ink-900 text-white border-white/10 placeholder:text-gray-500"
-      : "bg-white text-gray-900 border-black/[0.08] placeholder:text-gray-400",
-  };
-
-  const IconWrap = ({ children }) => (
-    <div className={`h-11 w-11 grid place-items-center rounded-xl ${isDark ? "bg-ink-800 text-brand-teal" : "bg-emerald-50 text-emerald-600"} shadow-[0_8px_30px_rgba(16,185,129,0.25)]`}>
-      {children}
-    </div>
-  );
-
-  return { theme, setTheme, isDark, tok, IconWrap };
-}
-
-/* -------------------------------------------------------------
-   Small UI primitives
-------------------------------------------------------------- */
-const Field = ({ label, children, tok }) => (
+/* ===========================================================
+   6) UI primitives
+   =========================================================== */
+const Field = ({ label, children, cls }) => (
   <label className="block">
-    <span className={`text-xs ${tok.textMuted}`}>{label}</span>
+    <span className={`text-xs ${cls.textMuted}`}>{label}</span>
     <div className="mt-1">{children}</div>
   </label>
 );
-const Modal = ({ title, onClose, children, tok }) => (
+const Modal = ({ title, onClose, children, cls }) => (
   <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-6">
-    <div className={`w-full max-w-2xl rounded-2xl ${tok.cardBg} border ${tok.cardBorder} ${tok.cardShadow}`}>
-      <div className={`flex items-center justify-between px-5 py-4 border-b ${tok.cardBorder}`}>
-        <h3 className={`font-semibold ${tok.textPrimary}`}>{title}</h3>
-        <button onClick={onClose} className={`${tok.textSecondary} rounded-lg p-1`}>✕</button>
+    <div className={`w-full max-w-2xl rounded-2xl ${TOKENS.dark.cardBg} md:transition-none ${TOKENS.dark.border} ${TOKENS.dark.cardBg.includes("ink") ? "" : ""}`}>
+      <div className={`flex items-center justify-between px-5 py-4 border ${TOKENS.dark.border}`}>
+        <h3 className={`font-semibold text-white`}>{title}</h3>
+        <button onClick={onClose} className={`text-gray-300 rounded-lg p-1`}>✕</button>
       </div>
       <div className="p-5">{children}</div>
     </div>
   </div>
 );
-const Card = ({ children, tok, className="" }) => (
-  <div className={`rounded-[18px] ${tok.cardBg} border ${tok.cardBorder} ${tok.cardShadow} p-4 ${className}`}>{children}</div>
+const Card = ({ children, cls, className = "" }) => (
+  <div className={`${cls.card} ${className}`}>{children}</div>
 );
-const EmptyHint = ({ text, tok }) => (
-  <div className={`rounded-xl border ${tok.cardBorder} ${tok.cardBg} p-3 text-sm ${tok.textSecondary}`}>{text}</div>
+const EmptyHint = ({ text, cls }) => (
+  <div className={`rounded-xl border ${TOKENS.light.border} ${TOKENS.light.cardBg} p-3 text-sm ${TOKENS.light.textSecondary}`}>{text}</div>
 );
 
-/* -------------------------------------------------------------
-   Forms
-------------------------------------------------------------- */
-function WalletForm({ init, onClose, onSubmit, tok }) {
+/* ===========================================================
+   7) Forms
+   =========================================================== */
+function WalletForm({ init, onClose, onSubmit, cls }) {
   const [name, setName] = useState(init?.name || "");
   const [currency, setCurrency] = useState(init?.currency || "MAD");
   const [balance, setBalance] = useState(init?.balance ?? 0);
-  const inputCls = `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/60 ${tok.input}`;
-  const btnPrimary = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 px-3.5 py-2`;
-  const btnSoft = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium ${tok.cardBg} border ${tok.cardBorder} ${tok.textSecondary} px-3.5 py-2`;
 
   return (
-    <Modal title={init ? "Modifier le compte" : "Nouveau compte"} onClose={onClose} tok={tok}>
+    <Modal title={init ? "Modifier le compte" : "Nouveau compte"} onClose={onClose} cls={cls}>
       <div className="space-y-3">
-        <Field label="Nom" tok={tok}>
-          <input className={inputCls} value={name} onChange={(e)=>setName(e.target.value)} placeholder="CTO / Banque…" />
+        <Field label="Nom" cls={cls}>
+          <input className={cls.input} value={name} onChange={(e)=>setName(e.target.value)} placeholder="CTO / Banque…" />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Devise" tok={tok}>
-            <select className={inputCls} value={currency} onChange={(e)=>setCurrency(e.target.value)}>
+          <Field label="Devise" cls={cls}>
+            <select className={cls.input} value={currency} onChange={(e)=>setCurrency(e.target.value)}>
               <option>MAD</option><option>USD</option><option>EUR</option><option>GBP</option>
             </select>
           </Field>
-          <Field label="Solde initial" tok={tok}>
-            <input type="number" className={inputCls} value={balance} onChange={(e)=>setBalance(parseFloat(e.target.value))}/>
+          <Field label="Solde initial" cls={cls}>
+            <input type="number" className={cls.input} value={balance} onChange={(e)=>setBalance(parseFloat(e.target.value))}/>
           </Field>
         </div>
         <div className="flex justify-end gap-2">
-          <button className={btnSoft} onClick={onClose}>Annuler</button>
+          <button className={cls.btnSoft} onClick={onClose}>Annuler</button>
           <button
-            className={btnPrimary}
+            className={cls.btnPrimary}
             onClick={()=>onSubmit({
               id: init?.id || uid(),
               name: name.trim() || "Compte",
@@ -254,42 +300,39 @@ function WalletForm({ init, onClose, onSubmit, tok }) {
   );
 }
 
-function TransferForm({ accounts, onClose, onSubmit, tok }) {
+function TransferForm({ accounts, onClose, onSubmit, cls }) {
   const [fromId, setFromId] = useState(accounts[0]?.id || "");
   const [toId, setToId] = useState(accounts[1]?.id || "");
   const [amount, setAmount] = useState(0);
-  const inputCls = `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/60 ${tok.input}`;
-  const btnPrimary = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 px-3.5 py-2`;
-  const btnSoft = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium ${tok.cardBg} border ${tok.cardBorder} ${tok.textSecondary} px-3.5 py-2`;
 
   return (
-    <Modal title="Virement interne" onClose={onClose} tok={tok}>
+    <Modal title="Virement interne" onClose={onClose} cls={cls}>
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Depuis" tok={tok}>
-            <select className={inputCls} value={fromId} onChange={(e)=>setFromId(e.target.value)}>
+          <Field label="Depuis" cls={cls}>
+            <select className={cls.input} value={fromId} onChange={(e)=>setFromId(e.target.value)}>
               {accounts.map(a=><option key={a.id} value={a.id}>{a.name} ({a.currency})</option>)}
             </select>
           </Field>
-          <Field label="Vers" tok={tok}>
-            <select className={inputCls} value={toId} onChange={(e)=>setToId(e.target.value)}>
+          <Field label="Vers" cls={cls}>
+            <select className={cls.input} value={toId} onChange={(e)=>setToId(e.target.value)}>
               {accounts.map(a=><option key={a.id} value={a.id}>{a.name} ({a.currency})</option>)}
             </select>
           </Field>
         </div>
-        <Field label="Montant" tok={tok}>
-          <input type="number" className={inputCls} value={amount} onChange={(e)=>setAmount(parseFloat(e.target.value))}/>
+        <Field label="Montant" cls={cls}>
+          <input type="number" className={cls.input} value={amount} onChange={(e)=>setAmount(parseFloat(e.target.value))}/>
         </Field>
         <div className="flex justify-end gap-2">
-          <button className={btnSoft} onClick={onClose}>Annuler</button>
-          <button className={btnPrimary} onClick={()=>onSubmit(fromId,toId,+amount||0)}>Transférer</button>
+          <button className={cls.btnSoft} onClick={onClose}>Annuler</button>
+          <button className={cls.btnPrimary} onClick={()=>onSubmit(fromId,toId,+amount||0)}>Transférer</button>
         </div>
       </div>
     </Modal>
   );
 }
 
-function HoldingForm({ accounts, tickers, init, onClose, onSubmit, tok }) {
+function HoldingForm({ accounts, tickers, init, onClose, onSubmit, cls }) {
   const [ticker, setTicker] = useState(init?.ticker || tickers[0] || "");
   const [accountId, setAccountId] = useState(init?.accountId || accounts[0]?.id || "");
   const [date, setDate] = useState(new Date().toISOString().slice(0,10));
@@ -299,43 +342,41 @@ function HoldingForm({ accounts, tickers, init, onClose, onSubmit, tok }) {
   const [strategy, setStrategy] = useState(init?.strategy || "Income");
   const [notes, setNotes] = useState(init?.notes || "");
 
-  const inputCls = `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/60 ${tok.input}`;
-  const btnPrimary = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 px-3.5 py-2`;
-  const btnSoft = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium ${tok.cardBg} border ${tok.cardBorder} ${tok.textSecondary} px-3.5 py-2`;
-
   return (
-    <Modal title={init ? "Modifier la position" : "Nouvelle position"} onClose={onClose} tok={tok}>
+    <Modal title={init ? "Modifier la position" : "Nouvelle position"} onClose={onClose} cls={cls}>
       <div className="space-y-3">
         <div className="grid grid-cols-3 gap-3">
-          <Field label="Ticker" tok={tok}>
-            <select className={inputCls} value={ticker} onChange={(e)=>setTicker(e.target.value)}>
+          <Field label="Ticker" cls={cls}>
+            <select className={cls.input} value={ticker} onChange={(e)=>setTicker(e.target.value)}>
               {tickers.map(t=><option key={t} value={t}>{t}</option>)}
             </select>
           </Field>
-          <Field label="Compte" tok={tok}>
-            <select className={inputCls} value={accountId} onChange={(e)=>setAccountId(e.target.value)}>
+          <Field label="Compte" cls={cls}>
+            <select className={cls.input} value={accountId} onChange={(e)=>setAccountId(e.target.value)}>
               {accounts.map(a=><option key={a.id} value={a.id}>{a.name} ({a.currency})</option>)}
             </select>
           </Field>
-          <Field label="Date d’achat" tok={tok}><input type="date" className={inputCls} value={date} onChange={(e)=>setDate(e.target.value)}/></Field>
+          <Field label="Date d’achat" cls={cls}>
+            <input type="date" className={cls.input} value={date} onChange={(e)=>setDate(e.target.value)}/>
+          </Field>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <Field label="Quantité" tok={tok}><input type="number" className={inputCls} value={quantity} onChange={(e)=>setQuantity(parseFloat(e.target.value))}/></Field>
-          <Field label="Prix" tok={tok}><input type="number" className={inputCls} value={price} onChange={(e)=>setPrice(parseFloat(e.target.value))}/></Field>
-          <Field label="Frais" tok={tok}><input type="number" className={inputCls} value={fees} onChange={(e)=>setFees(parseFloat(e.target.value))}/></Field>
+          <Field label="Quantité" cls={cls}><input type="number" className={cls.input} value={quantity} onChange={(e)=>setQuantity(parseFloat(e.target.value))}/></Field>
+          <Field label="Prix" cls={cls}><input type="number" className={cls.input} value={price} onChange={(e)=>setPrice(parseFloat(e.target.value))}/></Field>
+          <Field label="Frais" cls={cls}><input type="number" className={cls.input} value={fees} onChange={(e)=>setFees(parseFloat(e.target.value))}/></Field>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Stratégie" tok={tok}>
-            <select className={inputCls} value={strategy} onChange={(e)=>setStrategy(e.target.value)}>
+          <Field label="Stratégie" cls={cls}>
+            <select className={cls.input} value={strategy} onChange={(e)=>setStrategy(e.target.value)}>
               <option>Income</option><option>Long-term</option><option>Swing</option>
             </select>
           </Field>
-          <Field label="Notes" tok={tok}><input className={inputCls} value={notes} onChange={(e)=>setNotes(e.target.value)}/></Field>
+          <Field label="Notes" cls={cls}><input className={cls.input} value={notes} onChange={(e)=>setNotes(e.target.value)}/></Field>
         </div>
         <div className="flex justify-end gap-2">
-          <button className={btnSoft} onClick={onClose}>Annuler</button>
+          <button className={cls.btnSoft} onClick={onClose}>Annuler</button>
           <button
-            className={btnPrimary}
+            className={cls.btnPrimary}
             onClick={()=>onSubmit({
               id: init?.id || uid(),
               ticker, accountId, strategy, notes,
@@ -352,11 +393,11 @@ function HoldingForm({ accounts, tickers, init, onClose, onSubmit, tok }) {
   );
 }
 
-/* -------------------------------------------------------------
-   Page
-------------------------------------------------------------- */
+/* ===========================================================
+   8) Page
+   =========================================================== */
 export default function Dashboard() {
-  const { theme, setTheme, isDark, tok, IconWrap } = useTheme();
+  const { theme, setTheme, isDark, cls, IconWrap, t } = useThemeTokens();
   const store = usePortfolioStore();
   const { accounts, holdings, activities } = store.state;
 
@@ -383,14 +424,14 @@ export default function Dashboard() {
 
   const ytdDividends = useMemo(()=>{
     const mapH = new Map(holdings.map(h=>[h.ticker.toUpperCase(),h]));
-    let t = 0;
+    let tSum = 0;
     for(const d of dividendsYTD){
       const h = mapH.get((d.ticker||"").toUpperCase());
       if(!h || !d.exDate) continue;
       const q = qtyAtDate(h, d.exDate);
-      if(q>0 && typeof d.amount==="number") t += q * d.amount;
+      if(q>0 && typeof d.amount==="number") tSum += q * d.amount;
     }
-    return t;
+    return tSum;
   },[dividendsYTD, holdings]);
 
   const cashflow = useMemo(()=>{
@@ -438,32 +479,26 @@ export default function Dashboard() {
     const now = new Date(); const in60 = new Date(now.getTime()+60*24*60*60*1000);
     const mapH = new Map(holdings.map(h=>[h.ticker.toUpperCase(),h]));
     return dividendsAll.filter(d=>{
-      const t = (d.ticker||"").toUpperCase(); const h = mapH.get(t); if(!h) return false;
+      const tkr = (d.ticker||"").toUpperCase(); const h = mapH.get(tkr); if(!h) return false;
       const ref = d.exDate? new Date(d.exDate) : d.paymentDate? new Date(d.paymentDate) : null; if(!ref) return false;
       return ref>=now && ref<=in60 && qtyAtDate(h, d.exDate||d.paymentDate) > 0;
     }).sort((a,b)=> new Date(a.exDate||a.paymentDate) - new Date(b.exDate||b.paymentDate)).slice(0,8);
   },[dividendsAll, holdings]);
 
-  // Controls (input/button classes per theme)
-  const inputCls = `w-full rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-300/60 ${tok.input}`;
-  const btnPrimary = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-500 px-3.5 py-2`;
-  const btnSoft = `inline-flex items-center justify-center gap-2 rounded-xl text-sm font-medium ${tok.cardBg} border ${tok.cardBorder} ${tok.textSecondary} px-3.5 py-2`;
-  const btnGhost = `inline-flex items-center justify-center gap-2 rounded-xl text-sm ${tok.textSecondary} hover:${isDark?"bg-white/10":"bg-gray-100"} px-3 py-2`;
-
   return (
-    <div className={`min-h-[calc(100vh-64px)] ${tok.bg}`}>
+    <div className={`min-h-[calc(100vh-64px)] ${cls.page}`}>
       <div className="mx-auto max-w-[1400px] px-5 py-6">
         <div className="grid grid-cols-12 gap-6">
           {/* Sidebar */}
           <aside className="col-span-3 xl:col-span-2">
-            <Card tok={tok} className="p-4 sticky top-6">
+            <div className={cls.card + " sticky top-6"}>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <div className={`h-9 w-9 rounded-xl grid place-items-center font-semibold ${tok.pillActive}`}>CD</div>
-                  <div className={`font-semibold ${tok.textPrimary}`}>CasaDividendes</div>
+                  <div className={`h-9 w-9 rounded-xl grid place-items-center font-semibold ${cls.pillActive}`}>CD</div>
+                  <div className={`font-semibold ${cls.textPrimary}`}>CasaDividendes</div>
                 </div>
                 <button
-                  className={`${btnGhost}`}
+                  className={cls.btnGhost}
                   onClick={()=> setTheme(isDark? "light":"dark")}
                   title={isDark? "Passer en clair":"Passer en sombre"}
                 >
@@ -472,8 +507,8 @@ export default function Dashboard() {
               </div>
 
               <div className="relative mb-4">
-                <Search className={`w-4 h-4 ${tok.textMuted} absolute left-3 top-1/2 -translate-y-1/2`} />
-                <input className={inputCls} placeholder="Search" style={{ paddingLeft: 36 }} />
+                <Search className={`w-4 h-4 ${cls.textMuted} absolute left-3 top-1/2 -translate-y-1/2`} />
+                <input className={cls.input} placeholder="Search" style={{ paddingLeft: 36 }} />
               </div>
 
               <nav className="space-y-1">
@@ -484,8 +519,7 @@ export default function Dashboard() {
                   { label: "Invoices", icon: Upload },
                 ].map((m)=>(
                   <a key={m.label} href="#"
-                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition 
-                      ${m.active ? `${tok.pillActive} shadow-[0_8px_24px_rgba(2,6,23,0.2)]` : `${tok.pill}`}`}>
+                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${m.active ? cls.pillActive : cls.btnGhost} !justify-start`}>
                     <m.icon className="w-4 h-4"/>
                     <span className="text-sm">{m.label}</span>
                   </a>
@@ -493,10 +527,10 @@ export default function Dashboard() {
               </nav>
 
               <div className="mt-5">
-                <div className={`text-xs font-semibold ${tok.textMuted} mb-2`}>FEATURES</div>
+                <div className={`text-xs font-semibold ${cls.textMuted} mb-2`}>FEATURES</div>
                 <div className="space-y-1">
                   {[{label:"Recurring",icon:PieIcon},{label:"Subscriptions",icon:Wallet},{label:"Feedback",icon:Info}].map(m=>(
-                    <a key={m.label} href="#" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${tok.pill}`}>
+                    <a key={m.label} href="#" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${cls.btnGhost}`}>
                       <m.icon className="w-4 h-4"/><span className="text-sm">{m.label}</span>
                     </a>
                   ))}
@@ -504,125 +538,123 @@ export default function Dashboard() {
               </div>
 
               <div className="mt-5">
-                <div className={`text-xs font-semibold ${tok.textMuted} mb-2`}>GENERAL</div>
+                <div className={`text-xs font-semibold ${cls.textMuted} mb-2`}>GENERAL</div>
                 <div className="space-y-1">
                   {[{label:"Settings",icon:Settings},{label:"Help Desk",icon:LifeBuoy},{label:"Log out",icon:LogOut}].map(m=>(
-                    <a key={m.label} href="#" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${tok.pill}`}>
+                    <a key={m.label} href="#" className={`flex items-center gap-3 px-3 py-2.5 rounded-xl ${cls.btnGhost}`}>
                       <m.icon className="w-4 h-4"/><span className="text-sm">{m.label}</span>
                     </a>
                   ))}
                 </div>
               </div>
 
-              <div className={`mt-6 rounded-xl border ${tok.cardBorder} p-4 ${isDark ? "bg-ink-800":"bg-emerald-50"}`}>
-                <div className={`text-sm font-medium ${tok.textPrimary}`}>Upgrade Pro! 🔔</div>
-                <p className={`text-xs ${tok.textMuted} mt-1`}>Higher productivity with better organization</p>
-                <button className={`${btnPrimary} mt-3 w-full py-2`}>Upgrade</button>
+              <div className={`mt-6 rounded-xl border ${TOKENS.light.border} p-4 ${isDark ? "bg-ink-800":"bg-emerald-50"} transition-colors duration-300`}>
+                <div className={`text-sm font-medium ${cls.textPrimary}`}>Upgrade Pro! 🔔</div>
+                <p className={`text-xs ${cls.textMuted} mt-1`}>Higher productivity with better organization</p>
+                <button className={`${cls.btnPrimary} mt-3 w-full py-2`}>Upgrade</button>
               </div>
-            </Card>
+            </div>
           </aside>
 
           {/* Main */}
           <main className="col-span-9 xl:col-span-10 space-y-6">
             {/* KPIs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <Card tok={tok}>
+              <Card cls={cls}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className={`text-sm ${tok.textMuted}`}>Portfolio value</div>
-                    <div className={`text-2xl font-semibold mt-1 ${tok.textPrimary}`}>{fmtMAD(portValue)}</div>
-                    <div className={`text-xs mt-1 flex items-center gap-1 ${tok.textMuted}`}>
-                      <Info className="w-3.5 h-3.5" /> Actions + OPCVM (PRU) + Cash MAD
-                    </div>
+                    <div className={`text-sm ${cls.textMuted}`}>Valeur du portefeuille</div>
+                    <div className={`text-2xl font-semibold mt-1 ${cls.textPrimary}`}>{fmtMAD(portValue)}</div>
+                    <div className={`mt-1 ${cls.kpiBadge}`}><span>Actions + OPCVM (PRU) + Cash MAD</span></div>
                   </div>
-                  <IconWrap><PiggyBank className="w-5 h-5"/></IconWrap>
+                  <IconWrap><PiggyBank className={`w-5 h-5 ${cls.iconAccent}`}/></IconWrap>
                 </div>
               </Card>
 
-              <Card tok={tok}>
+              <Card cls={cls}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className={`text-sm ${tok.textMuted}`}>P/L total</div>
-                    <div className={`text-2xl font-semibold mt-1 ${tok.textPrimary}`}>
-                      {fmtMAD(plAbs)} <span className={`text-sm ${tok.textMuted}`}>({fmtPct(plRel)})</span>
+                    <div className={`text-sm ${cls.textMuted}`}>P/L total</div>
+                    <div className={`text-2xl font-semibold mt-1 ${cls.textPrimary}`}>
+                      {fmtMAD(plAbs)} <span className={`text-sm ${cls.textMuted}`}>({fmtPct(plRel)})</span>
                     </div>
-                    <div className={`text-xs mt-1 ${tok.textMuted}`}>vs. capital investi</div>
+                    <div className={`text-xs mt-1 ${cls.textMuted}`}>vs. capital investi</div>
                   </div>
-                  <IconWrap><TrendingUp className="w-5 h-5"/></IconWrap>
+                  <IconWrap><TrendingUp className={`w-5 h-5 ${cls.iconAccent}`}/></IconWrap>
                 </div>
               </Card>
 
-              <Card tok={tok}>
+              <Card cls={cls}>
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className={`text-sm ${tok.textMuted}`}>Dividendes YTD</div>
-                    <div className={`text-2xl font-semibold mt-1 ${tok.textPrimary}`}>{fmtMAD(ytdDividends)}</div>
-                    <div className={`text-xs mt-1 ${tok.textMuted}`}>Année {nowYear}</div>
+                    <div className={`text-sm ${cls.textMuted}`}>Dividendes YTD</div>
+                    <div className={`text-2xl font-semibold mt-1 ${cls.textPrimary}`}>{fmtMAD(ytdDividends)}</div>
+                    <div className={`text-xs mt-1 ${cls.textMuted}`}>Année {nowYear}</div>
                   </div>
-                  <IconWrap><Banknote className="w-5 h-5"/></IconWrap>
+                  <IconWrap><Banknote className={`w-5 h-5 ${cls.iconAccent}`}/></IconWrap>
                 </div>
               </Card>
             </div>
 
             {/* Wallet + Cashflow */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-              <Card tok={tok} className="xl:col-span-1">
+              <Card cls={cls} className="xl:col-span-1">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <div className={`text-sm font-medium ${tok.textPrimary}`}>My Wallet</div>
-                    <div className={`text-xs ${tok.textMuted}`}>Cash (MAD only)</div>
+                    <div className={`text-sm font-medium ${cls.textPrimary}`}>My Wallet</div>
+                    <div className={`text-xs ${cls.textMuted}`}>Cash (MAD only)</div>
                   </div>
                   <div className="flex gap-2">
-                    <button className={btnSoft} onClick={()=>setShowWallet(true)}><Plus className="w-4 h-4"/> Add</button>
-                    <button className={btnSoft} onClick={()=>setShowTransfer(true)} disabled={accounts.length<2}>
-                      <ArrowLeftRight className="w-4 h-4"/> Transfer
+                    <button className={cls.btnSoft} onClick={()=>setShowWallet(true)}><Plus className="w-4 h-4"/> Ajouter</button>
+                    <button className={cls.btnSoft} onClick={()=>setShowTransfer(true)} disabled={accounts.length<2}>
+                      <ArrowLeftRight className="w-4 h-4"/> Virement
                     </button>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   {accounts.map(a=>(
-                    <div key={a.id} className={`rounded-xl border ${tok.cardBorder} ${tok.cardBg} p-3 flex items-start justify-between`}>
+                    <div key={a.id} className={`rounded-xl border ${TOKENS.light.border} ${TOKENS.light.cardBg} p-3 flex items-start justify-between transition-colors duration-300`}>
                       <div>
-                        <div className={`text-xs ${tok.textMuted}`}>{a.name}</div>
-                        <div className={`text-lg font-semibold mt-0.5 ${tok.textPrimary}`}>{fmtNum(a.balance)} {a.currency}</div>
+                        <div className={`text-xs ${cls.textMuted}`}>{a.name}</div>
+                        <div className={`text-lg font-semibold mt-0.5 ${cls.textPrimary}`}>{fmtNum(a.balance)} {a.currency}</div>
                       </div>
                       <div className="flex gap-1">
-                        <button className={`rounded-lg p-2 ${isDark?"hover:bg-white/10":"hover:bg-gray-100"}`} onClick={()=>{setEditWallet(a); setShowWallet(true);}}>
-                          <Edit2 className={`w-4 h-4 ${tok.textSecondary}`}/>
+                        <button className={`rounded-lg p-2 ${TOKENS.light.pageBg ? "hover:bg-[#EEF2F7]" : ""}`} onClick={()=>{setEditWallet(a); setShowWallet(true);}}>
+                          <Edit2 className={`w-4 h-4 ${cls.textSecondary}`}/>
                         </button>
-                        <button className={`rounded-lg p-2 ${isDark?"hover:bg-white/10":"hover:bg-gray-100"}`} onClick={()=>store.removeAccount(a.id)}>
-                          <Trash2 className={`w-4 h-4 ${tok.textSecondary}`}/>
+                        <button className={`rounded-lg p-2 ${TOKENS.light.pageBg ? "hover:bg-[#EEF2F7]" : ""}`} onClick={()=>store.removeAccount(a.id)}>
+                          <Trash2 className={`w-4 h-4 ${cls.textSecondary}`}/>
                         </button>
                       </div>
                     </div>
                   ))}
-                  {!accounts.length && <EmptyHint text="Create your first cash account." tok={tok}/>}
-                  <div className={`text-xs mt-1 ${tok.textMuted}`}>{hasForeign ? "MAD aggregated — other currencies excluded (—)" : "All accounts included"}</div>
+                  {!accounts.length && <EmptyHint text="Create your first cash account." cls={cls}/>}
+                  <div className={`text-xs mt-1 ${cls.textMuted}`}>{hasForeign ? "MAD aggregated — other currencies excluded (—)" : "All accounts included"}</div>
                 </div>
               </Card>
 
-              <Card tok={tok} className="xl:col-span-2">
+              <Card cls={cls} className="xl:col-span-2">
                 <div className="flex items-center justify-between mb-3">
-                  <div className={`text-sm font-medium ${tok.textPrimary}`}>Cash Flow</div>
-                  <div className={`text-xs ${tok.textMuted}`}>Monthly • {nowYear}</div>
+                  <div className={`text-sm font-medium ${cls.textPrimary}`}>Cash Flow</div>
+                  <div className={`text-xs ${cls.textMuted}`}>Mensuel • {nowYear}</div>
                 </div>
                 <div className="h-[280px]">
                   <ResponsiveContainer>
                     <BarChart data={cashflow}>
-                      <CartesianGrid stroke={isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)"} vertical={false}/>
-                      <XAxis dataKey="m" stroke={isDark?"#9CA3AF":"#6B7280"}/>
-                      <YAxis stroke={isDark?"#9CA3AF":"#6B7280"}/>
+                      <CartesianGrid stroke={TOKENS.dark.gridStroke} vertical={false}/>
+                      <XAxis dataKey="m" stroke={isDark?"#D1D5DB":"#374151"}/>
+                      <YAxis stroke={isDark?"#D1D5DB":"#374151"}/>
                       <Legend/>
                       <RTooltip contentStyle={{
-                        background: isDark?"#0F1115":"white",
-                        color: isDark?"#F3F4F6":"#111827",
-                        border: `1px solid ${isDark?"rgba(255,255,255,0.12)":"rgba(0,0,0,0.08)"}`,
+                        background: TOKENS.light.tooltipBg,
+                        color: TOKENS.light.tooltipFg,
+                        border: `1px solid ${TOKENS.light.tooltipBorder}`,
                         borderRadius: 12
                       }}
                         formatter={(v,n)=>[fmtMAD(v), n==="inflow"?"Entrées":"Sorties"]}
                       />
-                      <Bar dataKey="inflow" name="Entrées" fill={tok.accent} radius={[6,6,0,0]}/>
-                      <Bar dataKey="outflow" name="Sorties" fill={tok.warm} radius={[6,6,0,0]}/>
+                      <Bar dataKey="inflow" name="Entrées" fill="#14b8a6" radius={[6,6,0,0]}/>
+                      <Bar dataKey="outflow" name="Sorties" fill="#f59e0b" radius={[6,6,0,0]}/>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -630,20 +662,20 @@ export default function Dashboard() {
             </div>
 
             {/* Positions */}
-            <Card tok={tok}>
+            <Card cls={cls}>
               <div className="flex items-center justify-between mb-3">
-                <div className={`text-sm font-medium ${tok.textPrimary}`}>My Positions</div>
-                <button className={btnPrimary} onClick={()=>setShowHolding(true)}><Plus className="w-4 h-4"/> Add position</button>
+                <div className={`text-sm font-medium ${cls.textPrimary}`}>Mes positions</div>
+                <button className={cls.btnPrimary} onClick={()=>setShowHolding(true)}><Plus className="w-4 h-4"/> Ajouter une ligne</button>
               </div>
               <div className="overflow-x-auto -mx-4 px-4">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className={`${tok.textMuted} border-b ${tok.cardBorder}`}>
+                    <tr className={`${cls.textMuted} border ${TOKENS.light.border}`}>
                       <th className="py-2 text-left">Ticker</th>
-                      <th className="py-2 text-left">Account</th>
-                      <th className="py-2 text-right">Qty</th>
-                      <th className="py-2 text-right">Avg Price</th>
-                      <th className="py-2 text-right">Value</th>
+                      <th className="py-2 text-left">Compte</th>
+                      <th className="py-2 text-right">Qté</th>
+                      <th className="py-2 text-right">PRU</th>
+                      <th className="py-2 text-right">Valeur</th>
                       <th className="py-2 text-right">P/L</th>
                       <th className="py-2"></th>
                     </tr>
@@ -653,21 +685,21 @@ export default function Dashboard() {
                       const acc = accounts.find(a=>a.id===h.accountId);
                       const q=currentQty(h), pru=avgCost(h), val=valueEst(h), inv=investedNet(h), pl=val-inv;
                       return (
-                        <tr key={h.id} className={`border-b ${tok.cardBorder}`}>
-                          <td className={`py-2 font-semibold ${tok.textPrimary}`}>{h.ticker}</td>
-                          <td className={`py-2 ${tok.textSecondary}`}>{acc?`${acc.name} (${acc.currency})`:"—"}</td>
-                          <td className={`py-2 text-right ${tok.textSecondary}`}>{fmtNum(q)}</td>
-                          <td className={`py-2 text-right ${tok.textSecondary}`}>{fmtMAD(pru)}</td>
-                          <td className={`py-2 text-right ${tok.textSecondary}`}>{fmtMAD(val)}</td>
-                          <td className={`py-2 text-right ${tok.textSecondary}`}>
-                            {fmtMAD(pl)} <span className={`text-xs ${tok.textMuted}`}>({fmtPct(inv>0?pl/inv:0)})</span>
+                        <tr key={h.id} className={`border-b ${TOKENS.light.border}`}>
+                          <td className={`py-2 font-semibold ${cls.textPrimary}`}>{h.ticker}</td>
+                          <td className={`py-2 ${cls.textSecondary}`}>{acc?`${acc.name} (${acc.currency})`:"—"}</td>
+                          <td className={`py-2 text-right ${cls.textSecondary}`}>{fmtNum(q)}</td>
+                          <td className={`py-2 text-right ${cls.textSecondary}`}>{fmtMAD(pru)}</td>
+                          <td className={`py-2 text-right ${cls.textSecondary}`}>{fmtMAD(val)}</td>
+                          <td className={`py-2 text-right ${cls.textSecondary}`}>
+                            {fmtMAD(pl)} <span className={`text-xs ${cls.textMuted}`}>({fmtPct(inv>0?pl/inv:0)})</span>
                           </td>
                           <td className="py-2 text-right">
-                            <a href={`#/company/${h.ticker}`} className={`${btnGhost} text-xs`}>Open <ChevronRight className="w-3 h-3"/></a>
-                            <button className={`${btnGhost} text-xs`} onClick={()=>{setEditHolding(h); setShowHolding(true);}}>
+                            <a href={`#/company/${h.ticker}`} className={`${cls.btnGhost} text-xs`}>Ouvrir <ChevronRight className="w-3 h-3"/></a>
+                            <button className={`${cls.btnGhost} text-xs`} onClick={()=>{setEditHolding(h); setShowHolding(true);}}>
                               <Edit2 className="w-3 h-3"/>
                             </button>
-                            <button className={`${btnGhost} text-xs`} onClick={()=>store.removeHolding(h.id)}>
+                            <button className={`${cls.btnGhost} text-xs`} onClick={()=>store.removeHolding(h.id)}>
                               <Trash2 className="w-3 h-3"/>
                             </button>
                           </td>
@@ -676,24 +708,24 @@ export default function Dashboard() {
                     })}
                     {!holdings.length && (
                       <tr>
-                        <td colSpan={7} className={`py-6 ${tok.textSecondary}`}>No position yet. Add your first holding.</td>
+                        <td colSpan={7} className={`py-6 ${cls.textSecondary}`}>Aucune position. Ajoutez votre première ligne.</td>
                       </tr>
                     )}
                   </tbody>
                 </table>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-6">
-                <MiniStat icon={Building2} title="Invested" value={fmtMAD(invested)} tok={tok}/>
-                <MiniStat icon={Wallet} title="Cash (MAD)" value={fmtMAD(cashMAD)} tok={tok}/>
-                <MiniStat icon={Percent} title="Active lines" value={fmtNum(linesCount)} tok={tok}/>
+                <MiniStat icon={Building2} title="Investi" value={fmtMAD(invested)} cls={cls}/>
+                <MiniStat icon={Wallet} title="Cash (MAD)" value={fmtMAD(cashMAD)} cls={cls}/>
+                <MiniStat icon={Percent} title="Lignes actives" value={fmtNum(linesCount)} cls={cls}/>
               </div>
             </Card>
 
             {/* Split row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-              <Card tok={tok}>
+              <Card cls={cls}>
                 <div className="flex items-center justify-between mb-3">
-                  <div className={`text-sm font-medium ${tok.textPrimary}`}>Sector split</div>
+                  <div className={`text-sm font-medium ${cls.textPrimary}`}>Répartition sectorielle</div>
                 </div>
                 {sectorDonut.length ? (
                   <div className="h-[260px]">
@@ -704,9 +736,9 @@ export default function Dashboard() {
                         </Pie>
                         <RTooltip
                           contentStyle={{
-                            background: isDark?"#0F1115":"white",
-                            color: isDark?"#F3F4F6":"#111827",
-                            border: `1px solid ${isDark?"rgba(255,255,255,0.12)":"rgba(0,0,0,0.08)"}`,
+                            background: TOKENS.light.tooltipBg,
+                            color: TOKENS.light.tooltipFg,
+                            border: `1px solid ${TOKENS.light.tooltipBorder}`,
                             borderRadius: 12
                           }}
                           formatter={(v,n,p)=>[`${fmtMAD(v)} (${(p?.payload?.pct*100).toFixed(1)}%)`, p?.payload?.name || "Secteur"]}
@@ -714,83 +746,83 @@ export default function Dashboard() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                ) : <EmptyHint text="Add positions to see sector distribution." tok={tok}/>}
+                ) : <EmptyHint text="Ajoutez des positions pour voir la répartition." cls={cls}/>}
               </Card>
 
-              <Card tok={tok}>
-                <div className={`text-sm font-medium mb-3 ${tok.textPrimary}`}>Top allocation</div>
+              <Card cls={cls}>
+                <div className={`text-sm font-medium mb-3 ${cls.textPrimary}`}>Top allocations</div>
                 <div className="space-y-2">
                   {allocation.map(a=>(
-                    <div key={a.ticker} className={`rounded-xl border ${tok.cardBorder} p-3`}>
+                    <div key={a.ticker} className={`rounded-xl border ${TOKENS.light.border} p-3`}>
                       <div className="flex items-center justify-between">
-                        <div className={`font-medium ${tok.textPrimary}`}>{a.ticker}</div>
-                        <div className={`text-sm ${tok.textSecondary}`}>{fmtMAD(a.value)}</div>
+                        <div className={`font-medium ${cls.textPrimary}`}>{a.ticker}</div>
+                        <div className={`text-sm ${cls.textSecondary}`}>{fmtMAD(a.value)}</div>
                       </div>
                       <div className={`mt-2 h-2 rounded-full ${isDark?"bg-white/10":"bg-gray-100"} overflow-hidden`}>
-                        <div className="h-full rounded-full" style={{ width:`${Math.min(100,a.weight*100)}%`, background: tok.accent }}/>
+                        <div className="h-full rounded-full" style={{ width:`${Math.min(100,a.weight*100)}%`, background: "#14b8a6" }}/>
                       </div>
                     </div>
                   ))}
-                  {!allocation.length && <EmptyHint text="Your top weights will appear here." tok={tok}/>}
+                  {!allocation.length && <EmptyHint text="Vos plus gros poids apparaîtront ici." cls={cls}/>}
                 </div>
               </Card>
 
-              <Card tok={tok}>
+              <Card cls={cls}>
                 <div className="flex items-center justify-between mb-3">
-                  <div className={`text-sm font-medium ${tok.textPrimary}`}>Upcoming (60 days)</div>
-                  <a href="#/calendar" className={`${btnSoft} text-xs`}>View Calendar</a>
+                  <div className={`text-sm font-medium ${cls.textPrimary}`}>À venir (60 jours)</div>
+                  <a href="#/calendar" className={`${cls.btnSoft} text-xs`}>Voir Calendrier</a>
                 </div>
                 <div className="space-y-2">
                   {upcoming.map((d,i)=>(
                     <a key={`${d.ticker}-${i}`} href={`#/company/${d.ticker}`}
-                       className={`rounded-xl border ${tok.cardBorder} p-3 flex items-center justify-between ${isDark?"hover:bg-white/5":"hover:bg-gray-50"}`}>
+                       className={`rounded-xl border ${TOKENS.light.border} p-3 flex items-center justify-between ${cls.hoverSoft}`}>
                       <div className="flex items-center gap-3">
-                        <div className={`text-xs ${tok.textMuted}`}>{fmtDate(d.exDate||d.paymentDate)}</div>
-                        <div className={`font-medium ${tok.textPrimary}`}>{d.ticker}</div>
+                        <div className={`text-xs ${cls.textMuted}`}>{fmtDate(d.exDate||d.paymentDate)}</div>
+                        <div className={`font-medium ${cls.textPrimary}`}>{d.ticker}</div>
                       </div>
-                      <div className={`text-sm ${tok.textSecondary}`}>{typeof d.amount==="number" ? `${d.amount.toFixed(2)} / sh` : "—"}</div>
+                      <div className={`text-sm ${cls.textSecondary}`}>{typeof d.amount==="number" ? `${d.amount.toFixed(2)} / sh` : "—"}</div>
                     </a>
                   ))}
-                  {!upcoming.length && <EmptyHint text="No ex-dates in the next 60 days." tok={tok}/>}
+                  {!upcoming.length && <EmptyHint text="Aucune ex-date dans les 60 prochains jours." cls={cls}/>}
                 </div>
               </Card>
             </div>
 
             {/* Activities */}
-            <Card tok={tok}>
+            <Card cls={cls}>
               <div className="flex items-center justify-between mb-3">
-                <div className={`text-sm font-medium ${tok.textPrimary}`}>Recent activities</div>
+                <div className={`text-sm font-medium ${cls.textPrimary}`}>Activités récentes</div>
                 <div className="flex items-center gap-2">
-                  <button className={btnSoft}><Search className="w-4 h-4"/> Search</button>
-                  <button className={btnSoft}><PieIcon className="w-4 h-4"/> Filter</button>
+                  <button className={cls.btnSoft}><Search className="w-4 h-4"/> Rechercher</button>
+                  <button className={cls.btnSoft}><PieIcon className="w-4 h-4"/> Filtrer</button>
                 </div>
               </div>
               <div className="overflow-x-auto -mx-4 px-4">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className={`${tok.textMuted} border-b ${tok.cardBorder}`}>
+                    <tr className={`${cls.textMuted} border ${TOKENS.light.border}`}>
                       <th className="py-2 text-left">Type</th>
                       <th className="py-2 text-left">Date</th>
-                      <th className="py-2 text-left">Account</th>
+                      <th className="py-2 text-left">Compte</th>
                       <th className="py-2 text-left">Ticker</th>
-                      <th className="py-2 text-right">Amount</th>
+                      <th className="py-2 text-right">Montant</th>
                     </tr>
                   </thead>
                   <tbody>
                     {activities.slice(0,10).map(a=>{
                       const acc = accounts.find(x=>x.id===a.accountId);
                       return (
-                        <tr key={a.id} className={`border-b ${tok.cardBorder}`}>
-                          <td className={`py-2 ${tok.textSecondary}`}>{a.type}</td>
-                          <td className={`py-2 ${tok.textSecondary}`}>{fmtDate(a.date)}</td>
-                          <td className={`py-2 ${tok.textSecondary}`}>{acc?`${acc.name} (${acc.currency})`:"—"}</td>
-                          <td className={`py-2 ${tok.textSecondary}`}>{a.ticker || "—"}</td>
-                          <td className={`py-2 text-right ${tok.textSecondary}`}>{fmtMAD(a.amount)}</td>
+                        <tr key={a.id} className={`border-b ${TOKENS.light.border}`}>
+                          <td className={`py-2 ${cls.textSecondary}`}>{a.type}</td>
+                          <td className={`py-2 ${cls.textSecondary}`}>{fmtDate(a.date)}</td>
+                          <td className={`py-2 ${cls.textSecondary}`}>{acc?`${acc.name} (${acc.currency})`:"—"}</td>
+                          <td className={`py-2 ${cls.textSecondary}`}>{a.ticker || "—"}</td>
+                          <td className={`py-2 text-right ${cls.textSecondary}`}>{fmtMAD(a.amount)}</td>
                         </tr>
                       );
                     })}
                     {!activities.length && (
-                      <tr><td colSpan={5} className={`py-6 ${tok.textSecondary}`}>No activity yet.</td></tr>
+                      <tr><td colSpan={5} className={`py-6 ${cls.textSecondary}`}>Aucune activité pour l’instant.</td></tr>
                     )}
                   </tbody>
                 </table>
@@ -806,7 +838,7 @@ export default function Dashboard() {
           init={editWallet||undefined}
           onClose={()=>{setShowWallet(false); setEditWallet(null);}}
           onSubmit={(acc)=>{ if(editWallet) store.updateAccount(acc.id,acc); else store.addAccount(acc); setShowWallet(false); setEditWallet(null); }}
-          tok={tok}
+          cls={cls}
         />
       )}
       {showTransfer && accounts.length>=2 && (
@@ -814,7 +846,7 @@ export default function Dashboard() {
           accounts={accounts}
           onClose={()=>setShowTransfer(false)}
           onSubmit={(from,to,amt)=>{store.transfer(from,to,amt); setShowTransfer(false);}}
-          tok={tok}
+          cls={cls}
         />
       )}
       {showHolding && (
@@ -824,24 +856,24 @@ export default function Dashboard() {
           init={editHolding||undefined}
           onClose={()=>{setShowHolding(false); setEditHolding(null);}}
           onSubmit={(h)=>{ if(editHolding) store.updateHolding(h.id,h); else store.addHolding(h); setShowHolding(false); setEditHolding(null); }}
-          tok={tok}
+          cls={cls}
         />
       )}
     </div>
   );
 }
 
-/* -------------------------------------------------------------
-   Mini Stat
-------------------------------------------------------------- */
-function MiniStat({ icon: Icon, title, value, tok }) {
+/* ===========================================================
+   9) Mini Stat
+   =========================================================== */
+function MiniStat({ icon: Icon, title, value, cls }) {
   return (
-    <div className={`rounded-xl border ${tok.cardBorder} ${tok.surface} p-3 flex items-center justify-between`}>
+    <div className={`rounded-xl ${TOKENS.light.surface} border ${TOKENS.light.border} p-3 flex items-center justify-between transition-colors duration-300`}>
       <div>
-        <div className={`text-xs ${tok.textMuted}`}>{title}</div>
-        <div className={`text-lg font-semibold mt-0.5 ${tok.textPrimary}`}>{value}</div>
+        <div className={`text-xs ${cls.textMuted}`}>{title}</div>
+        <div className={`text-lg font-semibold mt-0.5 ${cls.textPrimary}`}>{value}</div>
       </div>
-      <div className={`h-9 w-9 rounded-xl grid place-items-center ${tok.pillActive}`}>
+      <div className={`h-9 w-9 rounded-xl grid place-items-center ${cls.pillActive}`}>
         <Icon className="w-4 h-4"/>
       </div>
     </div>
